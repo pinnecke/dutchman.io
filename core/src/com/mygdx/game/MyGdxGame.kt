@@ -9,9 +9,7 @@ import com.mygdx.game.game.screens.SplashScreen
 
 class MyGdxGame : ApplicationAdapter() {
 
-    private var screenManager = ScreenManager(
-        { LoadingScreen() }
-    )
+    private var screenManager = ScreenManager()
 
     override fun create() {
         screenManager.register(

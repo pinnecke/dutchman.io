@@ -1,31 +1,57 @@
 package com.mygdx.game.game.screens
 
-import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.Screen
 import com.mygdx.game.engine.StepAction
+import com.mygdx.game.engine.sprites.FrameAnimation
+import com.mygdx.game.engine.sprites.Position
+import com.mygdx.game.engine.sprites.centered
+import com.mygdx.game.engine.stdx.once
+import com.mygdx.game.engine.stdx.runDelayed
+import com.mygdx.game.engine.stdx.seconds
+import com.mygdx.game.engine.stdx.value
 
-class SplashScreen: Screen() {
+class SplashScreen: Screen(
+    backgroundColor = Color.WHITE
+) {
 
-    private var img: Texture? = null
-    private var elapsed: Float = 0f
-    private var duration: Float = 3f
+    private var nemonicLogo = FrameAnimation(
+        name = "nemonic-logo",
+        scale = 0.5f,
+        iterations = once(),
+        sheets = super.sheets
+    )
+
+    private var startLogoAnimation = runDelayed(
+        delay = 1.seconds()) {
+        nemonicLogo.start()
+    }
+
+    private var exitScreen = runDelayed(
+        delay = 5.seconds()) {
+        switch(GameMenuScreen::class)
+    }
 
     override fun update(dt: Float) {
-        elapsed += dt
-        if (elapsed >= duration) {
-            elapsed = 0f
-            switch(GameMenuScreen::class)
-        }
+        startLogoAnimation.update(dt)
+        exitScreen.update(dt)
+        nemonicLogo.update(dt)
     }
 
     override fun loadContents() = object: StepAction {
         override var hasFinished: Boolean = false
 
         override fun start() {
-            img = Texture("badlogic.jpg")
+            with(nemonicLogo) {
+                load()
+                position = centered(
+                    screen = thisScreen(),
+                    surface = { surface },
+                    offset = value(Position({ surface.width / 4f }, { surface.height / 2f + 50f }))
+                )
+            }
 
-            elapsed = 0f
             hasFinished = true
         }
 
@@ -33,13 +59,15 @@ class SplashScreen: Screen() {
 
         }
 
+
     }
+
 
     override fun unloadContents() = object: StepAction {
         override var hasFinished = false
 
         override fun start() {
-            img!!.dispose()
+            nemonicLogo.unload()
             hasFinished = true
         }
 
@@ -50,7 +78,7 @@ class SplashScreen: Screen() {
     }
 
     override fun renderWorld(batch: SpriteBatch) {
-        batch!!.draw(img, super.width / 2f - 5f, super.height / 2f - 5f)
+        nemonicLogo.render(batch)
     }
 
     override fun renderHud(batch: SpriteBatch) {

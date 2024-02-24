@@ -5,16 +5,15 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
+import com.mygdx.game.engine.sprites.SpriteSheetManager
 import com.mygdx.game.engine.utils.InputProcessorHudFirst
 import com.mygdx.game.engine.utils.InputProcessorTee
 import com.mygdx.game.engine.utils.InputProcessorTranslator
-import com.mygdx.game.game.screens.LoadingScreen
 import kotlin.reflect.KClass
 
 object EmptyScreen: Screen() {
@@ -26,10 +25,11 @@ object EmptyScreen: Screen() {
 }
 
 class ScreenManager(
-    fetchLoadingScreen: () -> LoadingScreen,
     private val width: Float = Config.WINDOW_WIDTH.toFloat(),
     private val height: Float = Config.WINDOW_HEIGHT.toFloat()
 ) {
+    val spriteSheetManager: SpriteSheetManager = SpriteSheetManager()
+
     private val worldUnprojectBuffer = Vector3.Zero
     private val worldUnprojectResult = Vector2.Zero
 
@@ -46,7 +46,6 @@ class ScreenManager(
     private val hudInputProcessorTee = InputProcessorTee()
 
     private val swapper = SceneSwapper(
-        fetchLoadingScreen,
         { screen -> screen.unload() },
         { screen -> screen.load() },
         { screen -> currentScreen = screen }
@@ -83,6 +82,8 @@ class ScreenManager(
 
         camera!!.translate(25f, 75f ,0f)
         camera!!.update()
+
+        spriteSheetManager.init()
 
         batch = SpriteBatch()
 
@@ -126,27 +127,32 @@ class ScreenManager(
     }
 
     fun render() {
-        Gdx.gl.glClearColor(0.0f, 0.0f, 0.5f, 0.0f)
+        val clearColor = currentScreen!!.backgroundColor
+        Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         renderScreen()
         renderOverlay()
     }
 
-    private fun renderScreen() {
+    private fun renderScreen() = with(batch!!) {
         fitViewport!!.apply()
         val projectionMatrix = fitViewport!!.camera.combined
-        batch!!.projectionMatrix = projectionMatrix
+        this.projectionMatrix = projectionMatrix
 
-        batch!!.begin()
-        currentScreen!!.renderWorldComplete(batch!!)
-        currentScreen!!.renderHudComplete(batch!!)
-        batch!!.end()
+        begin()
+        currentScreen!!.renderWorldComplete(this)
+        end()
+        begin()
+        currentScreen!!.renderHudComplete(this)
+        end()
+        begin()
+        currentScreen!!.renderOverlay(this)
+        end()
     }
 
     private fun renderOverlay() {
-
-        //swapper.render(projectionMatrix, fitViewport!!.screenWidth.toFloat(), fitViewport!!.screenHeight.toFloat())
+        swapper.render()
     }
 
     private fun clearInputProcessors() {

@@ -7,8 +7,6 @@ import com.mygdx.game.engine.StepAction
 
 class LoadingScreen: Screen() {
 
-    private var img: Texture? = null
-
     override fun update(dt: Float) {
 
     }
@@ -17,7 +15,6 @@ class LoadingScreen: Screen() {
         override var hasFinished = false
 
         override fun start() {
-            img = Texture("loading.png")
             hasFinished = true
         }
 
@@ -31,7 +28,6 @@ class LoadingScreen: Screen() {
         override var hasFinished = false
 
         override fun start() {
-            img!!.dispose()
         }
 
         override fun step() {
@@ -41,7 +37,6 @@ class LoadingScreen: Screen() {
     }
 
     override fun renderWorld(batch: SpriteBatch) {
-        batch!!.draw(img, super.width / 2f - 5f, super.height / 2f + 15f, 100f, 100f)
     }
 
     override fun renderHud(batch: SpriteBatch) {

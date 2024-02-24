@@ -1,0 +1,4 @@
+root: "nemonic"
+sprites:
+  - name: "nemonic-logo"
+    frames: 73

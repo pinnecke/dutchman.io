@@ -1,0 +1,4 @@
+root: "batman"
+sprites:
+  - name: "batman"
+    frames: 1

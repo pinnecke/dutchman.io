@@ -1,14 +1,19 @@
 package com.mygdx.game.game.screens
 
+import com.badlogic.gdx.Game
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Polygon
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.hotspots.HudButton
+import com.mygdx.game.engine.sprites.FrameAnimation
+import com.mygdx.game.engine.stdx.once
+import com.mygdx.game.engine.stdx.runDelayed
+import com.mygdx.game.engine.stdx.runTriggered
+import com.mygdx.game.engine.stdx.seconds
 
 class GameMenuScreen: Screen() {
 
-    private var img: Texture? = null
     private var hotspot = HudButton(
         160f,
         75f,
@@ -22,24 +27,49 @@ class GameMenuScreen: Screen() {
         EventFilter.builder()
             .touchDown { _, _ ->
                 println("Clicked")
-                switch(SplashScreen::class)
+                switch(GameMenuScreen::class)
             }
                 .any()
                 .build()
             .build()
     )
 
+    private var batman = FrameAnimation(
+        name = "batman",
+        sheets = super.sheets
+    )
+
+    private var enterCinematic = runDelayed(
+        delay = 2.seconds()) {
+        enterCinematicMode {
+            println("Cinematic Mode entered!")
+            exitCinematic.start()
+        }
+    }
+
+    private var exitCinematic = runTriggered(
+        delay = 5.seconds()) {
+        exitCinematicMode {
+            println("Cinematic Mode exited!")
+        }
+    }
+
     override fun update(dt: Float) {
         hotspot.update(dt)
+        enterCinematic.update(dt)
+        exitCinematic.update(dt)
+        batman.update(dt)
     }
 
     override fun loadContents() = object: StepAction {
         override var hasFinished: Boolean = false
 
         override fun start() {
-            img = Texture("world.png")
             hotspot.loadContent()
             hasFinished = true
+            batman.load()
+            enterCinematic.reset()
+            exitCinematic.reset()
         }
 
         override fun step() {
@@ -52,9 +82,8 @@ class GameMenuScreen: Screen() {
         override var hasFinished: Boolean = false
 
         override fun start() {
-            img!!.dispose()
-
             hotspot.unloadContent()
+            batman.unload()
             hasFinished = true
         }
 
@@ -64,12 +93,11 @@ class GameMenuScreen: Screen() {
     }
 
     override fun renderWorld(batch: SpriteBatch) {
-        batch.draw(img, 0f, 0f)
+        batman.render(batch)
         hotspot.render(LayerType.WORLD, batch)
     }
 
     override fun renderHud(batch: SpriteBatch) {
-        batch!!.draw(img, super.width - 45f, super.height - 45f)
         hotspot.render(LayerType.HUD, batch)
     }
 
