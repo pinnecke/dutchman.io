@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.Vector2
 import com.mygdx.game.engine.sprites.SpriteSheetManager
 import kotlin.reflect.KClass
 
@@ -18,8 +19,6 @@ abstract class Screen(
     val height: Int = Config.WINDOW_HEIGHT
 ) {
     private var screenManager: ScreenManager? = null
-    private var camera: Camera? = null
-    private var batch: SpriteBatch? = null
 
     private var loadingAction: StepAction? = null
     private var unloadingAction: StepAction? = null
@@ -39,6 +38,13 @@ abstract class Screen(
         get() = loadingAction != null && loadingAction!!.hasFinished
 
     protected abstract fun update(dt: Float)
+
+    protected fun screenToOverlay(x: Float, y: Float): Vector2 {
+        val desktop = screenManager!!.projectWorld(x, y)
+        val dx = desktop.x
+        val dy = desktop.y
+        return screenManager!!.unprojectHud(dx, dy)
+    }
 
     protected fun thisScreen(): Screen = this
 
@@ -90,9 +96,6 @@ abstract class Screen(
     protected abstract fun renderHud(batch: SpriteBatch)
 
     fun load() {
-        camera = OrthographicCamera(width.toFloat(), height.toFloat())
-        camera!!.position.set(camera!!.viewportWidth / 2f, camera!!.viewportHeight / 2f, 0f)
-        batch = SpriteBatch()
         cinematicBars.load()
         leavingScreen = false
         loadingAction = loadContents()
@@ -102,15 +105,14 @@ abstract class Screen(
     fun unload() {
         unloadingAction = unloadContents()
         unloadingAction!!.start()
-        batch!!.dispose()
     }
 
     fun renderWorldComplete(batch: SpriteBatch) {
-        renderWorld(batch!!)
+        renderWorld(batch)
     }
 
     fun renderHudComplete(batch: SpriteBatch) {
-        renderHud(batch!!)
+        renderHud(batch)
     }
 
     fun renderOverlay(batch: SpriteBatch) {

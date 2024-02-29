@@ -25,17 +25,22 @@ object EmptyScreen: Screen() {
 }
 
 class ScreenManager(
+    namespace: String,
     private val width: Float = Config.WINDOW_WIDTH.toFloat(),
     private val height: Float = Config.WINDOW_HEIGHT.toFloat()
 ) {
-    val spriteSheetManager: SpriteSheetManager = SpriteSheetManager()
+    val spriteSheetManager: SpriteSheetManager = SpriteSheetManager(namespace)
 
     private val worldUnprojectBuffer = Vector3.Zero
     private val worldUnprojectResult = Vector2.Zero
 
-    private var camera: OrthographicCamera? = null
-    private var fitViewport: Viewport? = null
+    private var worldCamera: OrthographicCamera? = null
+    private var worldViewport: Viewport? = null
 
+    private var hudCamera: OrthographicCamera? = null
+    private var hudViewport: Viewport? = null
+
+    private val hudUnprojectBuffer = Vector3.Zero
     private val hudUnprojectResult = Vector2.Zero
 
     private var batch: SpriteBatch? = null
@@ -64,24 +69,42 @@ class ScreenManager(
 
     fun unprojectWorld(x: Float, y: Float): Vector2 {
         worldUnprojectBuffer.set(x, y, 0f)
-        fitViewport!!.unproject(worldUnprojectBuffer)
+        worldViewport!!.unproject(worldUnprojectBuffer)
+        worldUnprojectResult.set(worldUnprojectBuffer.x, worldUnprojectBuffer.y)
+        return worldUnprojectResult
+    }
+
+    fun projectWorld(x: Float, y: Float): Vector2 {
+        worldUnprojectBuffer.set(x, y, 0f)
+        worldViewport!!.project(worldUnprojectBuffer)
         worldUnprojectResult.set(worldUnprojectBuffer.x, worldUnprojectBuffer.y)
         return worldUnprojectResult
     }
 
     fun unprojectHud(x: Float, y: Float): Vector2 {
-        hudUnprojectResult.set(x, y)
+        hudUnprojectBuffer.set(x, y, 0f)
+        hudViewport!!.unproject(hudUnprojectBuffer)
+        hudUnprojectResult.set(hudUnprojectBuffer.x, hudViewport!!.worldHeight - hudUnprojectBuffer.y)
         return hudUnprojectResult
     }
 
-    fun <T: Screen> startup(bootScreen: KClass<T>) {
+    fun startup(bootScreen: KClass<*>) {
 
-        camera = OrthographicCamera()
-        fitViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, camera)
-        fitViewport!!.update(width.toInt(), height.toInt(), true)
+        worldCamera = OrthographicCamera()
+        worldViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, worldCamera)
+        worldViewport!!.update(width.toInt(), height.toInt(), true)
 
-        camera!!.translate(25f, 75f ,0f)
-        camera!!.update()
+        worldCamera!!.translate(25f, 75f ,0f)
+        worldCamera!!.update()
+
+        hudCamera = OrthographicCamera()
+        hudViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, hudCamera)
+        hudViewport!!.update(width.toInt(), height.toInt(), true)
+
+        hudCamera!!.translate(25f, 75f ,0f)
+        hudCamera!!.update()
+
+
 
         spriteSheetManager.init()
 
@@ -101,17 +124,18 @@ class ScreenManager(
     }
 
     fun resize(windowWidth: Int, windowHeight: Int) {
-        fitViewport!!.update(windowWidth, windowHeight)
+        worldViewport!!.update(windowWidth, windowHeight)
+        hudViewport!!.update(windowWidth, windowHeight)
     }
 
-    fun register(vararg gameScreens: Screen) {
+    fun register(gameScreens: Array<Screen>) {
         gameScreens.forEach {
             it.wireScreenManager(this)
             screens[it::class] = it
         }
     }
 
-    fun <T: Screen> switch(screen: KClass<T>) {
+    fun switch(screen: KClass<*>) {
         Gdx.input.inputProcessor = inputProcessor
         clearInputProcessors()
         swapper.swap(
@@ -136,16 +160,22 @@ class ScreenManager(
     }
 
     private fun renderScreen() = with(batch!!) {
-        fitViewport!!.apply()
-        val projectionMatrix = fitViewport!!.camera.combined
-        this.projectionMatrix = projectionMatrix
+        worldViewport!!.apply()
+        val worldProjectionMatrix = worldViewport!!.camera.combined
+        this.projectionMatrix = worldProjectionMatrix
 
         begin()
         currentScreen!!.renderWorldComplete(this)
         end()
+
+        hudViewport!!.apply()
+        val hudProjectionMatrix = hudViewport!!.camera.combined
+        this.projectionMatrix = hudProjectionMatrix
+
         begin()
         currentScreen!!.renderHudComplete(this)
         end()
+
         begin()
         currentScreen!!.renderOverlay(this)
         end()
@@ -161,7 +191,7 @@ class ScreenManager(
 
 
     private fun handleInput() { // TODO: Remove
-        fitViewport!!.apply()
+        worldViewport!!.apply()
 
         if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
             Gdx.graphics.setWindowedMode(1920/2, 1080/2)
@@ -171,32 +201,32 @@ class ScreenManager(
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            camera!!.zoom += 0.005f
-            println("${camera!!.zoom}")
+            worldCamera!!.zoom += 0.005f
+            println("${worldCamera!!.zoom}")
         }
         if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            camera!!.zoom -= 0.005f
+            worldCamera!!.zoom -= 0.005f
         }
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            camera!!.translate(-3f, 0f, 0f)
+            worldCamera!!.translate(-3f, 0f, 0f)
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            camera!!.translate(3f, 0f, 0f)
+            worldCamera!!.translate(3f, 0f, 0f)
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            camera!!.translate(0f, -3f, 0f)
+            worldCamera!!.translate(0f, -3f, 0f)
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            camera!!.translate(0f, 3f, 0f)
+            worldCamera!!.translate(0f, 3f, 0f)
         }
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            camera!!.rotate(-0.2f, 0f, 0f, 1f)
+            worldCamera!!.rotate(-0.2f, 0f, 0f, 1f)
         }
         if (Gdx.input.isKeyPressed(Input.Keys.E)) {
-            camera!!.rotate(0.2f, 0f, 0f, 1f)
+            worldCamera!!.rotate(0.2f, 0f, 0f, 1f)
         }
 
-        camera!!.update()
+        worldCamera!!.update()
 
         //camera!!.zoom = MathUtils.clamp(camera!!.zoom, 0.1f, 100 / camera!!.viewportWidth)
         //val effectiveViewportWidth: Float = camera!!.viewportWidth * camera!!.zoom

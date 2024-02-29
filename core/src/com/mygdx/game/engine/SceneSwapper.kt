@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import javax.swing.text.View
+import kotlin.math.cos
 
 enum class SwapState {
     SWAP_INIT,
@@ -84,7 +85,7 @@ class ScummBlendAnimation {
 
         if (!hasFinished) {
 
-            val alpha = elapsed / duration
+            val alpha = TweenFunction.EASE_OUT.fn(elapsed / duration, 0f, 1f)
             shapeRenderer!!.begin(ShapeRenderer.ShapeType.Filled)
 
             when (state) {

@@ -7,6 +7,7 @@ class Config {
         const val WINDOW_HEIGHT: Int = 1080
         const val DEBUG_RENDER_SCREEN_BOUNDS: Boolean = true
         const val DEBUG_RENDER_HOTSPOT_REGIONS: Boolean = true
+        const val DEBUG_RENDER_SHOW_PIVOTS_POINTS: Boolean = true
     }
 
 }

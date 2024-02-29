@@ -33,10 +33,11 @@ data class SpriteDescriptor internal constructor(
 )
 
 class SpriteSheetManager(
+    private val namespace: String,
     private val pool: FramePool = framePool(),
     private val fileExists: (filePath: String) -> Boolean = { Gdx.files.internal(it).exists() },
     private val sheets: MutableList<SpriteSheetDescriptor> = mutableListOf(),
-    private val spriteDirectoryName: String = "sprites",
+    private val spriteDirectoryName: String = "${namespace}/sprites",
     private val scanSpriteDirectory: (directoryName: String) -> List<String> = ::scanAssetDirectory
 ) {
     private val spriteFramesIndex: MutableMap<String, List<String>> = mutableMapOf()

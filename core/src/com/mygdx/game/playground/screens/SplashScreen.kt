@@ -1,5 +1,7 @@
-package com.mygdx.game.game.screens
+package com.mygdx.game.playground.screens
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.Screen
@@ -37,6 +39,10 @@ class SplashScreen: Screen(
         startLogoAnimation.update(dt)
         exitScreen.update(dt)
         nemonicLogo.update(dt)
+
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            switch(GameMenuScreen::class)
+        }
     }
 
     override fun loadContents() = object: StepAction {
