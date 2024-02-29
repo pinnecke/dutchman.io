@@ -1,5 +1,5 @@
 package com.mygdx.game.engine.stdx
 
-interface Load {
-    fun load()
+interface Create {
+    fun create()
 }

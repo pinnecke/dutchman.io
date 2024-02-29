@@ -6,7 +6,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
-import com.mygdx.game.engine.stdx.Load
+import com.mygdx.game.engine.stdx.Create
+import com.mygdx.game.engine.stdx.Destroy
 import com.mygdx.game.engine.stdx.Render
 import com.mygdx.game.engine.stdx.Update
 
@@ -17,13 +18,15 @@ enum class CinematicBarState {
     BARS_OUT
 }
 
-class CinematicBars: Update, Render, Load {
+class CinematicBars: Update, Render, Create, Destroy {
 
     private val barWidth = Config.WINDOW_WIDTH.toFloat()
     private val maximumBarHeight = 0.1f * Config.WINDOW_HEIGHT.toFloat()
 
     private var viewport: Viewport? = null
     private var shapeRenderer: ShapeRenderer? = null
+
+    private var destroyed = false
 
     private var state = CinematicBarState.BARS_ABSENT
     private var actualBarHeight = 0f
@@ -34,7 +37,7 @@ class CinematicBars: Update, Render, Load {
         target = { maximumBarHeight },
         onInit = { actualBarHeight = 0f },
         onUpdate = { actualBarHeight = it },
-        onIterationEnd = {
+        onDone = {
             if (state == CinematicBarState.BARS_IN) {
                 state = CinematicBarState.BARS_PRESENT
             } else if (state == CinematicBarState.BARS_OUT) {
@@ -43,7 +46,7 @@ class CinematicBars: Update, Render, Load {
         }
     )
 
-    override fun load() {
+    override fun create() {
         viewport = StretchViewport(Config.WINDOW_WIDTH.toFloat(), Config.WINDOW_HEIGHT.toFloat())
         viewport!!.apply()
         shapeRenderer = ShapeRenderer()
@@ -73,20 +76,26 @@ class CinematicBars: Update, Render, Load {
     }
 
     override fun render(batch: SpriteBatch) {
-        shapeRenderer!!.projectionMatrix = viewport!!.camera.combined
-        shapeRenderer!!.begin(ShapeRenderer.ShapeType.Filled)
+        if (!destroyed) {
+            shapeRenderer!!.projectionMatrix = viewport!!.camera.combined
+            shapeRenderer!!.begin(ShapeRenderer.ShapeType.Filled)
 
-        if (state == CinematicBarState.BARS_IN || state == CinematicBarState.BARS_PRESENT) {
-            shapeRenderer!!.rect(0f, Config.WINDOW_HEIGHT.toFloat() - actualBarHeight + 1f, barWidth, maximumBarHeight)
-            shapeRenderer!!.rect(0f, 0f, barWidth, actualBarHeight)
-        } else if (state == CinematicBarState.BARS_OUT) {
-            shapeRenderer!!.rect(0f, Config.WINDOW_HEIGHT.toFloat() - maximumBarHeight + 1f + actualBarHeight, barWidth, maximumBarHeight)
-            shapeRenderer!!.rect(0f, 0f, barWidth, maximumBarHeight - actualBarHeight)
+            if (state == CinematicBarState.BARS_IN || state == CinematicBarState.BARS_PRESENT) {
+                shapeRenderer!!.rect(0f, Config.WINDOW_HEIGHT.toFloat() - actualBarHeight + 1f, barWidth, maximumBarHeight)
+                shapeRenderer!!.rect(0f, 0f, barWidth, actualBarHeight)
+            } else if (state == CinematicBarState.BARS_OUT) {
+                shapeRenderer!!.rect(0f, Config.WINDOW_HEIGHT.toFloat() - maximumBarHeight + 1f + actualBarHeight, barWidth, maximumBarHeight)
+                shapeRenderer!!.rect(0f, 0f, barWidth, maximumBarHeight - actualBarHeight)
+            }
+
+            shapeRenderer!!.end()
         }
-
-        shapeRenderer!!.end()
     }
 
+    override fun destroy() {
+        shapeRenderer!!.dispose()
+        destroyed = true
+    }
 
 
 }

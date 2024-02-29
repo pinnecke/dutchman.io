@@ -5,7 +5,6 @@ import com.mygdx.game.engine.YAML_MAPPER
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.lang.RuntimeException
 
 
 fun spriteSheetFromYamlContent(

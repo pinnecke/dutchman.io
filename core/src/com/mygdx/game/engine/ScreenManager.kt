@@ -16,13 +16,7 @@ import com.mygdx.game.engine.utils.InputProcessorTee
 import com.mygdx.game.engine.utils.InputProcessorTranslator
 import kotlin.reflect.KClass
 
-object EmptyScreen: Screen() {
-    override fun update(dt: Float) {}
-    override fun loadContents() = emptyStepAction()
-    override fun unloadContents() = emptyStepAction()
-    override fun renderWorld(batch: SpriteBatch) {}
-    override fun renderHud(batch: SpriteBatch) {}
-}
+object EmptyScreen: Screen()
 
 class ScreenManager(
     namespace: String,
@@ -55,6 +49,8 @@ class ScreenManager(
         { screen -> screen.load() },
         { screen -> currentScreen = screen }
     )
+
+    private val dimmer = ScreenDimmer()
 
     private val inputProcessor = InputProcessorHudFirst(
         InputProcessorTranslator(::unprojectHud, hudInputProcessorTee),
@@ -111,6 +107,7 @@ class ScreenManager(
         batch = SpriteBatch()
 
         swapper.loadContent()
+        dimmer.create()
 
         currentScreen = EmptyScreen
         currentScreen!!.load()
@@ -120,6 +117,7 @@ class ScreenManager(
 
     fun shutdown() {
         currentScreen!!.unload()
+        dimmer.destroy()
         batch!!.dispose()
     }
 
@@ -128,7 +126,7 @@ class ScreenManager(
         hudViewport!!.update(windowWidth, windowHeight)
     }
 
-    fun register(gameScreens: Array<Screen>) {
+    fun register(gameScreens: List<Screen>) {
         gameScreens.forEach {
             it.wireScreenManager(this)
             screens[it::class] = it
@@ -147,11 +145,12 @@ class ScreenManager(
     fun update(dt: Float) {
         handleInput()
         swapper.update(dt)
+        dimmer.update(dt)
         currentScreen!!.updateContents(dt)
     }
 
     fun render() {
-        val clearColor = currentScreen!!.backgroundColor
+        val clearColor = currentScreen!!.clearColor
         Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
@@ -173,11 +172,12 @@ class ScreenManager(
         this.projectionMatrix = hudProjectionMatrix
 
         begin()
-        currentScreen!!.renderHudComplete(this)
+        dimmer.render(this)
+        currentScreen!!.renderOverlayComplete(this)
         end()
 
         begin()
-        currentScreen!!.renderOverlay(this)
+        currentScreen!!.renderGlobalOverlay(this)
         end()
     }
 
@@ -235,4 +235,7 @@ class ScreenManager(
         //camera!!.position.y =
         //    MathUtils.clamp(camera!!.position.y, effectiveViewportHeight / 2f, 100 - effectiveViewportHeight / 2f)
     }
+
+    fun dimScene(amount: Float, speed: ScreenDimmer.DimSpeed, onDone: () -> Unit = {}) =
+        dimmer.apply(amount, speed, onDone)
 }

@@ -1,13 +1,12 @@
 package com.mygdx.game.engine
 
 import com.badlogic.gdx.Gdx
-import com.mygdx.game.playground.screens.SplashScreen
 import kotlin.reflect.KClass
 
 interface DutchmanGame {
     val namespace: String
     val splashScreen: KClass<*>
-    val screens: Array<Screen>
+    val screens: List<Screen>
 }
 
 class DutchmanEngine {

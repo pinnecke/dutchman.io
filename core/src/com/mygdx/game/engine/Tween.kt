@@ -1,8 +1,9 @@
 package com.mygdx.game.engine
 
 import com.mygdx.game.engine.stdx.Update
-import java.lang.Math.cos
 import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sin
 
 typealias Interpolation = (alpha: Float, start: Float, end: Float) -> Float
@@ -20,10 +21,10 @@ data class Tween (
     val duration: Float,
     val origin: () -> Float,
     val target: () -> Float,
-    val onInit: () -> Unit,
+    val onInit: () -> Unit = { },
     val onUpdate: (actual: Float) -> Unit,
     val onStart: () -> Unit = { },
-    val onIterationEnd: () -> Unit = { },
+    val onDone: () -> Unit = { },
     val interpolate: Interpolation = TweenFunction.LINEAR.fn
 ): Update {
     private var elapsed = 0f
@@ -43,11 +44,12 @@ data class Tween (
     override fun update(dt: Float) {
         if (running) {
             elapsed += dt
-            val alpha = elapsed / duration
-            onUpdate(interpolate(alpha, x0!!, x1!!))
             if (elapsed > duration) {
                 running = false
-                onIterationEnd()
+                onDone()
+            } else {
+                val alpha = min(1.0f, max(0.0f, elapsed / duration))
+                onUpdate(interpolate(alpha, x0!!, x1!!))
             }
         }
     }

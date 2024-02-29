@@ -1,4 +1,4 @@
-package com.mygdx.game.engine
+package com.mygdx.game.engine.objects
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
@@ -9,13 +9,59 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.mygdx.game.engine.stdx.Intermediate
+import com.badlogic.gdx.math.Vector2
+import com.mygdx.game.engine.Config
+import com.mygdx.game.engine.DebugRenderer
+import com.mygdx.game.engine.Tween
+import com.mygdx.game.engine.TweenFunction
+import com.mygdx.game.engine.stdx.DynamicComponent
 import com.mygdx.game.engine.stdx.Render
 import com.mygdx.game.engine.stdx.Update
-import java.lang.StringBuilder
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
+
+
+typealias CoordinateProjector = (x: Float, y: Float) -> Vector2
+
+class SpeechBubblePivot(
+    var x: Float,
+    var y: Float,
+    val screenToOverlay: CoordinateProjector
+): Render {
+    private val debugRenderer = DebugRenderer(Config.DEBUG_RENDER_SHOW_PIVOTS_POINTS)
+    private val hPadding = 460f
+    private val vPadding = 120f
+
+    var boxedX: Float = x
+        get() {
+            val overlay = screenToOverlay(x, y)
+            return max(hPadding, min(overlay.x, Config.WINDOW_WIDTH.toFloat() - hPadding))
+        }
+
+    var boxedY: Float = y
+        get() {
+            val overlay = screenToOverlay(x, y)
+            return max(vPadding + 120f, min(overlay.y, Config.WINDOW_HEIGHT.toFloat() - vPadding))
+        }
+
+
+
+    override fun render(batch: SpriteBatch) {
+        batch.end()
+        debugRenderer.drawLine(
+            batch.projectionMatrix,
+            x - 15, y - 15, x + 15, y + 15,
+            4
+        )
+        debugRenderer.drawLine(
+            batch.projectionMatrix,
+            x - 15, y + 15, x + 15, y - 15,
+            4
+        )
+        batch.begin()
+    }
+}
 
 private enum class SpeechBubbleState {
     BLEND_IN,
@@ -27,7 +73,7 @@ private enum class SpeechBubbleState {
 class SpeechBubble(
     private val textColor: Color,
     private val pivot: SpeechBubblePivot
-): Update, Render, Intermediate {
+): Update, Render, DynamicComponent {
 
     private var displayText: String? = null
     private var font: BitmapFont? = null
@@ -55,7 +101,7 @@ class SpeechBubble(
         onUpdate = {
             boxAlpha = min(1f, it)
         },
-        onIterationEnd = {
+        onDone = {
             if (state == SpeechBubbleState.BLEND_IN) {
                 state = SpeechBubbleState.DISPLAY
                 textTween.start()
@@ -85,7 +131,7 @@ class SpeechBubble(
         }
     )
 
-    override fun load() {
+    override fun create() {
         val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/backissue_reg.otf"))
         val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
         parameter.genMipMaps = true
@@ -99,7 +145,7 @@ class SpeechBubble(
         shapeRender = ShapeRenderer()
     }
 
-    override fun unload() {
+    override fun destroy() {
         font!!.dispose()
         shapeRender!!.dispose()
     }

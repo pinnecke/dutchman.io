@@ -3,11 +3,8 @@ package com.mygdx.game.engine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
-import javax.swing.text.View
-import kotlin.math.cos
 
 enum class SwapState {
     SWAP_INIT,
@@ -179,7 +176,7 @@ class SceneSwapper(
                 state = SwapState.SWAP_UNLOADING_OLD
             }
             SwapState.SWAP_UNLOADING_OLD -> {
-                if (currentScreen != null && currentScreen!!.hasUnloaded) {
+                if (currentScreen != null) {
                     state = SwapState.SWAP_START_LOAD_NEW
                 }
             }
@@ -188,10 +185,8 @@ class SceneSwapper(
                 state = SwapState.SWAP_LOADING_NEW
             }
             SwapState.SWAP_LOADING_NEW -> {
-                if (nextScreen!!.hasLoaded) {
-                    animation.playBlendIn()
-                    state = SwapState.SWAP_BLENDING_IN
-                }
+                animation.playBlendIn()
+                state = SwapState.SWAP_BLENDING_IN
             }
             SwapState.SWAP_BLENDING_IN -> {
                 activate(nextScreen!!)

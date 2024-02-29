@@ -1,6 +1,5 @@
 package com.mygdx.game.engine.utils
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
 
 class InputProcessorTee: InputProcessor {

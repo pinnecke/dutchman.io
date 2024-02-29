@@ -1,9 +1,9 @@
-package com.mygdx.game.engine.sprites
+package com.mygdx.game.engine.objects
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.math.collision.BoundingBox
 import com.mygdx.game.engine.Screen
+import com.mygdx.game.engine.sprites.Frame
+import com.mygdx.game.engine.sprites.SpriteSheetManager
 import com.mygdx.game.engine.stdx.*
 
 fun centered(
@@ -40,12 +40,13 @@ class FrameAnimation(
     private val flipX: Boolean = false,
     private val flipY: Boolean = false,
     fps: Int = 24,
-): GameComponent {
+): GameObject {
     val surface: Surface
         get() { return Surface(
             width = width.get { frames[0].value.width.toFloat() },
             height = height.get { frames[0].value.height.toFloat() }
-        )}
+        )
+        }
 
     private var running = false
     private var index: Int = 0
@@ -85,11 +86,11 @@ class FrameAnimation(
         )
     }
 
-    override fun load() {
+    override fun create() {
         frames = sheets().get(name)
     }
 
-    override fun unload() {
+    override fun destroy() {
         frames.forEach {
             it.release()
         }

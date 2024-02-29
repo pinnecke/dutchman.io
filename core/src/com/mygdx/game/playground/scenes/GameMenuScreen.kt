@@ -1,4 +1,4 @@
-package com.mygdx.game.playground.screens
+package com.mygdx.game.playground.scenes
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
@@ -6,8 +6,9 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.hotspots.HudButton
-import com.mygdx.game.engine.sprites.FrameAnimation
-
+import com.mygdx.game.engine.objects.FrameAnimation
+import com.mygdx.game.engine.objects.SpeechBubble
+import com.mygdx.game.engine.objects.SpeechBubblePivot
 
 class GameMenuScreen: Screen() {
 
@@ -31,7 +32,7 @@ class GameMenuScreen: Screen() {
         EventFilter.builder()
             .touchDown { _, _ ->
                 println("Clicked")
-                enterCinematicMode()
+                cinematicModeOn()
                 val lines = listOf(
                     Pair(
                         "Oh yes sir.\n" +
@@ -71,7 +72,7 @@ class GameMenuScreen: Screen() {
                     duration = line.second,
                     onDone = {
                         println("Speech done")
-                        exitCinematicMode()
+                        cinematicModeOff()
                     }
                 )
             }
@@ -118,9 +119,9 @@ class GameMenuScreen: Screen() {
         }
         if (Gdx.input.isKeyPressed(Input.Keys.C)) {
             if (isInCinematicMode()) {
-                exitCinematicMode()
+                cinematicModeOff()
             } else {
-                enterCinematicMode()
+                cinematicModeOn()
             }
         }
         if (Gdx.input.isKeyPressed(Input.Keys.T)) {
@@ -141,51 +142,26 @@ class GameMenuScreen: Screen() {
         }
     }
 
-    override fun loadContents() = object: StepAction {
-        override var hasFinished: Boolean = false
-
-        override fun start() {
-            hotspot.loadContent()
-            batman.load()
-            //enterCinematic.reset()
-            //exitCinematic.reset()
-            speechBubble.load()
-
-
-
-            hasFinished = true
-        }
-
-        override fun step() {
-
-        }
-
+    override fun loadContents() {
+        hotspot.loadContent()
+        batman.create()
+        speechBubble.create()
     }
 
-    override fun unloadContents() = object: StepAction {
-        override var hasFinished: Boolean = false
-
-        override fun start() {
-            hotspot.unloadContent()
-            batman.unload()
-            speechBubble.unload()
-
-            hasFinished = true
-        }
-
-        override fun step() {
-        }
-
+    override fun unloadContents() {
+        hotspot.unloadContent()
+        batman.destroy()
+        speechBubble.destroy()
     }
 
-    override fun renderWorld(batch: SpriteBatch) {
+    override fun render(batch: SpriteBatch) {
         batman.render(batch)
         hotspot.render(LayerType.WORLD, batch)
         speechPivot.render(batch)
 
     }
 
-    override fun renderHud(batch: SpriteBatch) {
+    override fun renderOverlay(batch: SpriteBatch) {
         hotspot.render(LayerType.HUD, batch)
         speechBubble.render(batch)
     }

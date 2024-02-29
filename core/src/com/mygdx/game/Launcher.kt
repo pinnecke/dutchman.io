@@ -1,14 +1,10 @@
 package com.mygdx.game
 
 import com.badlogic.gdx.ApplicationAdapter
-import com.badlogic.gdx.Gdx
 import com.mygdx.game.engine.DutchmanEngine
-import com.mygdx.game.engine.ScreenManager
 import com.mygdx.game.playground.Playground
-import com.mygdx.game.playground.screens.GameMenuScreen
-import com.mygdx.game.playground.screens.SplashScreen
 
-class MyGdxGame : ApplicationAdapter() {
+class Launcher : ApplicationAdapter() {
 
     private var dutchman = DutchmanEngine()
 

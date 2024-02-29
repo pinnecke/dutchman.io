@@ -1,16 +1,16 @@
 package com.mygdx.game.playground
 
 import com.mygdx.game.engine.DutchmanGame
-import com.mygdx.game.engine.Screen
-import com.mygdx.game.playground.screens.GameMenuScreen
-import com.mygdx.game.playground.screens.SplashScreen
-import kotlin.reflect.KClass
+import com.mygdx.game.playground.scenes.DimScreen
+import com.mygdx.game.playground.scenes.GameMenuScreen
+import com.mygdx.game.playground.scenes.SplashScreen
 
 class Playground: DutchmanGame {
-    override val namespace: String = "playground"
-    override val splashScreen: KClass<*> = SplashScreen::class
-    override val screens: Array<Screen> = arrayOf(
+    override val namespace = "playground"
+    override val splashScreen = DimScreen::class
+    override val screens = listOf(
+        SplashScreen(),
         GameMenuScreen(),
-        SplashScreen()
+        DimScreen()
     )
 }
