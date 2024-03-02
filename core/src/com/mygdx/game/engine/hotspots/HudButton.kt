@@ -5,13 +5,13 @@ import com.badlogic.gdx.math.Polygon
 import com.mygdx.game.engine.EventFilter
 import com.mygdx.game.engine.Hotspot
 import com.mygdx.game.engine.LayerType
-import com.mygdx.game.engine.Screen
+import com.mygdx.game.engine.Scene
 
 class HudButton(
     x: Float,
     y: Float,
     region: Polygon,
-    owner: Screen,
+    owner: Scene,
     filter: EventFilter
 ): Hotspot(LayerType.WORLD, x, y, region, owner, filter) {
 

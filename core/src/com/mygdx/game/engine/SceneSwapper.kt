@@ -131,27 +131,30 @@ class ScummBlendAnimation {
 }
 
 class SceneSwapper(
-    private val unload: (screen: Screen) -> Unit,
-    private val load: (screen: Screen) -> Unit,
-    private val activate: (screen: Screen) -> Unit
+    private val unload: (scene: Scene) -> Unit,
+    private val load: (scene: Scene) -> Unit,
+    private val activate: (scene: Scene) -> Unit,
 ) {
     private var state = SwapState.SWAP_DONE
     private var animation = ScummBlendAnimation()
-    private var loadingScreen: Screen = EmptyScreen
-    private var currentScreen: Screen? = null
-    private var nextScreen: Screen? = null
+    private var loadingScene: Scene = EmptyScene
+    private var currentScene: Scene? = null
+    private var nextScene: Scene? = null
+    private var beforeNextScene: () -> Unit = { }
 
     fun loadContent() {
         animation.loadContent()
     }
 
     fun swap(
-        currentScreen: Screen?,
-        nextScreen: Screen
+        currentScene: Scene?,
+        nextScene: Scene,
+        beforeNextScene: () -> Unit = { }
     ) {
-        this.currentScreen = currentScreen
-        this.nextScreen = nextScreen
+        this.currentScene = currentScene
+        this.nextScene = nextScene
         this.state = SwapState.SWAP_INIT
+        this.beforeNextScene = beforeNextScene
     }
 
     fun update(dt: Float) {
@@ -159,29 +162,30 @@ class SceneSwapper(
 
         when (state) {
             SwapState.SWAP_INIT -> {
-                load(loadingScreen)
+                load(loadingScene)
                 animation.playBlendOut()
                 state = SwapState.SWAP_BLENDING_OUT
             }
             SwapState.SWAP_BLENDING_OUT -> {
                 if (animation.hasFinished) {
-                    activate(loadingScreen)
+                    activate(loadingScene)
                     state = SwapState.SWAP_START_UNLOAD_OLD
                 }
             }
             SwapState.SWAP_START_UNLOAD_OLD -> {
-                if (currentScreen != null) {
-                    unload(currentScreen!!)
+                if (currentScene != null) {
+                    unload(currentScene!!)
                 }
                 state = SwapState.SWAP_UNLOADING_OLD
             }
             SwapState.SWAP_UNLOADING_OLD -> {
-                if (currentScreen != null) {
+                if (currentScene != null) {
                     state = SwapState.SWAP_START_LOAD_NEW
+                    this.beforeNextScene()
                 }
             }
             SwapState.SWAP_START_LOAD_NEW -> {
-                load(nextScreen!!)
+                load(nextScene!!)
                 state = SwapState.SWAP_LOADING_NEW
             }
             SwapState.SWAP_LOADING_NEW -> {
@@ -189,7 +193,7 @@ class SceneSwapper(
                 state = SwapState.SWAP_BLENDING_IN
             }
             SwapState.SWAP_BLENDING_IN -> {
-                activate(nextScreen!!)
+                activate(nextScene!!)
                 state = SwapState.SWAP_DONE
             }
             SwapState.SWAP_DONE -> {

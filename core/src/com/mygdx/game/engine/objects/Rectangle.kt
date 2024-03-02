@@ -19,6 +19,7 @@ class Rectangle(
     override fun create() {
         shapeRenderer = ShapeRenderer()
         shapeRenderer!!.color = this.color
+        destroyed = false
     }
 
     override fun render(batch: SpriteBatch) {

@@ -1,7 +1,5 @@
 package com.mygdx.game.engine
 
-import com.mygdx.game.engine.objects.Surface
-
 data class Surface2D (
     val left: Float,
     val bottom: Float,

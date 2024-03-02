@@ -4,15 +4,18 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.mygdx.game.engine.*
+import com.mygdx.game.engine.EventFilter
+import com.mygdx.game.engine.LayerType
+import com.mygdx.game.engine.Scene
+import com.mygdx.game.engine.closedPolygon
 import com.mygdx.game.engine.hotspots.HudButton
 import com.mygdx.game.engine.objects.FrameAnimation
 import com.mygdx.game.engine.objects.SpeechBubble
 import com.mygdx.game.engine.objects.SpeechBubblePivot
 
-class GameMenuScreen: Screen() {
+class SpeechBubbleScene: Scene() {
 
-    private var speechPivot = SpeechBubblePivot(500f, 500f, ::screenToOverlay)
+    private var speechPivot = SpeechBubblePivot(500f, 500f, ::sceneToOverlay)
 
     private var speechBubble = SpeechBubble(
         textColor = Color.YELLOW,
@@ -126,29 +129,29 @@ class GameMenuScreen: Screen() {
         }
         if (Gdx.input.isKeyPressed(Input.Keys.T)) {
             speechPivot.y += 10
-            println(screenToOverlay(speechPivot.x, speechPivot.y))
+            println(sceneToOverlay(speechPivot.x, speechPivot.y))
         }
         if (Gdx.input.isKeyPressed(Input.Keys.G)) {
             speechPivot.y -= 10
-            println(screenToOverlay(speechPivot.x, speechPivot.y))
+            println(sceneToOverlay(speechPivot.x, speechPivot.y))
         }
         if (Gdx.input.isKeyPressed(Input.Keys.F)) {
             speechPivot.x -= 10
-            println(screenToOverlay(speechPivot.x, speechPivot.y))
+            println(sceneToOverlay(speechPivot.x, speechPivot.y))
         }
         if (Gdx.input.isKeyPressed(Input.Keys.H)) {
             speechPivot.x += 10
-            println(screenToOverlay(speechPivot.x, speechPivot.y))
+            println(sceneToOverlay(speechPivot.x, speechPivot.y))
         }
     }
 
-    override fun loadContents() {
+    override fun create() {
         hotspot.loadContent()
         batman.create()
         speechBubble.create()
     }
 
-    override fun unloadContents() {
+    override fun destroy() {
         hotspot.unloadContent()
         batman.destroy()
         speechBubble.destroy()

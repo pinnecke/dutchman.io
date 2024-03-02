@@ -28,37 +28,37 @@ class InputProcessorHudFirst(
             true
         }
 
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean =
-        if (!hudTranslator.touchDown(screenX, screenY, pointer, button)) {
-            wordTranslator.touchDown(screenX, screenY, pointer, button)
+    override fun touchDown(sceneX: Int, sceneY: Int, pointer: Int, button: Int): Boolean =
+        if (!hudTranslator.touchDown(sceneX, sceneY, pointer, button)) {
+            wordTranslator.touchDown(sceneX, sceneY, pointer, button)
         } else {
             true
         }
 
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean =
-        if (!hudTranslator.touchUp(screenX, screenY, pointer, button)) {
-            wordTranslator.touchUp(screenX, screenY, pointer, button)
+    override fun touchUp(sceneX: Int, sceneY: Int, pointer: Int, button: Int): Boolean =
+        if (!hudTranslator.touchUp(sceneX, sceneY, pointer, button)) {
+            wordTranslator.touchUp(sceneX, sceneY, pointer, button)
         } else {
             true
         }
 
-    override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean =
-        if (!hudTranslator.touchCancelled(screenX, screenY, pointer, button)) {
-            wordTranslator.touchCancelled(screenX, screenY, pointer, button)
+    override fun touchCancelled(sceneX: Int, sceneY: Int, pointer: Int, button: Int): Boolean =
+        if (!hudTranslator.touchCancelled(sceneX, sceneY, pointer, button)) {
+            wordTranslator.touchCancelled(sceneX, sceneY, pointer, button)
         } else {
             true
         }
 
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean =
-        if (!hudTranslator.touchDragged(screenX, screenY, pointer)) {
-            wordTranslator.touchDragged(screenX, screenY, pointer)
+    override fun touchDragged(sceneX: Int, sceneY: Int, pointer: Int): Boolean =
+        if (!hudTranslator.touchDragged(sceneX, sceneY, pointer)) {
+            wordTranslator.touchDragged(sceneX, sceneY, pointer)
         } else {
             true
         }
 
-    override fun mouseMoved(screenX: Int, screenY: Int): Boolean =
-        if (!hudTranslator.mouseMoved(screenX, screenY)) {
-            wordTranslator.mouseMoved(screenX, screenY)
+    override fun mouseMoved(sceneX: Int, sceneY: Int): Boolean =
+        if (!hudTranslator.mouseMoved(sceneX, sceneY)) {
+            wordTranslator.mouseMoved(sceneX, sceneY)
         } else {
             true
         }

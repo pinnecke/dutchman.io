@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.mygdx.game.engine.stdx.GameObject
 
-class ScreenDimmer: GameObject {
+class SceneDimmer: GameObject {
 
     enum class DimSpeed(val duration: Float) {
         SLOW(0.5f),

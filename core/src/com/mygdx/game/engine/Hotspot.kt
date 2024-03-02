@@ -75,7 +75,7 @@ abstract class Hotspot(
     x: Float,
     y: Float,
     private val region: Polygon,
-    private val owner: Screen,
+    private val owner: Scene,
     private val filter: EventFilter
 ): InputAdapter() {
     private var regionDebugRenderer = DebugRenderer(Config.DEBUG_RENDER_HOTSPOT_REGIONS, Color.RED)

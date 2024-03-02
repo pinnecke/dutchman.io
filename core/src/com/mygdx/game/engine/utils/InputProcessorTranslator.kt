@@ -9,8 +9,8 @@ class InputProcessorTranslator(
     private val forward: InputProcessor
 ): InputAdapter() {
 
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        val local = unproject(screenX.toFloat(), screenY.toFloat())
+    override fun touchDown(x: Int, y: Int, pointer: Int, button: Int): Boolean {
+        val local = unproject(x.toFloat(), y.toFloat())
         return forward.touchDown(local.x.toInt(), local.y.toInt(), pointer, button)
     }
 

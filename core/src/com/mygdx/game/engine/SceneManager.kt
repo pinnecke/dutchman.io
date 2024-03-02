@@ -16,9 +16,9 @@ import com.mygdx.game.engine.utils.InputProcessorTee
 import com.mygdx.game.engine.utils.InputProcessorTranslator
 import kotlin.reflect.KClass
 
-object EmptyScreen: Screen()
+object EmptyScene: Scene()
 
-class ScreenManager(
+class SceneManager(
     namespace: String,
     private val width: Float = Config.WINDOW_WIDTH.toFloat(),
     private val height: Float = Config.WINDOW_HEIGHT.toFloat()
@@ -38,19 +38,19 @@ class ScreenManager(
     private val hudUnprojectResult = Vector2.Zero
 
     private var batch: SpriteBatch? = null
-    private val screens = mutableMapOf<KClass<*>, Screen>()
-    private var currentScreen: Screen? = null
+    private val scenes = mutableMapOf<KClass<*>, Scene>()
+    private var currentScene: Scene? = null
 
     private val worldInputProcessorTee = InputProcessorTee()
     private val hudInputProcessorTee = InputProcessorTee()
 
     private val swapper = SceneSwapper(
-        { screen -> screen.unload() },
-        { screen -> screen.load() },
-        { screen -> currentScreen = screen }
+        { scene -> scene.unload() },
+        { scene -> scene.load() },
+        { scene -> currentScene = scene },
     )
 
-    private val dimmer = ScreenDimmer()
+    private val dimmer = SceneDimmer()
 
     private val inputProcessor = InputProcessorHudFirst(
         InputProcessorTranslator(::unprojectHud, hudInputProcessorTee),
@@ -84,7 +84,7 @@ class ScreenManager(
         return hudUnprojectResult
     }
 
-    fun startup(bootScreen: KClass<*>) {
+    fun startup(bootScene: KClass<*>) {
 
         worldCamera = OrthographicCamera()
         worldViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, worldCamera)
@@ -109,14 +109,14 @@ class ScreenManager(
         swapper.loadContent()
         dimmer.create()
 
-        currentScreen = EmptyScreen
-        currentScreen!!.load()
+        currentScene = EmptyScene
+        currentScene!!.load()
 
-        switch(bootScreen)
+        switch(bootScene)
     }
 
     fun shutdown() {
-        currentScreen!!.unload()
+        currentScene!!.unload()
         dimmer.destroy()
         batch!!.dispose()
     }
@@ -126,19 +126,20 @@ class ScreenManager(
         hudViewport!!.update(windowWidth, windowHeight)
     }
 
-    fun register(gameScreens: List<Screen>) {
-        gameScreens.forEach {
-            it.wireScreenManager(this)
-            screens[it::class] = it
+    fun register(gameScenes: List<Scene>) {
+        gameScenes.forEach {
+            it.injectSceneManager(this)
+            scenes[it::class] = it
         }
     }
 
-    fun switch(screen: KClass<*>) {
+    fun switch(scene: KClass<*>, beforeNextScene: () -> Unit = { }) {
         Gdx.input.inputProcessor = inputProcessor
         clearInputProcessors()
         swapper.swap(
-            currentScreen,
-            screens[screen]!!
+            currentScene,
+            scenes[scene]!!,
+            beforeNextScene
         )
     }
 
@@ -146,25 +147,25 @@ class ScreenManager(
         handleInput()
         swapper.update(dt)
         dimmer.update(dt)
-        currentScreen!!.updateContents(dt)
+        currentScene!!.updateContents(dt)
     }
 
     fun render() {
-        val clearColor = currentScreen!!.clearColor
+        val clearColor = currentScene!!.clearColor
         Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
-        renderScreen()
+        renderScenee()
         renderOverlay()
     }
 
-    private fun renderScreen() = with(batch!!) {
+    private fun renderScenee() = with(batch!!) {
         worldViewport!!.apply()
         val worldProjectionMatrix = worldViewport!!.camera.combined
         this.projectionMatrix = worldProjectionMatrix
 
         begin()
-        currentScreen!!.renderWorldComplete(this)
+        currentScene!!.renderWorldComplete(this)
         end()
 
         hudViewport!!.apply()
@@ -173,11 +174,11 @@ class ScreenManager(
 
         begin()
         dimmer.render(this)
-        currentScreen!!.renderOverlayComplete(this)
+        currentScene!!.renderOverlayComplete(this)
         end()
 
         begin()
-        currentScreen!!.renderGlobalOverlay(this)
+        currentScene!!.renderGlobalOverlay(this)
         end()
     }
 
@@ -192,13 +193,6 @@ class ScreenManager(
 
     private fun handleInput() { // TODO: Remove
         worldViewport!!.apply()
-
-        if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
-            Gdx.graphics.setWindowedMode(1920/2, 1080/2)
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
-            Gdx.graphics.setWindowedMode(1440/2, 1080/2)
-        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             worldCamera!!.zoom += 0.005f
@@ -236,6 +230,6 @@ class ScreenManager(
         //    MathUtils.clamp(camera!!.position.y, effectiveViewportHeight / 2f, 100 - effectiveViewportHeight / 2f)
     }
 
-    fun dimScene(amount: Float, speed: ScreenDimmer.DimSpeed, onDone: () -> Unit = {}) =
+    fun dimScene(amount: Float, speed: SceneDimmer.DimSpeed, onDone: () -> Unit = {}) =
         dimmer.apply(amount, speed, onDone)
 }

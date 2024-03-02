@@ -1,18 +1,18 @@
 package com.mygdx.game.engine.objects
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.mygdx.game.engine.Screen
+import com.mygdx.game.engine.Scene
 import com.mygdx.game.engine.sprites.Frame
 import com.mygdx.game.engine.sprites.SpriteSheetManager
 import com.mygdx.game.engine.stdx.*
 
 fun centered(
-    screen: Screen,
+    scene: Scene,
     surface: () -> Surface,
     offset: Auto<Position> = value(Position.default)
 ): Auto<Position> = value(Position(
-    left = { screen.width.toFloat() / 2f - surface().width / 2f + offset.get { Position.default }.left() },
-    bottom = { screen.height.toFloat() / 2f - surface().height / 2f + offset.get { Position.default }.bottom()  }
+    left = { scene.width.toFloat() / 2f - surface().width / 2f + offset.get { Position.default }.left() },
+    bottom = { scene.height.toFloat() / 2f - surface().height / 2f + offset.get { Position.default }.bottom()  }
 ))
 
 data class Position(

@@ -1,10 +1,9 @@
 package com.mygdx.game.playground.scenes
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.mygdx.game.engine.Screen
+import com.mygdx.game.engine.Scene
 import com.mygdx.game.engine.objects.FrameAnimation
 import com.mygdx.game.engine.objects.Position
 import com.mygdx.game.engine.objects.centered
@@ -12,10 +11,13 @@ import com.mygdx.game.engine.stdx.once
 import com.mygdx.game.engine.stdx.runDelayed
 import com.mygdx.game.engine.stdx.seconds
 import com.mygdx.game.engine.stdx.value
+import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
+import com.mygdx.game.playground.MainMenuScene
 
-class SplashScreen: Screen(
+class SplashScreenScene: Scene(
     clearColor = Color.WHITE
 ) {
+    private val input = GdxKeyboardInputUtil()
 
     private var nemonicLogo = FrameAnimation(
         name = "nemonic-logo",
@@ -29,43 +31,36 @@ class SplashScreen: Screen(
         nemonicLogo.start()
     }
 
-    private var exitScreen = runDelayed(
+    private var exitScene = runDelayed(
         delay = 5.seconds()) {
-        enterScene(GameMenuScreen::class)
+        enterScene(MainMenuScene::class)
     }
 
-    override fun update(dt: Float) {
-        startLogoAnimation.update(dt)
-        exitScreen.update(dt)
-        nemonicLogo.update(dt)
-
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            enterScene(GameMenuScreen::class)
-        }
-    }
-
-    override fun loadContents() {
+    override fun create() {
         with(nemonicLogo) {
             create()
             position = centered(
-                screen = thisScreen(),
+                scene = self(),
                 surface = { surface },
                 offset = value(Position({ surface.width / 4f }, { surface.height / 2f + 50f }))
             )
         }
+
+        input[Input.Keys.SPACE] = { enterScene(MainMenuScene::class) }
     }
 
-    override fun unloadContents() {
+    override fun update(dt: Float) {
+        startLogoAnimation.update(dt)
+        exitScene.update(dt)
+        nemonicLogo.update(dt)
+    }
+
+    override fun destroy() {
         nemonicLogo.destroy()
     }
 
     override fun render(batch: SpriteBatch) {
+        input.act()
         nemonicLogo.render(batch)
     }
-
-    override fun renderOverlay(batch: SpriteBatch) {
-
-    }
-
-
 }

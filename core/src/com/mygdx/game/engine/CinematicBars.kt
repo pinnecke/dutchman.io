@@ -51,6 +51,7 @@ class CinematicBars: Update, Render, Create, Destroy {
         viewport!!.apply()
         shapeRenderer = ShapeRenderer()
         shapeRenderer!!.color = Color.BLACK
+        destroyed = false
     }
 
     fun show() {
@@ -67,7 +68,8 @@ class CinematicBars: Update, Render, Create, Destroy {
         }
     }
 
-    fun visible() = state == CinematicBarState.BARS_PRESENT
+    fun isPresent() = state == CinematicBarState.BARS_PRESENT || state == CinematicBarState.BARS_IN
+    fun isAbsent() = state == CinematicBarState.BARS_ABSENT || state == CinematicBarState.BARS_OUT
 
     override fun update(dt: Float) {
         viewport!!.update(Gdx.graphics.width, Gdx.graphics.height, true)

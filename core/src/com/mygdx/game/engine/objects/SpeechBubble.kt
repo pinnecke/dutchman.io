@@ -27,7 +27,7 @@ typealias CoordinateProjector = (x: Float, y: Float) -> Vector2
 class SpeechBubblePivot(
     var x: Float,
     var y: Float,
-    val screenToOverlay: CoordinateProjector
+    val sceneToOverlay: CoordinateProjector
 ): Render {
     private val debugRenderer = DebugRenderer(Config.DEBUG_RENDER_SHOW_PIVOTS_POINTS)
     private val hPadding = 460f
@@ -35,13 +35,13 @@ class SpeechBubblePivot(
 
     var boxedX: Float = x
         get() {
-            val overlay = screenToOverlay(x, y)
+            val overlay = sceneToOverlay(x, y)
             return max(hPadding, min(overlay.x, Config.WINDOW_WIDTH.toFloat() - hPadding))
         }
 
     var boxedY: Float = y
         get() {
-            val overlay = screenToOverlay(x, y)
+            val overlay = sceneToOverlay(x, y)
             return max(vPadding + 120f, min(overlay.y, Config.WINDOW_HEIGHT.toFloat() - vPadding))
         }
 

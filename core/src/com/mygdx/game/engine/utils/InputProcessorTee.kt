@@ -41,45 +41,45 @@ class InputProcessorTee: InputProcessor {
         return false
     }
 
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+    override fun touchDown(x: Int, y: Int, pointer: Int, button: Int): Boolean {
         for (inputProcessor in inputProcessors) {
-            if (inputProcessor.touchDown(screenX, screenY, pointer, button)) {
+            if (inputProcessor.touchDown(x, y, pointer, button)) {
                 return true
             }
         }
         return false
     }
 
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+    override fun touchUp(x: Int, y: Int, pointer: Int, button: Int): Boolean {
         for (inputProcessor in inputProcessors) {
-            if (inputProcessor.touchUp(screenX, screenY, pointer, button)) {
+            if (inputProcessor.touchUp(x, y, pointer, button)) {
                 return true
             }
         }
         return false
     }
 
-    override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+    override fun touchCancelled(x: Int, y: Int, pointer: Int, button: Int): Boolean {
         for (inputProcessor in inputProcessors) {
-            if (inputProcessor.touchCancelled(screenX, screenY, pointer, button)) {
+            if (inputProcessor.touchCancelled(x, y, pointer, button)) {
                 return true
             }
         }
         return false
     }
 
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+    override fun touchDragged(x: Int, y: Int, pointer: Int): Boolean {
         for (inputProcessor in inputProcessors) {
-            if (inputProcessor.touchDragged(screenX, screenY, pointer)) {
+            if (inputProcessor.touchDragged(x, y, pointer)) {
                 return true
             }
         }
         return false
     }
 
-    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+    override fun mouseMoved(x: Int, y: Int): Boolean {
         for (inputProcessor in inputProcessors) {
-            if (inputProcessor.mouseMoved(screenX, screenY)) {
+            if (inputProcessor.mouseMoved(x, y)) {
                 return true
             }
         }

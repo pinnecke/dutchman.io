@@ -5,30 +5,30 @@ import kotlin.reflect.KClass
 
 interface DutchmanGame {
     val namespace: String
-    val splashScreen: KClass<*>
-    val screens: List<Screen>
+    val splash: KClass<*>
+    val scenes: List<Scene>
 }
 
 class DutchmanEngine {
-    private var screenManager: ScreenManager? = null
+    private var sceneManager: SceneManager? = null
 
     fun create(game: DutchmanGame) {
-        screenManager = ScreenManager(game.namespace)
-        with (screenManager!!) {
-            register(game.screens)
-            startup(game.splashScreen)
+        sceneManager = SceneManager(game.namespace)
+        with (sceneManager!!) {
+            register(game.scenes)
+            startup(game.splash)
         }
     }
 
-    fun render() = with(screenManager!!) {
+    fun render() = with(sceneManager!!) {
         update(Gdx.graphics.deltaTime)
         render()
     }
 
     fun resize(width: Int, height: Int) =
-        screenManager!!.resize(width, height)
+        sceneManager!!.resize(width, height)
 
     fun dispose() =
-        screenManager!!.shutdown()
+        sceneManager!!.shutdown()
 
 }
