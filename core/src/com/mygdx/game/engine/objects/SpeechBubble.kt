@@ -15,6 +15,7 @@ import com.mygdx.game.engine.DebugRenderer
 import com.mygdx.game.engine.Tween
 import com.mygdx.game.engine.TweenFunction
 import com.mygdx.game.engine.stdx.DynamicComponent
+import com.mygdx.game.engine.stdx.GameObject
 import com.mygdx.game.engine.stdx.Render
 import com.mygdx.game.engine.stdx.Update
 import kotlin.math.max
@@ -28,7 +29,7 @@ class SpeechBubblePivot(
     var x: Float,
     var y: Float,
     val sceneToOverlay: CoordinateProjector
-): Render {
+): GameObject {
     private val debugRenderer = DebugRenderer(Config.DEBUG_RENDER_SHOW_PIVOTS_POINTS)
     private val hPadding = 460f
     private val vPadding = 120f
@@ -46,15 +47,22 @@ class SpeechBubblePivot(
         }
 
 
+    override fun create() {
+        debugRenderer.create()
+    }
+
+    override fun destroy() {
+        debugRenderer.destroy()
+    }
 
     override fun render(batch: SpriteBatch) {
         batch.end()
-        debugRenderer.drawLine(
+        debugRenderer.line(
             batch.projectionMatrix,
             x - 15, y - 15, x + 15, y + 15,
             4
         )
-        debugRenderer.drawLine(
+        debugRenderer.line(
             batch.projectionMatrix,
             x - 15, y + 15, x + 15, y - 15,
             4

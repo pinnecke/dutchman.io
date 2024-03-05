@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.Scene
+import com.mygdx.game.engine.SceneController
 import com.mygdx.game.engine.objects.FrameAnimation
 import com.mygdx.game.engine.objects.Position
 import com.mygdx.game.engine.objects.centered
@@ -17,6 +18,8 @@ import com.mygdx.game.playground.MainMenuScene
 class SplashScreenScene: Scene(
     clearColor = Color.WHITE
 ) {
+
+    private val controller = SceneController(this)
     private val input = GdxKeyboardInputUtil()
 
     private var nemonicLogo = FrameAnimation(
@@ -33,7 +36,7 @@ class SplashScreenScene: Scene(
 
     private var exitScene = runDelayed(
         delay = 5.seconds()) {
-        enterScene(MainMenuScene::class)
+        controller.enterScene(MainMenuScene::class)
     }
 
     override fun create() {
@@ -46,7 +49,7 @@ class SplashScreenScene: Scene(
             )
         }
 
-        input[Input.Keys.SPACE] = { enterScene(MainMenuScene::class) }
+        input[Input.Keys.SPACE] = { controller.enterScene(MainMenuScene::class) }
     }
 
     override fun update(dt: Float) {

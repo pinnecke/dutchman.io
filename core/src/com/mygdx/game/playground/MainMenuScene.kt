@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.Engine
 import com.mygdx.game.engine.Scene
+import com.mygdx.game.engine.SceneController
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.scenes.*
@@ -12,6 +13,7 @@ import com.mygdx.game.playground.scenes.*
 class MainMenuScene: Scene(
     clearColor = Color.PURPLE
 ) {
+    private val controller = SceneController(this)
     private val input = GdxKeyboardInputUtil()
 
     private val instructions = Label(
@@ -28,12 +30,12 @@ class MainMenuScene: Scene(
     override fun create() {
         instructions.create()
 
-        input[Input.Keys.NUM_1] = { enterScene(CinematicModeScene::class) }
-        input[Input.Keys.NUM_2] = { enterScene(ScreenDimmingScene::class) }
-        input[Input.Keys.NUM_3] = { enterScene(SpeechBubbleScene::class) }
-        input[Input.Keys.NUM_4] = { enterScene(SplashScreenScene::class) }
-        input[Input.Keys.NUM_5] = { enterScene(WindowSizingScene::class) }
-        input[Input.Keys.NUM_6] = { enterScene(CameraModeScene::class) }
+        input[Input.Keys.NUM_1] = { controller.enterScene(CinematicModeScene::class) }
+        input[Input.Keys.NUM_2] = { controller.enterScene(ScreenDimmingScene::class) }
+        input[Input.Keys.NUM_3] = { controller.enterScene(SpeechBubbleScene::class) }
+        input[Input.Keys.NUM_4] = { controller.enterScene(SplashScreenScene::class) }
+        input[Input.Keys.NUM_5] = { controller.enterScene(WindowSizingScene::class) }
+        input[Input.Keys.NUM_6] = { controller.enterScene(CameraModeScene::class) }
     }
 
     override fun render(batch: SpriteBatch) {

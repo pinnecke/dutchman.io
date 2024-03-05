@@ -4,10 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.mygdx.game.engine.EventFilter
-import com.mygdx.game.engine.LayerType
-import com.mygdx.game.engine.Scene
-import com.mygdx.game.engine.closedPolygon
+import com.mygdx.game.engine.*
 import com.mygdx.game.engine.hotspots.HudButton
 import com.mygdx.game.engine.objects.FrameAnimation
 import com.mygdx.game.engine.objects.SpeechBubble
@@ -15,6 +12,7 @@ import com.mygdx.game.engine.objects.SpeechBubblePivot
 
 class SpeechBubbleScene: Scene() {
 
+    private val controller = SceneController(this)
     private var speechPivot = SpeechBubblePivot(500f, 500f, ::sceneToOverlay)
 
     private var speechBubble = SpeechBubble(
@@ -35,7 +33,7 @@ class SpeechBubbleScene: Scene() {
         EventFilter.builder()
             .touchDown { _, _ ->
                 println("Clicked")
-                cinematicModeOn()
+                controller.cinematicModeOn()
                 val lines = listOf(
                     Pair(
                         "Oh yes sir.\n" +
@@ -75,7 +73,7 @@ class SpeechBubbleScene: Scene() {
                     duration = line.second,
                     onDone = {
                         println("Speech done")
-                        cinematicModeOff()
+                        controller.cinematicModeOff()
                     }
                 )
             }
@@ -121,10 +119,10 @@ class SpeechBubbleScene: Scene() {
             speechBubble.abort()
         }
         if (Gdx.input.isKeyPressed(Input.Keys.C)) {
-            if (isInCinematicMode()) {
-                cinematicModeOff()
+            if (controller.isInCinematicMode()) {
+                controller.cinematicModeOff()
             } else {
-                cinematicModeOn()
+                controller.cinematicModeOn()
             }
         }
         if (Gdx.input.isKeyPressed(Input.Keys.T)) {
@@ -148,6 +146,7 @@ class SpeechBubbleScene: Scene() {
     override fun create() {
         hotspot.loadContent()
         batman.create()
+        speechPivot.create()
         speechBubble.create()
     }
 
@@ -155,6 +154,7 @@ class SpeechBubbleScene: Scene() {
         hotspot.unloadContent()
         batman.destroy()
         speechBubble.destroy()
+        speechPivot.destroy()
     }
 
     override fun render(batch: SpriteBatch) {
@@ -164,7 +164,7 @@ class SpeechBubbleScene: Scene() {
 
     }
 
-    override fun renderOverlay(batch: SpriteBatch) {
+    override fun overlay(batch: SpriteBatch) {
         hotspot.render(LayerType.HUD, batch)
         speechBubble.render(batch)
     }

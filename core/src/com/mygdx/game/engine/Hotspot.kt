@@ -109,7 +109,7 @@ abstract class Hotspot(
             for (predicate in filter.touchDownFilter.predicates) {
                 if (predicate.isAny || (predicate.button == button && predicate.pointer == pointer)) {
                     filter.touchDownFilter.action(button, pointer)
-                    regionDebugRenderer.color = Color.WHITE
+                    regionDebugRenderer.renderColor = Color.WHITE
                     return true
                 }
             }
@@ -121,10 +121,15 @@ abstract class Hotspot(
 
     fun loadContent() {
         load()
+        regionDebugRenderer.create()
         owner.registerInput(layer, this)
     }
 
-    fun unloadContent() = unload()
+    fun unloadContent() {
+        unload()
+        regionDebugRenderer.destroy()
+    }
+
 
 
 
@@ -132,25 +137,25 @@ abstract class Hotspot(
         if (layer == this.layer) {
             render(batch)
 
-            batch.end()
 
-            if (regionDebugRenderer.enabled) {
+
+            regionDebugRenderer.render(batch) {
                 val vertices = region.vertices
                 for (i in 0 .. region.vertexCount step 2) {
-                    regionDebugRenderer.drawLine(
+                    it.line(
                         batch.projectionMatrix,
                         x + vertices[i], y + vertices[i + 1],
                         x + vertices[i + 2], y + vertices[i + 3],
                     )
                 }
-                regionDebugRenderer.drawLine(
+                it.line(
                     batch.projectionMatrix,
                     x + vertices[vertices.size - 4], y + vertices[vertices.size - 3],
                     x + vertices[vertices.size - 2], y + vertices[vertices.size - 1],
                 )
             }
 
-            batch.begin()
+
 
         }
     }

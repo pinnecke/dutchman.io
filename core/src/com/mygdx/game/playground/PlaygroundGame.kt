@@ -9,6 +9,7 @@ class PlaygroundGame: DutchmanGame {
     override val scenes = listOf(
         SplashScreenScene(),
         MainMenuScene(),
+        SpeechBubbleScene(),
         ScreenDimmingScene(),
         CinematicModeScene(),
         WindowSizingScene(),

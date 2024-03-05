@@ -28,6 +28,8 @@ class SceneManager(
     private val worldUnprojectBuffer = Vector3.Zero
     private val worldUnprojectResult = Vector2.Zero
 
+    var camera = GameCamera()
+
     private var worldCamera: OrthographicCamera? = null
     private var worldViewport: Viewport? = null
 
@@ -93,6 +95,8 @@ class SceneManager(
         worldCamera!!.translate(25f, 75f ,0f)
         worldCamera!!.update()
 
+        camera.camera = worldCamera
+
         hudCamera = OrthographicCamera()
         hudViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, hudCamera)
         hudViewport!!.update(width.toInt(), height.toInt(), true)
@@ -106,6 +110,7 @@ class SceneManager(
 
         batch = SpriteBatch()
 
+        camera.create()
         swapper.loadContent()
         dimmer.create()
 
@@ -118,6 +123,7 @@ class SceneManager(
     fun shutdown() {
         currentScene!!.unload()
         dimmer.destroy()
+        camera.destroy()
         batch!!.dispose()
     }
 

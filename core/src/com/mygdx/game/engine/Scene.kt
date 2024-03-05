@@ -11,16 +11,64 @@ enum class LayerType {
     HUD
 }
 
+
+class SceneController(
+    private val scene: Scene
+) {
+    fun <T: Scene> enterScene(otherScene: KClass<T>) {
+        if (!scene.leavingScene) {
+            scene.leavingScene = true
+            cinematicModeOff()
+            scene.sceneManager!!.switch(
+                otherScene
+            ) {
+                dimScene(0.0f, SceneDimmer.DimSpeed.HIGH)
+            }
+        }
+    }
+
+    fun setCameraShot(shot: CameraShot) {
+        scene.sceneManager!!.camera.move(shot)
+    }
+
+    fun dimScene(
+        amount: Float,
+        speed: SceneDimmer.DimSpeed = SceneDimmer.DimSpeed.MEDIUM
+    ) {
+        scene.sceneManager!!.dimScene(amount, speed) { println("Done dimming") }
+    }
+
+    fun cinematicModeOn(
+        onDone: () -> Unit = { }
+    ) {
+        if (scene.cinematicBars.isAbsent()) {
+            scene.cinematicBars.show()
+            onDone()
+        }
+    }
+
+    fun cinematicModeOff(
+        onDone: () -> Unit = { }
+    ) {
+        if (scene.cinematicBars.isPresent()) {
+            scene.cinematicBars.hide()
+            onDone()
+        }
+    }
+
+    fun isInCinematicMode() = scene.cinematicBars.isPresent()
+}
+
 abstract class Scene(
     val clearColor: Color = Color.BLACK,
     val width: Int = Config.WINDOW_WIDTH,
     val height: Int = Config.WINDOW_HEIGHT,
 ) {
-    private var sceneManager: SceneManager? = null
+    internal var sceneManager: SceneManager? = null
 
-    private var leavingScene = false
+    internal var leavingScene = false
 
-    private val cinematicBars = CinematicBars()
+    internal val cinematicBars = CinematicBars()
 
     protected val sheets: () -> SpriteSheetManager = {
         sceneManager!!.spriteSheetManager
@@ -41,44 +89,7 @@ abstract class Scene(
     // Scene API
     // ----------------------------------------------------------------------------------
 
-    protected fun <T: Scene> enterScene(scene: KClass<T>) {
-        if (!leavingScene) {
-            leavingScene = true
-            cinematicModeOff()
-            sceneManager!!.switch(
-                scene
-            ) {
-                dimScene(0.0f, SceneDimmer.DimSpeed.HIGH)
-            }
-        }
-    }
 
-    protected fun dimScene(
-        amount: Float,
-        speed: SceneDimmer.DimSpeed = SceneDimmer.DimSpeed.MEDIUM
-    ) {
-        sceneManager!!.dimScene(amount, speed) { println("Done dimming") }
-    }
-
-    protected fun cinematicModeOn(
-        onDone: () -> Unit = { }
-    ) {
-        if (cinematicBars.isAbsent()) {
-            cinematicBars.show()
-            onDone()
-        }
-    }
-
-    protected fun cinematicModeOff(
-        onDone: () -> Unit = { }
-    ) {
-        if (cinematicBars.isPresent()) {
-            cinematicBars.hide()
-            onDone()
-        }
-    }
-
-    protected fun isInCinematicMode() = cinematicBars.isPresent()
 
     // ----------------------------------------------------------------------------------
 
@@ -99,7 +110,7 @@ abstract class Scene(
     protected open fun create() { }
     protected open fun destroy() { }
     protected open fun render(batch: SpriteBatch) { }
-    protected open fun renderOverlay(batch: SpriteBatch) { }
+    protected open fun overlay(batch: SpriteBatch) { }
 
     fun load() {
         cinematicBars.create()
@@ -117,7 +128,7 @@ abstract class Scene(
     }
 
     fun renderOverlayComplete(batch: SpriteBatch) {
-        renderOverlay(batch)
+        overlay(batch)
     }
 
     fun renderGlobalOverlay(batch: SpriteBatch) {

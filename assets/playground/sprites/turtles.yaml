@@ -1,0 +1,4 @@
+root: "turtles"
+sprites:
+  - name: "turtles"
+    frames: 1
