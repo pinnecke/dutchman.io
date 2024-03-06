@@ -6,13 +6,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.Engine
 import com.mygdx.game.engine.Scene
 import com.mygdx.game.engine.SceneController
+import com.mygdx.game.engine.SequenceController
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Rectangle
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
 
 class CinematicModeScene: Scene() {
-
+    private val sequence = SequenceController(this)
     private val controller = SceneController(this)
     private val input = GdxKeyboardInputUtil()
 
@@ -34,7 +35,7 @@ class CinematicModeScene: Scene() {
 
         input[Input.Keys.NUM_1] = { controller.cinematicModeOn() }
         input[Input.Keys.NUM_2] = { controller.cinematicModeOff() }
-        input[Input.Keys.ESCAPE] = { controller.enterScene(MainMenuScene::class) }
+        input[Input.Keys.ESCAPE] = { sequence.switch(MainMenuScene::class) }
     }
 
     override fun render(batch: SpriteBatch) {

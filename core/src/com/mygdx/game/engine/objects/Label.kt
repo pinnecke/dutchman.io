@@ -9,13 +9,15 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.mygdx.game.engine.stdx.GameObject
 
 class Label(
-    val text: String,
+    var text: String,
     val textColor: Color,
     val x: Float,
-    val y: Float
+    val y: Float,
+    val fontSize: Int = 28
 ): GameObject {
 
     private var font: BitmapFont? = null
+    var visible: Boolean = true
     
     override fun create() {
         val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/backissue_reg.otf"))
@@ -23,7 +25,7 @@ class Label(
         parameter.genMipMaps = true
         parameter.minFilter = Texture.TextureFilter.MipMapLinearNearest
         parameter.magFilter = Texture.TextureFilter.Linear
-        parameter.size = 28
+        parameter.size = fontSize
         parameter.color = textColor
         font = generator.generateFont(parameter)
         generator.dispose()
@@ -34,6 +36,8 @@ class Label(
     }
 
     override fun render(batch: SpriteBatch) {
-        font!!.draw(batch, text, x, y)
+        if (visible) {
+            font!!.draw(batch, text, x, y)
+        }
     }
 }

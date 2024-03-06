@@ -9,6 +9,8 @@ data class Surface2D (
     val height: Float
 ) {
     val center = Vector2(left + width / 2f, bottom + height / 2f)
+    val top = bottom + height
+    val right = left + width
 }
 
 data class CanvasDimension (

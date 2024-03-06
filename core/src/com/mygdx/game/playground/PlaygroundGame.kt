@@ -13,6 +13,6 @@ class PlaygroundGame: DutchmanGame {
         ScreenDimmingScene(),
         CinematicModeScene(),
         WindowSizingScene(),
-        CameraModeScene()
+        StaticShotScene()
     )
 }

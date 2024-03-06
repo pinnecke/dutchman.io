@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.mygdx.game.engine.sprites.SpriteSheetManager
+import com.mygdx.game.engine.utils.Deferred
+import com.mygdx.game.engine.utils.deferred
 import kotlin.reflect.KClass
 
 enum class LayerType {
@@ -11,24 +13,30 @@ enum class LayerType {
     HUD
 }
 
+class SequenceController(
+    private val scene: Scene
+) {
+    fun <T: Scene> switch(otherScene: KClass<T>) {
+        if (!scene.leavingScene) {
+            scene.leavingScene = true
+            scene.cinematicBars.hide()
+            scene.sceneManager!!.switch(
+                otherScene
+            ) {
+                scene.sceneManager!!.dimScene(0.0f, SceneDimmer.DimSpeed.HIGH) {  }
+                scene.sceneManager!!.defaultShot.apply()
+            }
+        }
+    }
+}
 
 class SceneController(
     private val scene: Scene
 ) {
-    fun <T: Scene> enterScene(otherScene: KClass<T>) {
-        if (!scene.leavingScene) {
-            scene.leavingScene = true
-            cinematicModeOff()
-            scene.sceneManager!!.switch(
-                otherScene
-            ) {
-                dimScene(0.0f, SceneDimmer.DimSpeed.HIGH)
-            }
-        }
-    }
 
-    fun setCameraShot(shot: CameraShot) {
-        scene.sceneManager!!.camera.move(shot)
+
+    fun cut(frame: Panel) {
+        scene.sceneManager!!.sceneTransition.cut(frame)
     }
 
     fun dimScene(
@@ -64,6 +72,17 @@ abstract class Scene(
     val width: Int = Config.WINDOW_WIDTH,
     val height: Int = Config.WINDOW_HEIGHT,
 ) {
+    private val defaultShot = StaticShot(
+        caption = "Default Shot",
+        factory = shotFactory,
+        left = 0f,
+        bottom = 0f,
+        dimension = Engine.canvas.surface.width,
+        type = ShotDimension.WIDTH
+    )
+
+    protected var initialShot: Shot = defaultShot
+
     internal var sceneManager: SceneManager? = null
 
     internal var leavingScene = false
@@ -74,7 +93,14 @@ abstract class Scene(
         sceneManager!!.spriteSheetManager
     }
 
-    protected open fun update(dt: Float) { }
+    protected val shotFactory: Deferred<ShotFactory>
+        get() { return deferred { sceneManager!!.shotFactory } }
+
+    protected open fun update(dt: Float) {
+        if (sceneManager != null) {
+            initialShot.update(dt)
+        }
+    }
 
     protected fun sceneToOverlay(x: Float, y: Float): Vector2 {
         val desktop = sceneManager!!.projectWorld(x, y)
@@ -116,15 +142,30 @@ abstract class Scene(
         cinematicBars.create()
         leavingScene = false
         create()
+
+        if (sceneManager != null) {
+            if (initialShot == defaultShot) {
+                initialShot.create()
+            }
+            initialShot.apply()
+        }
     }
 
     fun unload() {
         destroy()
         cinematicBars.destroy()
+
+        if (sceneManager != null && initialShot == defaultShot) {
+            initialShot.destroy()
+        }
     }
 
     fun renderWorldComplete(batch: SpriteBatch) {
         render(batch)
+
+        if (sceneManager != null) {
+            initialShot.render(batch)
+        }
     }
 
     fun renderOverlayComplete(batch: SpriteBatch) {

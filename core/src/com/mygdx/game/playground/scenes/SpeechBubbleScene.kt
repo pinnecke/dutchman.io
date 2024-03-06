@@ -11,7 +11,7 @@ import com.mygdx.game.engine.objects.SpeechBubble
 import com.mygdx.game.engine.objects.SpeechBubblePivot
 
 class SpeechBubbleScene: Scene() {
-
+    private val sequence = SequenceController(this)
     private val controller = SceneController(this)
     private var speechPivot = SpeechBubblePivot(500f, 500f, ::sceneToOverlay)
 

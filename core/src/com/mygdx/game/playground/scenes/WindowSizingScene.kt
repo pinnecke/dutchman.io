@@ -7,12 +7,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.Engine
 import com.mygdx.game.engine.Scene
 import com.mygdx.game.engine.SceneController
+import com.mygdx.game.engine.SequenceController
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
 
 class WindowSizingScene: Scene() {
-
+    private val sequence = SequenceController(this)
     private val controller = SceneController(this)
     private val input = GdxKeyboardInputUtil()
 
@@ -27,7 +28,7 @@ class WindowSizingScene: Scene() {
 
         input[Input.Keys.NUM_1] = { Gdx.graphics.setWindowedMode(1920/2, 1080/2) }
         input[Input.Keys.NUM_2] = { Gdx.graphics.setWindowedMode(1440/2, 1080/2) }
-        input[Input.Keys.ESCAPE] = { controller.enterScene(MainMenuScene::class) }
+        input[Input.Keys.ESCAPE] = { sequence.switch(MainMenuScene::class) }
     }
 
     override fun render(batch: SpriteBatch) {

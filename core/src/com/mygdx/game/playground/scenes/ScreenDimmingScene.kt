@@ -3,10 +3,7 @@ package com.mygdx.game.playground.scenes
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.mygdx.game.engine.Engine
-import com.mygdx.game.engine.Scene
-import com.mygdx.game.engine.SceneController
-import com.mygdx.game.engine.SceneDimmer
+import com.mygdx.game.engine.*
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
@@ -14,7 +11,7 @@ import com.mygdx.game.playground.MainMenuScene
 class ScreenDimmingScene: Scene(
     clearColor = Color.BROWN
 ) {
-
+    private val sequence = SequenceController(this)
     private val controller = SceneController(this)
     private val input = GdxKeyboardInputUtil()
 
@@ -52,7 +49,7 @@ class ScreenDimmingScene: Scene(
         input[Input.Keys.NUM_7] = { controller.dimScene(0.7f, speed) }
         input[Input.Keys.NUM_8] = { controller.dimScene(0.8f, speed) }
         input[Input.Keys.NUM_9] = { controller.dimScene(1.0f, speed) }
-        input[Input.Keys.ESCAPE] = { controller.enterScene(MainMenuScene::class) }
+        input[Input.Keys.ESCAPE] = { sequence.switch(MainMenuScene::class) }
     }
 
     override fun render(batch: SpriteBatch) {

@@ -14,6 +14,7 @@ import com.mygdx.game.engine.sprites.SpriteSheetManager
 import com.mygdx.game.engine.utils.InputProcessorHudFirst
 import com.mygdx.game.engine.utils.InputProcessorTee
 import com.mygdx.game.engine.utils.InputProcessorTranslator
+import com.mygdx.game.engine.utils.deferred
 import kotlin.reflect.KClass
 
 object EmptyScene: Scene()
@@ -28,9 +29,10 @@ class SceneManager(
     private val worldUnprojectBuffer = Vector3.Zero
     private val worldUnprojectResult = Vector2.Zero
 
-    var camera = GameCamera()
+    var sceneTransition = SceneTransition()
+    var shotFactory = ShotFactory(deferred { this })
 
-    private var worldCamera: OrthographicCamera? = null
+    internal var worldCamera: OrthographicCamera? = null
     private var worldViewport: Viewport? = null
 
     private var hudCamera: OrthographicCamera? = null
@@ -53,6 +55,14 @@ class SceneManager(
     )
 
     private val dimmer = SceneDimmer()
+    internal val defaultShot = StaticShot(
+        factory = deferred { shotFactory },
+        left = 0f,
+        bottom = 0f,
+        dimension = Engine.canvas.surface.width,
+        type = ShotDimension.WIDTH,
+        debuggable = false
+    )
 
     private val inputProcessor = InputProcessorHudFirst(
         InputProcessorTranslator(::unprojectHud, hudInputProcessorTee),
@@ -95,7 +105,7 @@ class SceneManager(
         worldCamera!!.translate(25f, 75f ,0f)
         worldCamera!!.update()
 
-        camera.camera = worldCamera
+        sceneTransition.camera = worldCamera
 
         hudCamera = OrthographicCamera()
         hudViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, hudCamera)
@@ -110,9 +120,10 @@ class SceneManager(
 
         batch = SpriteBatch()
 
-        camera.create()
+        sceneTransition.create()
         swapper.loadContent()
         dimmer.create()
+        defaultShot.create()
 
         currentScene = EmptyScene
         currentScene!!.load()
@@ -123,7 +134,8 @@ class SceneManager(
     fun shutdown() {
         currentScene!!.unload()
         dimmer.destroy()
-        camera.destroy()
+        defaultShot.destroy()
+        sceneTransition.destroy()
         batch!!.dispose()
     }
 
@@ -153,6 +165,9 @@ class SceneManager(
         handleInput()
         swapper.update(dt)
         dimmer.update(dt)
+        defaultShot.update(dt)
+        sceneTransition.update(dt)
+        shotFactory.update(dt)
         currentScene!!.updateContents(dt)
     }
 
@@ -161,17 +176,18 @@ class SceneManager(
         Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
-        renderScenee()
+        renderScene()
         renderOverlay()
     }
 
-    private fun renderScenee() = with(batch!!) {
+    private fun renderScene() = with(batch!!) {
         worldViewport!!.apply()
         val worldProjectionMatrix = worldViewport!!.camera.combined
         this.projectionMatrix = worldProjectionMatrix
 
         begin()
         currentScene!!.renderWorldComplete(this)
+        defaultShot.render(this)
         end()
 
         hudViewport!!.apply()

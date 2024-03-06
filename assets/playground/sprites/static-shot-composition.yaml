@@ -1,0 +1,4 @@
+root: "static-shot-composition"
+sprites:
+  - name: "static-shot-composition"
+    frames: 1

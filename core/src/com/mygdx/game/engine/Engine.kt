@@ -3,7 +3,7 @@ package com.mygdx.game.engine
 import com.badlogic.gdx.graphics.Color
 
 data class Colors(
-    val dimmedGray: Color = Color(0f, 0f, 0f, 0.75f)
+    val dimmedGray: Color = Color(0f, 0f, 0f, 0.60f)
 )
 
 class Engine {
