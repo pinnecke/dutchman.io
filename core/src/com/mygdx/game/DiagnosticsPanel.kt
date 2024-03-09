@@ -57,6 +57,7 @@ class DiagnosticsPanel: GameObject("Diagnostic Panel") {
         rectProgress
     )
 
+    var visible: Boolean = true
     var enabled: Boolean = Config.DEBUG_SHOW_DIAGNOSTICS
 
     var sceneName: String = "Unknown"
@@ -78,22 +79,24 @@ class DiagnosticsPanel: GameObject("Diagnostic Panel") {
 
     override fun render(batch: SpriteBatch) {
         if (enabled) {
-            Gdx.gl.glEnable(GL20.GL_BLEND)
-            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+            if (visible) {
+                Gdx.gl.glEnable(GL20.GL_BLEND)
+                Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
 
-            rect.render(batch)
+                rect.render(batch)
 
-            if (shotTotal.isFinite() && shotElapsed.isFinite()) {
-                rectProgress.width = shotProgress * rect.width
-                rectProgress.render(batch)
+                if (shotTotal.isFinite() && shotElapsed.isFinite()) {
+                    rectProgress.width = shotProgress * rect.width
+                    rectProgress.render(batch)
 
-                font!!.draw(batch, "$sceneName : $shotName", 210f, rect.y - 18f)
+                    font!!.draw(batch, "$sceneName : $shotName", 210f, rect.y - 18f)
 
-                val totalMin = "%.0f".format(shotTotal / 60f).padStart(2, '0')
-                val totalSec = "%.0f".format(shotTotal % 60f).padStart(2, '0')
-                val elapsedMin = "%.0f".format(shotElapsed / 60f).padStart(2, '0')
-                val elapsedSec = "%.0f".format(shotElapsed % 60f).padStart(2, '0')
-                font!!.draw(batch, "$elapsedMin:$elapsedSec / $totalMin:$totalSec", rect.width - 10f, rect.y - 18f)
+                    val totalMin = "%.0f".format(shotTotal / 60f).padStart(2, '0')
+                    val totalSec = "%.0f".format(shotTotal % 60f).padStart(2, '0')
+                    val elapsedMin = "%.0f".format(shotElapsed / 60f).padStart(2, '0')
+                    val elapsedSec = "%.0f".format(shotElapsed % 60f).padStart(2, '0')
+                    font!!.draw(batch, "$elapsedMin:$elapsedSec / $totalMin:$totalSec", rect.width - 10f, rect.y - 18f)
+                }
             }
         }
     }

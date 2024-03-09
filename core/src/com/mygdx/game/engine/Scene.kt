@@ -123,9 +123,15 @@ abstract class Scene(
     protected val shotFactory: Deferred<ShotFactory>
         get() { return deferred { sceneManager!!.shotFactory } }
 
-    protected fun gameSceneComposerOf(timelineName: String) = TimelineMaster(
+    protected fun gameSceneComposerOf(
+        composerName: String,
+        initialTimeline: GameScene,
+        others: List<GameScene>
+    ) = GameSceneComposer(
         parent = this,
-        timelineName = timelineName,
+        timelineName = composerName,
+        initial = initialTimeline,
+        others = others,
         diagnosticsPanel = sceneManager!!.diagnostics
     )
 

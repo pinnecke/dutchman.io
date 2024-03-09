@@ -9,6 +9,7 @@ import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
 import com.mygdx.game.playground.scenes.timeline.scenes.GameScene1
 import com.mygdx.game.playground.scenes.timeline.scenes.GameScene2
+import kotlin.reflect.KClass
 
 class TimelineScene(sceneManager: SceneManager): Scene(
     "Timeline Scene",
@@ -20,9 +21,9 @@ class TimelineScene(sceneManager: SceneManager): Scene(
     private val inputDelayer = Sequencer(0.1f, onStart = { println("Wait") }, onDone = { println("Next") })
 
     private val instructionHint = Label(
-        "[1] Timeline 1\n" +
-             "[2] Timeline 2\n" +
-             "[SPACE] start/pause/resume \n" +
+        "[1] Game Scene 1\n" +
+             "[2] Game Scene 2\n" +
+             "[SPACE] start/pause/resume timeline \n" +
              "[S] stop \n" +
              "[BACKSPACE] rewind \n" +
              "[ESC] back\n\n",
@@ -31,33 +32,35 @@ class TimelineScene(sceneManager: SceneManager): Scene(
     )
 
     private val selectionHint = Label(
-        "Timeline 1",
+        "Game Scene 1",
         Color.BLACK,
         Engine.canvas.safeZone.left + 50f, Engine.canvas.safeZone.height - 260f,
     )
 
-    private val composer = gameSceneComposerOf("Timeline Scene")
-    private val gameScene1 = GameScene1(composer)
-    private val gameScene2 = GameScene2(composer)
+    private val composer = gameSceneComposerOf(
+        composerName = "Timeline Scene",
+        initialTimeline = GameScene1(),
+        others = listOf(
+            GameScene2()
+        )
+    )
 
-    private var selection: Timeline = gameScene1.timeline
+    private var selection: KClass<*> = GameScene1::class
 
     init {
         manageContent(
             instructionHint,
             selectionHint,
-            composer,
-            gameScene1,
-            gameScene2
+            composer
         )
 
         input[Input.Keys.NUM_1] = {
-            selectionHint.text = "Timeline 1"
-            selection = gameScene1.timeline
+            selectionHint.text = "Game Scene 1"
+            selection = GameScene1::class
         }
         input[Input.Keys.NUM_2] = {
-            selectionHint.text = "Timeline 2"
-            selection = gameScene2.timeline
+            selectionHint.text = "Game Scene 2"
+            selection = GameScene2::class
         }
         input[Input.Keys.SPACE] = {
             if (inputDelayer.isNotRunning) {
@@ -65,17 +68,17 @@ class TimelineScene(sceneManager: SceneManager): Scene(
                 if (!composer.isRunning) {
                     composer.start(selection)
                 } else if (composer.isRunning && composer.isPaused) {
-                    composer.resume(selection)
+                    composer.resume()
                 } else if (composer.isRunning && !composer.isPaused) {
-                    composer.pause(selection)
+                    composer.pause()
                 }
             }
         }
         input[Input.Keys.S] = {
-            composer.stop(selection)
+            composer.stop()
         }
         input[Input.Keys.BACKSPACE] = {
-            composer.rewind(selection)
+            composer.rewind()
         }
 
         input[Input.Keys.ESCAPE] = { sequence.switch(MainMenuScene::class) }

@@ -3,13 +3,15 @@ package com.mygdx.game.engine
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.DiagnosticsPanel
 import com.mygdx.game.engine.memory.ManagedContent
-import com.mygdx.game.engine.stdx.DynamicComponent
+import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.stdx.GameObject
 import com.mygdx.game.engine.stdx.Render
 import com.mygdx.game.engine.stdx.Update
 import com.mygdx.game.engine.utils.info
+import com.mygdx.game.playground.scenes.timeline.scenes.GameScene1
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.reflect.KClass
 
 interface TimeFrame {
 
@@ -180,13 +182,46 @@ abstract class GameScene(contentIdentifier: String): GameObject(contentIdentifie
     }
 }
 
-class TimelineMaster(
+class GameSceneComposer(
     parent: Scene,
     private val diagnosticsPanel: DiagnosticsPanel,
-    timelineName: String
+    timelineName: String,
+    private val initial: GameScene,
+    private val others: List<GameScene>
 ): GameObject("Timeline Master - ${parent.name} ($timelineName)") {
 
-    override val managedContent = mutableListOf<ManagedContent>()
+    private val index: Map<KClass<*>, GameScene> = (listOf(initial) + others).associateBy {
+        it::class
+    }
+
+    override val managedContent: MutableList<ManagedContent> = (
+        mutableListOf(
+            initial
+        ) +
+        others +
+        mutableListOf(
+            managedContentOf(
+                contentIdentifier = "Diagnostics setup",
+                load = {
+                    diagnosticsPanel.visible = true
+                },
+                unload = {
+                    diagnosticsPanel.visible = false
+                }
+            ),
+            managedContentOf(
+                contentIdentifier = "Timeline setup",
+                load = {
+                    (listOf(initial) + others).forEach {
+                        register(it::class)
+                    }
+
+                    start(initial::class)
+                },
+                unload = { }
+            )
+        )
+    ).toMutableList()
 
     val isRunning: Boolean
         get() = active?.isRunning ?: false
@@ -209,36 +244,38 @@ class TimelineMaster(
     private val duration: Float
         get() { return active?.duration ?: 0f }
 
-    fun register(timeline: Timeline) {
-        info( "registering: ${timeline.contentIdentifier}")
-        timelines[timeline] = true
+    fun register(sceneId: KClass<*>) {
+        val scene = index[sceneId]!!
+        info( "registering: ${scene.timeline.contentIdentifier}")
+        timelines[scene.timeline] = true
     }
 
-    fun start(timeline: Timeline) {
+    fun start(sceneId: KClass<*>) {
+        val scene = index[sceneId]!!
         timelines.forEach { if (it.value) { it.key.stop() } }
-        timeline.start()
-        active = timeline
+        scene.timeline.start()
+        active = scene.timeline
     }
 
-    fun pause(timeline: Timeline) {
-        timeline.pause()
+    fun pause() {
+        active?.pause()
     }
 
-    fun resume(timeline: Timeline) {
-        timeline.resume()
+    fun resume() {
+        active?.resume()
     }
 
-    fun stop(timeline: Timeline) {
-        timeline.stop()
+    fun stop() {
+        active?.stop()
     }
 
-    fun rewind(timeline: Timeline) {
-        timeline.rewind()
+    fun rewind() {
+        active?.rewind()
     }
 
     override fun update(dt: Float) {
         diagnosticsPanel.sceneName = active?.contentIdentifier ?: "Unknown"
-        diagnosticsPanel.shotName = active?.contentIdentifier ?: "???"
+        diagnosticsPanel.shotName = "???"
         diagnosticsPanel.shotElapsed = active?.elapsed ?: 0f
         diagnosticsPanel.shotTotal = active?.duration ?: Float.POSITIVE_INFINITY
         diagnosticsPanel.shotProgress = active?.alpha ?: 0f
@@ -256,7 +293,6 @@ class TimelineMaster(
 
 class Timeline(
     timeLineName: String,
-    master: TimelineMaster,
     private val lanes: List<Lane>,
     private val onStart: Action = noAction,
     private val onUpdate: Updater = noUpdates,
@@ -267,14 +303,10 @@ class Timeline(
     private val onDone: Action = noAction
 ): GameObject("Timeline - $timeLineName"), Playback, TimeFrame {
 
-    init {
-        master.register(this)
-    }
-
     private val panel: Panel = panelOf(
         caption = "$timeLineName - Initial Panel",
         left = 0f, bottom = 0f,
-        dimension = 1092f, type = PanelDimension.WIDTH
+        dimension = Engine.canvas.surface.width, type = PanelDimension.WIDTH
     )
 
     override val managedContent = mutableListOf<ManagedContent>(
@@ -299,6 +331,9 @@ class Timeline(
 
     override fun update(dt: Float) {
         if (isRunning) {
+            if (!isPaused) {
+                elapsed += dt
+            }
             panel.update(dt)
             lanes.forEach { it.update(dt) }
             onUpdate(dt, alpha, elapsed, duration)
@@ -309,10 +344,8 @@ class Timeline(
     }
 
     override fun render(batch: SpriteBatch) {
-        if (isRunning) {
-            lanes.forEach { it.render(batch) }
-            panel.render(batch)
-        }
+        lanes.forEach { it.render(batch) }
+        panel.render(batch)
     }
 
     override fun start() {
@@ -331,6 +364,7 @@ class Timeline(
     }
 
     override fun stop() {
+        elapsed = 0f
         lanes.forEach { it.stop() }
         onStop()
     }

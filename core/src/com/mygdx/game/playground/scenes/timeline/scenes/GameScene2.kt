@@ -4,26 +4,25 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.memory.managedContentOf
 
-class GameScene2(master: TimelineMaster): GameScene("Game Scene 1") {
+class GameScene2: GameScene("Game Scene 2") {
 
     override val managedContent = mutableListOf(
         managedContentOf(
             "Dummy objects",
             load = {
-                println("Timeline 1 objects: created")
+                println("Timeline objects: created")
             },
             unload = {
-                println("Timeline 1 objects: destroyed")
+                println("Timeline objects: destroyed")
             }
         )
     )
 
     override val timeline = Timeline(
-        timeLineName = "Game Scene 1 Timeline",
-        master = master,
+        timeLineName = "Game Scene 2 Timeline",
         lanes = listOf(
             Lane(
-                name = "Game Scene 1 Timeline Lane 1",
+                name = "Game Scene 2 Timeline Lane 1",
                 sequences = listOf(
                     Sequence1()
                 )
