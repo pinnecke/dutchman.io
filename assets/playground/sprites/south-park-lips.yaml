@@ -1,0 +1,4 @@
+root: "pan-shot-widescreen"
+sprites:
+  - name: "pan-shot-widescreen"
+    frames: 1

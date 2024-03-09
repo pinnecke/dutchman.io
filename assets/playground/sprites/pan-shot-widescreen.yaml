@@ -1,0 +1,4 @@
+root: "static-shot-dialog-b"
+sprites:
+  - name: "static-shot-dialog-b"
+    frames: 1
