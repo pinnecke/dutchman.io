@@ -10,14 +10,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
-import com.mygdx.game.engine.Config
-import com.mygdx.game.engine.DebugRenderer
-import com.mygdx.game.engine.Tween
-import com.mygdx.game.engine.TweenFunction
-import com.mygdx.game.engine.stdx.DynamicComponent
+import com.mygdx.game.engine.*
+import com.mygdx.game.engine.memory.ManagedContent
+import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.stdx.GameObject
-import com.mygdx.game.engine.stdx.Render
-import com.mygdx.game.engine.stdx.Update
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -29,8 +25,15 @@ class SpeechBubblePivot(
     var x: Float,
     var y: Float,
     val sceneToOverlay: CoordinateProjector
-): GameObject {
-    private val debugRenderer = DebugRenderer(Config.DEBUG_RENDER_SHOW_PIVOTS_POINTS)
+): GameObject("Speech Bubble Pivot - ($x, $y)") {
+
+    private val debugRenderer = DebugRenderer("Debug Renderer", Config.DEBUG_RENDER_SHOW_PIVOTS_POINTS)
+
+    override val managedContent = mutableListOf<ManagedContent>(
+        debugRenderer
+    )
+
+
     private val hPadding = 460f
     private val vPadding = 120f
 
@@ -45,15 +48,6 @@ class SpeechBubblePivot(
             val overlay = sceneToOverlay(x, y)
             return max(vPadding + 120f, min(overlay.y, Config.WINDOW_HEIGHT.toFloat() - vPadding))
         }
-
-
-    override fun create() {
-        debugRenderer.create()
-    }
-
-    override fun destroy() {
-        debugRenderer.destroy()
-    }
 
     override fun render(batch: SpriteBatch) {
         batch.end()
@@ -79,13 +73,45 @@ private enum class SpeechBubbleState {
 }
 
 class SpeechBubble(
+    contentIdentifier: String,
     private val textColor: Color,
-    private val pivot: SpeechBubblePivot
-): Update, Render, DynamicComponent {
+    private val pivot: SpeechBubblePivot,
+): GameObject(contentIdentifier) {
 
-    private var displayText: String? = null
     private var font: BitmapFont? = null
     private var shapeRender: ShapeRenderer? = null
+
+    override val managedContent = mutableListOf(
+        managedContentOf(
+            contentIdentifier = "Font",
+            load = {
+                val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/backissue_reg.otf"))
+                val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
+                parameter.genMipMaps = true
+                parameter.minFilter = Texture.TextureFilter.MipMapLinearNearest
+                parameter.magFilter = Texture.TextureFilter.Linear
+                parameter.size = 28
+                parameter.color = textColor
+                font = generator.generateFont(parameter)
+                generator.dispose()
+            },
+            unload = {
+                font!!.dispose()
+            }
+        ),
+        managedContentOf(
+            contentIdentifier = "Shape Renderer",
+            load = {
+                shapeRender = ShapeRenderer()
+            },
+            unload = {
+                shapeRender!!.dispose()
+            }
+        )
+    )
+
+    private var displayText: String? = null
+
     private var layout: GlyphLayout? = null
     private var state = SpeechBubbleState.GONE
 
@@ -139,24 +165,6 @@ class SpeechBubble(
         }
     )
 
-    override fun create() {
-        val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/backissue_reg.otf"))
-        val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
-        parameter.genMipMaps = true
-        parameter.minFilter = Texture.TextureFilter.MipMapLinearNearest
-        parameter.magFilter = Texture.TextureFilter.Linear
-        parameter.size = 28
-        parameter.color = textColor
-        font = generator.generateFont(parameter)
-        generator.dispose()
-
-        shapeRender = ShapeRenderer()
-    }
-
-    override fun destroy() {
-        font!!.dispose()
-        shapeRender!!.dispose()
-    }
 
     private val backlog: ArrayDeque<SayArgs> = ArrayDeque()
 

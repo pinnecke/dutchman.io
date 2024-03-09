@@ -6,24 +6,30 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Matrix4
-import com.mygdx.game.engine.stdx.DynamicComponent
+import com.mygdx.game.engine.memory.AllocatorManagedContent
+import com.mygdx.game.engine.memory.managedContentOf
 
 private val IDENTITY = Matrix4()
 
 class DebugRenderer(
+    renderContextName: String,
     private val enabled: Boolean,
     var renderColor: Color = Color.RED
-): DynamicComponent {
+): AllocatorManagedContent("Debug Renderer ($renderContextName)") {
 
     private var shapeRenderer: ShapeRenderer? = null
 
-    override fun create() {
-        shapeRenderer = ShapeRenderer()
-    }
-
-    override fun destroy() {
-        shapeRenderer!!.dispose()
-    }
+    override val managedContent = mutableListOf(
+        managedContentOf(
+            contentIdentifier = "Shape Renderer",
+            load = {
+                shapeRenderer = ShapeRenderer()
+            },
+            unload = {
+                shapeRenderer!!.dispose()
+            }
+        )
+    )
 
     fun render(batch: SpriteBatch, action: (renderer: DebugRenderer) -> Unit) {
         if (enabled) {

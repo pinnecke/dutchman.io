@@ -13,7 +13,7 @@ import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.objects.Rectangle
 import com.mygdx.game.engine.stdx.GameObject
 
-class Diagnostics: GameObject("Diagnostic Panel") {
+class DiagnosticsPanel: GameObject("Diagnostic Panel") {
 
     private var font: BitmapFont? = null
 
@@ -24,6 +24,7 @@ class Diagnostics: GameObject("Diagnostic Panel") {
         height = 3f,
         color = Engine.colors.dimmedGray
     )
+
     private var rectProgress = Rectangle(
         x = rect.x,
         y = rect.y,
@@ -79,13 +80,6 @@ class Diagnostics: GameObject("Diagnostic Panel") {
         if (enabled) {
             Gdx.gl.glEnable(GL20.GL_BLEND)
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
-
-            val sceneShotName = "$sceneName : $shotName"/* +
-                       "${"%.0f".format(100 * shotProgress)}% ".padEnd(20) +
-                       "${"%.0f".format(shotElapsed)} sec elapsed    ".padEnd(20) +
-                       "${"%.0f".format(max(0f, shotTotal - shotElapsed))} sec remain   ".padEnd(20) +
-                       "${"%.1f".format(shotTotal)} sec total   ".padEnd(20) +
-                       "FPS ${Gdx.graphics.framesPerSecond}"*/
 
             rect.render(batch)
 

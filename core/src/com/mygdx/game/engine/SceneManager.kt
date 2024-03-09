@@ -10,27 +10,29 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
+import com.mygdx.game.DiagnosticsPanel
+import com.mygdx.game.engine.memory.managedContentOf
+import com.mygdx.game.engine.shots.StaticShot
 import com.mygdx.game.engine.sprites.SpriteSheetManager
+import com.mygdx.game.engine.stdx.GameObject
 import com.mygdx.game.engine.utils.InputProcessorHudFirst
 import com.mygdx.game.engine.utils.InputProcessorTee
 import com.mygdx.game.engine.utils.InputProcessorTranslator
 import com.mygdx.game.engine.utils.deferred
 import kotlin.reflect.KClass
 
-object EmptyScene: Scene()
+fun emptyScene(sceneManager: SceneManager) = object: Scene("Empty Scene", sceneManager) {
+
+}
 
 class SceneManager(
     namespace: String,
+    private val bootScene: KClass<*>,
     private val width: Float = Config.WINDOW_WIDTH.toFloat(),
     private val height: Float = Config.WINDOW_HEIGHT.toFloat()
-) {
-    val spriteSheetManager: SpriteSheetManager = SpriteSheetManager(namespace)
+): GameObject("Scene Manager - $namespace") {
 
-    private val worldUnprojectBuffer = Vector3.Zero
-    private val worldUnprojectResult = Vector2.Zero
-
-    var sceneTransition = SceneTransition()
-    var shotFactory = ShotFactory(deferred { this })
+    private var batch: SpriteBatch? = null
 
     internal var worldCamera: OrthographicCamera? = null
     private var worldViewport: Viewport? = null
@@ -38,36 +40,111 @@ class SceneManager(
     private var hudCamera: OrthographicCamera? = null
     private var hudViewport: Viewport? = null
 
+    val spriteSheetManager: SpriteSheetManager = SpriteSheetManager(namespace)
+
+    var sceneTransition = SceneTransition()
+
+    private val emptyScene = emptyScene(this)
+
+    private val swapper = SceneSwapper(
+        loadingScene = emptyScene,
+        { scene -> scene.unloadContent() },
+        { scene -> scene.loadContent() },
+        { scene -> currentScene = scene },
+    )
+
+    private val dimmer = SceneDimmer()
+
+    internal val diagnostics = DiagnosticsPanel()
+
+    override val managedContent = mutableListOf(
+        managedContentOf(
+            contentIdentifier = "Sprite Batch",
+            load = {
+                batch = SpriteBatch()
+            },
+            unload = {
+                batch!!.dispose()
+            }
+        ),
+        managedContentOf(
+            contentIdentifier = "Camera setup",
+            load = {
+                worldCamera = OrthographicCamera()
+                worldViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, worldCamera)
+                worldViewport!!.update(width.toInt(), height.toInt(), true)
+
+                worldCamera!!.translate(25f, 75f ,0f)
+                worldCamera!!.update()
+
+                sceneTransition.camera = worldCamera
+
+                hudCamera = OrthographicCamera()
+                hudViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, hudCamera)
+                hudViewport!!.update(width.toInt(), height.toInt(), true)
+
+                hudCamera!!.translate(25f, 75f ,0f)
+                hudCamera!!.update()
+            },
+            unload = { }
+        ),
+        managedContentOf(
+            contentIdentifier = "Sprite Sheet Manager",
+            load = {
+                spriteSheetManager.init()
+            },
+            unload = {
+
+            }
+        ),
+        sceneTransition,
+        swapper,
+        dimmer,
+        emptyScene,
+        diagnostics,
+        managedContentOf(
+            contentIdentifier = "Boot scene setup",
+            load = {
+                currentScene = emptyScene
+                switch(bootScene)
+            },
+            unload = {
+                currentScene!!.unloadContent()
+            }
+        )
+    )
+
+    private val worldUnprojectBuffer = Vector3.Zero
+    private val worldUnprojectResult = Vector2.Zero
+
+    var shotFactory = ShotFactory(deferred { this })
+
     private val hudUnprojectBuffer = Vector3.Zero
     private val hudUnprojectResult = Vector2.Zero
 
-    private var batch: SpriteBatch? = null
     private val scenes = mutableMapOf<KClass<*>, Scene>()
     private var currentScene: Scene? = null
 
     private val worldInputProcessorTee = InputProcessorTee()
     private val hudInputProcessorTee = InputProcessorTee()
 
-    private val swapper = SceneSwapper(
-        { scene -> scene.unload() },
-        { scene -> scene.load() },
-        { scene -> currentScene = scene },
-    )
-
-    private val dimmer = SceneDimmer()
-    internal val defaultShot = StaticShot(
+    internal fun defaultShot() = StaticShot(
+        caption = "Default Shot",
         factory = deferred { shotFactory },
         left = 0f,
         bottom = 0f,
         dimension = Engine.canvas.surface.width,
         type = ShotDimension.WIDTH,
-        debuggable = false
+        debuggable = false,
+        duration = Float.POSITIVE_INFINITY
     )
 
     private val inputProcessor = InputProcessorHudFirst(
         InputProcessorTranslator(::unprojectHud, hudInputProcessorTee),
         InputProcessorTranslator(::unprojectWorld, worldInputProcessorTee)
     )
+
+
 
     fun addInputProcessor(layer: LayerType, inputProcessor: InputProcessor) =
         when (layer) {
@@ -96,49 +173,6 @@ class SceneManager(
         return hudUnprojectResult
     }
 
-    fun startup(bootScene: KClass<*>) {
-
-        worldCamera = OrthographicCamera()
-        worldViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, worldCamera)
-        worldViewport!!.update(width.toInt(), height.toInt(), true)
-
-        worldCamera!!.translate(25f, 75f ,0f)
-        worldCamera!!.update()
-
-        sceneTransition.camera = worldCamera
-
-        hudCamera = OrthographicCamera()
-        hudViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, hudCamera)
-        hudViewport!!.update(width.toInt(), height.toInt(), true)
-
-        hudCamera!!.translate(25f, 75f ,0f)
-        hudCamera!!.update()
-
-
-
-        spriteSheetManager.init()
-
-        batch = SpriteBatch()
-
-        sceneTransition.create()
-        swapper.loadContent()
-        dimmer.create()
-        defaultShot.create()
-
-        currentScene = EmptyScene
-        currentScene!!.load()
-
-        switch(bootScene)
-    }
-
-    fun shutdown() {
-        currentScene!!.unload()
-        dimmer.destroy()
-        defaultShot.destroy()
-        sceneTransition.destroy()
-        batch!!.dispose()
-    }
-
     fun resize(windowWidth: Int, windowHeight: Int) {
         worldViewport!!.update(windowWidth, windowHeight)
         hudViewport!!.update(windowWidth, windowHeight)
@@ -146,7 +180,6 @@ class SceneManager(
 
     fun register(gameScenes: List<Scene>) {
         gameScenes.forEach {
-            it.injectSceneManager(this)
             scenes[it::class] = it
         }
     }
@@ -161,14 +194,19 @@ class SceneManager(
         )
     }
 
-    fun update(dt: Float) {
+    override fun update(dt: Float) {
         handleInput()
         swapper.update(dt)
         dimmer.update(dt)
-        defaultShot.update(dt)
+        //defaultShot.update(dt)
         sceneTransition.update(dt)
         shotFactory.update(dt)
+        diagnostics.update(dt)
         currentScene!!.updateContents(dt)
+    }
+
+    override fun render(batch: SpriteBatch) {
+        throw NotImplementedError("Use #render() method instead")
     }
 
     fun render() {
@@ -187,7 +225,7 @@ class SceneManager(
 
         begin()
         currentScene!!.renderWorldComplete(this)
-        defaultShot.render(this)
+        //defaultShot.render(this)
         end()
 
         hudViewport!!.apply()
@@ -201,6 +239,7 @@ class SceneManager(
 
         begin()
         currentScene!!.renderGlobalOverlay(this)
+        diagnostics.render(this)
         end()
     }
 

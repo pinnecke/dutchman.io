@@ -6,13 +6,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.objects.FrameAnimation
 import com.mygdx.game.engine.objects.Label
-import com.mygdx.game.engine.objects.Position
-import com.mygdx.game.engine.stdx.value
+import com.mygdx.game.engine.shots.PanTiltShot
+import com.mygdx.game.engine.shots.StaticShot
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
 
-class StaticShotScene: Scene(
-    clearColor = Color.GRAY
+class PanShotScene(sceneManager: SceneManager): Scene(
+    "Pan Shot Scene",
+    sceneManager,
+    clearColor = Color.GRAY,
 ) {
     private val sequence = SequenceController(this)
     private val input = GdxKeyboardInputUtil()
@@ -30,124 +32,68 @@ class StaticShotScene: Scene(
     private val overviewShot = StaticShot(
         caption = "Developer View",
         factory = shotFactory,
-        left = -1000f,
-        bottom = -2500f,
+        left = -2000f,
+        bottom = -1500f,
         dimension = 8000f,
-        type = ShotDimension.WIDTH
+        type = ShotDimension.WIDTH,
+        duration = Float.POSITIVE_INFINITY
     )
 
-    private var dialogAFrame = FrameAnimation(
-        name = "static-shot-dialog-a",
+    private var widescreenFrame = FrameAnimation(
+        name = "pan-shot-widescreen",
         sheets = super.sheets
     )
 
-    private var dialogBFrame = FrameAnimation(
-        name = "static-shot-dialog-b",
-        sheets = super.sheets,
-        position = value(Position(
-            left = { 2852f + 100f },
-            bottom = { 0f }
-        ))
-    )
-
-    private val dialogAShot = StaticShot(
-        caption = "Dialog A",
+    private val widescreenShot = PanTiltShot(
+        caption = "Example",
         factory = shotFactory,
-        left = 500f,
-        bottom = 0f,
-        dimension = 1150f,
-        type = ShotDimension.HEIGHT
-    )
-
-    private val dialogBShot = StaticShot(
-        caption = "Dialog B",
-        factory = shotFactory,
-        left = 2852f + 100f + 500f,
-        bottom = 0f,
-        dimension = 1140f,
-        type = ShotDimension.HEIGHT
-    )
-
-    private var compositionFrame = FrameAnimation(
-        name = "static-shot-composition",
-        sheets = super.sheets,
-        position = value(Position(
-            left = { 0f },
-            bottom = { -1600f }
-        ))
-    )
-
-    private val compositionShot = StaticShot(
-        caption = "Composition",
-        factory = shotFactory,
-        left = 0f,
-        bottom = -1600f,
-        dimension = 1936f,
-        type = ShotDimension.WIDTH
+        beginLeft = 200f,
+        beginBottom = 200f,
+        beginDimension = 1150f,
+        beginType = ShotDimension.HEIGHT,
+        endLeft = 1620f,
+        endBottom = 200f,
+        endDimension = 1150f,
+        endType = ShotDimension.HEIGHT,
+        duration = 2f,
+        onUpdates = { _,_,_ -> println("Done") }
     )
 
     init {
+        manageContent(
+            instructions,
+            overviewShot,
+            widescreenFrame,
+            widescreenShot
+        )
+
         initialShot = overviewShot
-    }
 
-    override fun create() {
-        instructions.create()
         instructions.visible = true
-
-        dialogAFrame.create()
-        dialogBFrame.create()
-        compositionFrame.create()
-
-        dialogAShot.create()
-        dialogBShot.create()
-        overviewShot.create()
-        compositionShot.create()
 
         input[Input.Keys.NUM_1] = {
             instructions.visible = false
-            dialogAShot.cut()
-        }
-        input[Input.Keys.NUM_2] = {
-            instructions.visible = false
-            dialogBShot.cut()
-        }
-        input[Input.Keys.NUM_3] = {
-            instructions.visible = false
-            compositionShot.cut()
+            widescreenShot.debuggable = false
+            widescreenShot.cut()
         }
         input[Input.Keys.ESCAPE] = { sequence.switch(MainMenuScene::class) }
     }
 
     override fun update(dt: Float) {
         input.act()
+        widescreenShot.update(dt)
+        overviewShot.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {
-        dialogAFrame.render(batch)
-        dialogBFrame.render(batch)
-        compositionFrame.render(batch)
+        widescreenFrame.render(batch)
 
-        dialogAShot.render(batch)
-        dialogBShot.render(batch)
+        widescreenShot.render(batch)
         overviewShot.render(batch)
-        compositionShot.render(batch)
     }
 
     override fun overlay(batch: SpriteBatch) {
         instructions.render(batch)
-    }
-
-    override fun destroy(){
-        instructions.destroy()
-
-        dialogAFrame.destroy()
-        dialogBFrame.destroy()
-        compositionFrame.destroy()
-
-        overviewShot.destroy()
-        dialogAShot.destroy()
-        dialogBShot.destroy()
-        compositionShot.destroy()
     }
 
 }

@@ -3,7 +3,10 @@ package com.mygdx.game.engine
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
+import com.mygdx.game.engine.memory.ManagedContent
+import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.sprites.SpriteSheetManager
+import com.mygdx.game.engine.stdx.GameObject
 import com.mygdx.game.engine.utils.Deferred
 import com.mygdx.game.engine.utils.deferred
 import kotlin.reflect.KClass
@@ -24,7 +27,7 @@ class SequenceController(
                 otherScene
             ) {
                 scene.sceneManager!!.dimScene(0.0f, SceneDimmer.DimSpeed.HIGH) {  }
-                scene.sceneManager!!.defaultShot.apply()
+                //scene.sceneManager!!.defaultShot.cut()
             }
         }
     }
@@ -68,26 +71,50 @@ class SceneController(
 }
 
 abstract class Scene(
+    val name: String,
+    val sceneManager: SceneManager,
     val clearColor: Color = Color.BLACK,
     val width: Int = Config.WINDOW_WIDTH,
     val height: Int = Config.WINDOW_HEIGHT,
-) {
-    private val defaultShot = StaticShot(
-        caption = "Default Shot",
+): GameObject("Scene - $name") {
+
+    internal var leavingScene = false
+    internal val cinematicBars = CinematicBars()
+    protected var initialShot: Shot = sceneManager.defaultShot()
+
+    final override val managedContent = mutableListOf(
+        managedContentOf(
+            contentIdentifier = "Setup",
+            load = {
+                leavingScene = false
+            },
+            unload = { }
+        ),
+        cinematicBars,
+        initialShot
+    )
+
+    protected fun manageContent(vararg content: ManagedContent) {
+        managedContent.addAll(content)
+    }
+
+    /*StaticShot(
+        allocator = localAllocator,
+        caption = "Default Scene Shot",
         factory = shotFactory,
+        scene = this,
         left = 0f,
         bottom = 0f,
         dimension = Engine.canvas.surface.width,
-        type = ShotDimension.WIDTH
-    )
+        type = ShotDimension.WIDTH,
+        duration = 10f
+    )*/
 
-    protected var initialShot: Shot = defaultShot
 
-    internal var sceneManager: SceneManager? = null
 
-    internal var leavingScene = false
 
-    internal val cinematicBars = CinematicBars()
+
+
 
     protected val sheets: () -> SpriteSheetManager = {
         sceneManager!!.spriteSheetManager
@@ -96,10 +123,14 @@ abstract class Scene(
     protected val shotFactory: Deferred<ShotFactory>
         get() { return deferred { sceneManager!!.shotFactory } }
 
-    protected open fun update(dt: Float) {
-        if (sceneManager != null) {
-            initialShot.update(dt)
-        }
+    protected fun gameSceneComposerOf(timelineName: String) = TimelineMaster(
+        parent = this,
+        timelineName = timelineName,
+        diagnosticsPanel = sceneManager!!.diagnostics
+    )
+
+    override fun update(dt: Float) {
+        initialShot.update(dt)
     }
 
     protected fun sceneToOverlay(x: Float, y: Float): Vector2 {
@@ -110,6 +141,8 @@ abstract class Scene(
     }
 
     protected fun self(): Scene = this
+
+
 
     // ----------------------------------------------------------------------------------
     // Scene API
@@ -128,44 +161,11 @@ abstract class Scene(
         sceneManager!!.addInputProcessor(layer, hotspot)
     }
 
-
-    fun injectSceneManager(sceneManager: SceneManager) {
-        this.sceneManager = sceneManager
-    }
-
-    protected open fun create() { }
-    protected open fun destroy() { }
-    protected open fun render(batch: SpriteBatch) { }
     protected open fun overlay(batch: SpriteBatch) { }
-
-    fun load() {
-        cinematicBars.create()
-        leavingScene = false
-        create()
-
-        if (sceneManager != null) {
-            if (initialShot == defaultShot) {
-                initialShot.create()
-            }
-            initialShot.apply()
-        }
-    }
-
-    fun unload() {
-        destroy()
-        cinematicBars.destroy()
-
-        if (sceneManager != null && initialShot == defaultShot) {
-            initialShot.destroy()
-        }
-    }
 
     fun renderWorldComplete(batch: SpriteBatch) {
         render(batch)
-
-        if (sceneManager != null) {
-            initialShot.render(batch)
-        }
+        initialShot.render(batch)
     }
 
     fun renderOverlayComplete(batch: SpriteBatch) {

@@ -2,13 +2,43 @@ package com.mygdx.game.engine
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.stdx.GameObject
+
+enum class PanelDimension {
+    WIDTH,
+    HEIGHT
+}
+
+fun panelOf(
+    caption: String,
+    left: Float,
+    bottom: Float,
+    dimension: Float,
+    type: PanelDimension
+) = Panel(
+    surface = Surface2D(
+        left = left,
+        bottom = bottom,
+        width = if (type == PanelDimension.WIDTH) {
+            dimension
+        } else {
+            (dimension / Engine.canvas.surface.height) * Engine.canvas.surface.width
+        },
+        height = if (type == PanelDimension.HEIGHT) {
+            dimension
+        } else {
+            (dimension / Engine.canvas.surface.width) * Engine.canvas.surface.height
+        }
+    ),
+    caption = "$caption"
+)
 
 class Panel(
     val surface: Surface2D,
     caption: String = "Untitled"
-): GameObject {
+): GameObject("Panel - $caption") {
 
     val center = surface.center
     val zoom = surface.width / Engine.canvas.surface.width
@@ -26,18 +56,16 @@ class Panel(
     )
 
     private val debugRenderer = DebugRenderer(
+        "Panel",
         Config.DEBUG_RENDER_SHOW_CAMERA_SHOTS, Color.ORANGE
     )
 
-    override fun create() {
-        debugRenderer.create()
-        label.create()
-    }
+    override val managedContent = mutableListOf<ManagedContent>(
+        label,
+        debugRenderer
+    )
 
-    override fun destroy() {
-        debugRenderer.destroy()
-        label.destroy()
-    }
+
 
     override fun render(batch: SpriteBatch) {
         debugRenderer.render(batch) {

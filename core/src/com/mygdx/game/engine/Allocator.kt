@@ -1,8 +1,15 @@
 package com.mygdx.game.engine
 
+import com.badlogic.gdx.Application.LOG_INFO
+import com.badlogic.gdx.Gdx
 import com.mygdx.game.engine.stdx.DynamicComponent
+import com.mygdx.game.engine.utils.info
 
-class ComponentManager: DynamicComponent {
+class Allocator: DynamicComponent {
+
+    override val componentName: String
+        get() = this::class.simpleName!!
+
     private val resources = mutableSetOf<DynamicComponent>()
 
     fun register(component: DynamicComponent) {
@@ -11,14 +18,14 @@ class ComponentManager: DynamicComponent {
 
     override fun create() {
         resources.forEach {
-            println("creating $it...")
+            info("creating: ${it.componentName}")
             it.create()
         }
     }
 
     override fun destroy() {
         resources.forEach {
-            println("destroying $it...")
+            info("destroying: ${it.componentName}")
             it.destroy()
         }
     }

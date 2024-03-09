@@ -8,8 +8,10 @@ import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
 
-class ScreenDimmingScene: Scene(
-    clearColor = Color.BROWN
+class ScreenDimmingScene(sceneManager: SceneManager): Scene(
+    "Screen Dimming Scene",
+    sceneManager,
+    clearColor = Color.BROWN,
 ) {
     private val sequence = SequenceController(this)
     private val controller = SceneController(this)
@@ -32,9 +34,11 @@ class ScreenDimmingScene: Scene(
 
     private var speed = SceneDimmer.DimSpeed.MEDIUM
 
-    override fun create() {
-        instructions.create()
-        overlay.create()
+    init {
+        manageContent(
+            instructions,
+            overlay
+        )
 
         input[Input.Keys.S] = { speed = SceneDimmer.DimSpeed.SLOW }
         input[Input.Keys.M] = { speed = SceneDimmer.DimSpeed.MEDIUM }
@@ -61,8 +65,4 @@ class ScreenDimmingScene: Scene(
         overlay.render(batch)
     }
 
-    override fun destroy(){
-        instructions.destroy()
-        overlay.destroy()
-    }
 }

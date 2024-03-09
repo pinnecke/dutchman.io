@@ -3,16 +3,16 @@ package com.mygdx.game.playground.scenes
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.mygdx.game.engine.Engine
-import com.mygdx.game.engine.Scene
-import com.mygdx.game.engine.SceneController
-import com.mygdx.game.engine.SequenceController
+import com.mygdx.game.engine.*
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Rectangle
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
 
-class CinematicModeScene: Scene() {
+class CinematicModeScene(sceneManager: SceneManager): Scene(
+    "Cinematic Mode Scene",
+    sceneManager
+) {
     private val sequence = SequenceController(this)
     private val controller = SceneController(this)
     private val input = GdxKeyboardInputUtil()
@@ -29,9 +29,11 @@ class CinematicModeScene: Scene() {
         color = Color.ORANGE
     )
 
-    override fun create() {
-        instructions.create()
-        rectangle.create()
+    init {
+        manageContent(
+            instructions,
+            rectangle
+        )
 
         input[Input.Keys.NUM_1] = { controller.cinematicModeOn() }
         input[Input.Keys.NUM_2] = { controller.cinematicModeOff() }
@@ -42,11 +44,6 @@ class CinematicModeScene: Scene() {
         input.act()
         rectangle.render(batch)
         instructions.render(batch)
-    }
-
-    override fun destroy(){
-        instructions.destroy()
-        rectangle.destroy()
     }
 
 }

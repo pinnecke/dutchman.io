@@ -1,7 +1,9 @@
 package com.mygdx.game.engine
 
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.mygdx.game.DiagnosticsPanel
+import com.mygdx.game.engine.memory.ManagedContent
+import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.stdx.GameObject
 import com.mygdx.game.engine.stdx.Update
 import com.mygdx.game.engine.utils.Deferred
@@ -9,20 +11,63 @@ import com.mygdx.game.engine.utils.Deferred
 class ShotFactory(
     private val sceneManager: Deferred<SceneManager>
 ): Update {
-    val camera: OrthographicCamera
+    val worldCamera: OrthographicCamera
         get() { return sceneManager.unwrap().worldCamera!! }
+    val diagnosticsPanel: DiagnosticsPanel
+        get() { return sceneManager.unwrap().diagnostics!! }
 }
 
-abstract class Shot(private var factory: Deferred<ShotFactory>): GameObject {
+abstract class Shot(
+    private var factory: Deferred<ShotFactory>,
+    private var name: String = "Untitled",
+    duration: Float,
+    onStart: () -> Unit,
+    onDone: () -> Unit,
+    onUpdates: (dt: Float, elapsed: Float, progress: Float) -> Unit
+): GameObject("Shot - $name") {
     var camera: OrthographicCamera? = null
+    var diagnostics: DiagnosticsPanel? = null
 
-    abstract fun setup()
-    abstract fun cut(onDone: () -> Unit = { })
-    abstract fun apply(onDone: () -> Unit = { })
+    private val sequencer = Sequencer(
+        duration = duration,
+        onStart = onStart,
+        onDone = onDone,
+        onUpdate = { dt, elapsed, progress ->
+            /*with(diagnostics!!) {
+                shotElapsed = progress * duration
+                shotTotal = duration
+                shotProgress = progress
+            }*/
+            onUpdates(dt, elapsed, progress)
+        }
+    )
 
-    override fun create() {
-        camera = factory.unwrap().camera
-        setup()
+    override val managedContent: MutableList<ManagedContent> = mutableListOf(
+        managedContentOf(
+            contentIdentifier = "Wiring members",
+            load = {
+                with (factory.unwrap()) {
+                    camera = worldCamera
+                    diagnostics = diagnosticsPanel
+                }
+            },
+            unload = {
+
+            }
+        )
+    )
+
+    final override fun update(dt: Float) {
+        sequencer.update(dt)
+    }
+
+    fun cut() {
+        sequencer.start()
+
+/*        with(diagnostics!!) {
+            sceneName = scene.name
+            shotName = name
+        }*/
     }
 
 }
@@ -32,63 +77,11 @@ enum class ShotDimension {
     HEIGHT
 }
 
-class StaticShot(
-    factory: Deferred<ShotFactory>,
-    left: Float, bottom: Float, dimension: Float, type: ShotDimension,
-    caption: String = "Static Shot",
-    private val debuggable: Boolean = true
-): Shot(factory) {
 
-    private val panel = Panel(
-        surface = Surface2D(
-            left = left,
-            bottom = bottom,
-            width = if (type == ShotDimension.WIDTH) {
-                dimension
-            } else {
-                (dimension / Engine.canvas.surface.height) * Engine.canvas.surface.width
-            },
-            height = if (type == ShotDimension.HEIGHT) {
-                dimension
-            } else {
-                (dimension / Engine.canvas.surface.width) * Engine.canvas.surface.height
-            }
-        ),
-        caption = caption
-    )
+class SceneTransition: GameObject("Scene Transition Effect") {
 
-    override fun setup() {
-        panel.create()
-    }
+    override val managedContent: MutableList<ManagedContent> = mutableListOf()
 
-    override fun destroy() {
-        panel.destroy()
-    }
-
-    override fun cut(onDone: () -> Unit) {
-        with (camera!!) {
-            position.x = panel.center.x
-            position.y = panel.center.y
-            zoom = panel.zoom
-        }
-        onDone()
-    }
-
-    override fun apply(onDone: () -> Unit) = cut(onDone)
-
-    override fun update(dt: Float) {
-        panel.update(dt)
-    }
-
-    override fun render(batch: SpriteBatch) {
-        if (debuggable) {
-            panel.render(batch)
-        }
-    }
-}
-
-
-class SceneTransition: GameObject {
     private var x: Float = 0f
     private var y: Float = 0f
     private var zoom: Float = 1f
@@ -102,14 +95,6 @@ class SceneTransition: GameObject {
     private var tweenXDone = false
     private var tweenYDone = false
     private var tweenZoomDone = false
-
-    override fun create() {
-
-    }
-
-    override fun destroy() {
-
-    }
 
     fun cut(
         target: Panel,

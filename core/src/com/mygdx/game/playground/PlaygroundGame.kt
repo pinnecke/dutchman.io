@@ -1,18 +1,26 @@
 package com.mygdx.game.playground
 
 import com.mygdx.game.engine.DutchmanGame
+import com.mygdx.game.engine.SceneManager
 import com.mygdx.game.playground.scenes.*
+import com.mygdx.game.playground.scenes.timeline.TimelineScene
 
-class PlaygroundGame: DutchmanGame {
-    override val namespace = "playground"
-    override val splash = MainMenuScene::class
+class PlaygroundGame(sceneManager: SceneManager): DutchmanGame(sceneManager) {
+
+    companion object {
+        const val namespace = "playground"
+        val splash = MainMenuScene::class
+    }
+
     override val scenes = listOf(
-        SplashScreenScene(),
-        MainMenuScene(),
-        SpeechBubbleScene(),
-        ScreenDimmingScene(),
-        CinematicModeScene(),
-        WindowSizingScene(),
-        StaticShotScene()
+        SplashScreenScene(sceneManager),
+        MainMenuScene(sceneManager),
+        SpeechBubbleScene(sceneManager),
+        ScreenDimmingScene(sceneManager),
+        CinematicModeScene(sceneManager),
+        StaticShotScene(sceneManager),
+        PanShotScene(sceneManager),
+        TimelineScene(sceneManager)
     )
+
 }

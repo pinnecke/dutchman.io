@@ -7,12 +7,15 @@ import com.mygdx.game.engine.*
 import com.mygdx.game.engine.objects.FrameAnimation
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Position
+import com.mygdx.game.engine.shots.StaticShot
 import com.mygdx.game.engine.stdx.value
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
 
-class StaticShotScene: Scene(
-    clearColor = Color.GRAY
+class StaticShotScene(sceneManager: SceneManager): Scene(
+    "Static Shot Scene",
+    sceneManager,
+    clearColor = Color.GRAY,
 ) {
     private val sequence = SequenceController(this)
     private val input = GdxKeyboardInputUtil()
@@ -33,12 +36,24 @@ class StaticShotScene: Scene(
         left = -1000f,
         bottom = -2500f,
         dimension = 8000f,
-        type = ShotDimension.WIDTH
+        type = ShotDimension.WIDTH,
+        duration = Float.POSITIVE_INFINITY
     )
 
     private var dialogAFrame = FrameAnimation(
         name = "static-shot-dialog-a",
         sheets = super.sheets
+    )
+
+    private var southParkLipsFrame = FrameAnimation(
+        name = "south-park-lips",
+        sheets = super.sheets,
+        position = value(Position(
+            left = { 1150f },
+            bottom = { 620f }
+        )),
+        flipX = true,
+        visible = false
     )
 
     private var dialogBFrame = FrameAnimation(
@@ -56,7 +71,25 @@ class StaticShotScene: Scene(
         left = 500f,
         bottom = 0f,
         dimension = 1150f,
-        type = ShotDimension.HEIGHT
+        type = ShotDimension.HEIGHT,
+        duration = 6f,
+        onStart = {
+            println("Dialog shot A entered")
+        },
+        onUpdates = { dt, elapsed, progress ->
+            println("Dialog shot A update: $dt, $elapsed, $progress")
+            if (elapsed > 2f && elapsed <= 4.5f) {
+                southParkLipsFrame.show()
+                southParkLipsFrame.start()
+            } else if (elapsed > 4.5f) {
+                southParkLipsFrame.hide()
+                southParkLipsFrame.stop()
+            }
+        },
+        onDone = {
+            dialogBShot.debuggable = false
+            dialogBShot.cut()
+        }
     )
 
     private val dialogBShot = StaticShot(
@@ -65,7 +98,8 @@ class StaticShotScene: Scene(
         left = 2852f + 100f + 500f,
         bottom = 0f,
         dimension = 1140f,
-        type = ShotDimension.HEIGHT
+        type = ShotDimension.HEIGHT,
+        duration = 3f
     )
 
     private var compositionFrame = FrameAnimation(
@@ -83,36 +117,35 @@ class StaticShotScene: Scene(
         left = 0f,
         bottom = -1600f,
         dimension = 1936f,
-        type = ShotDimension.WIDTH
+        type = ShotDimension.WIDTH,
+        duration = 10f
     )
 
     init {
         initialShot = overviewShot
     }
 
-    override fun create() {
-        instructions.create()
-        instructions.visible = true
-
-        dialogAFrame.create()
-        dialogBFrame.create()
-        compositionFrame.create()
-
-        dialogAShot.create()
-        dialogBShot.create()
-        overviewShot.create()
-        compositionShot.create()
-
+    init {
+        manageContent(
+            instructions,
+            overviewShot,
+            dialogAFrame,
+            southParkLipsFrame,
+            dialogBFrame,
+            dialogAShot,
+            dialogBShot,
+            compositionFrame,
+            compositionShot
+        )
+        
         input[Input.Keys.NUM_1] = {
             instructions.visible = false
+            dialogAShot.debuggable = false
             dialogAShot.cut()
-        }
-        input[Input.Keys.NUM_2] = {
-            instructions.visible = false
-            dialogBShot.cut()
         }
         input[Input.Keys.NUM_3] = {
             instructions.visible = false
+            compositionShot.debuggable = false
             compositionShot.cut()
         }
         input[Input.Keys.ESCAPE] = { sequence.switch(MainMenuScene::class) }
@@ -120,12 +153,18 @@ class StaticShotScene: Scene(
 
     override fun update(dt: Float) {
         input.act()
+        overviewShot.update(dt)
+        dialogAShot.update(dt)
+        dialogBShot.update(dt)
+        compositionShot.update(dt)
+        southParkLipsFrame.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {
         dialogAFrame.render(batch)
         dialogBFrame.render(batch)
         compositionFrame.render(batch)
+        southParkLipsFrame.render(batch)
 
         dialogAShot.render(batch)
         dialogBShot.render(batch)
@@ -137,17 +176,5 @@ class StaticShotScene: Scene(
         instructions.render(batch)
     }
 
-    override fun destroy(){
-        instructions.destroy()
-
-        dialogAFrame.destroy()
-        dialogBFrame.destroy()
-        compositionFrame.destroy()
-
-        overviewShot.destroy()
-        dialogAShot.destroy()
-        dialogBShot.destroy()
-        compositionShot.destroy()
-    }
 
 }

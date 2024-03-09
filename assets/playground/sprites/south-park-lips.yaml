@@ -1,4 +1,4 @@
-root: "pan-shot-widescreen"
+root: "south-park-lips"
 sprites:
-  - name: "pan-shot-widescreen"
-    frames: 1
+  - name: "south-park-lips"
+    frames: 5

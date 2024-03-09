@@ -1,5 +1,8 @@
 package com.mygdx.game.engine.stdx
 
+import kotlin.math.max
+import kotlin.math.min
+
 fun Float.seconds(): Float = this
 fun Int.seconds(): Float = this.toFloat()
 
@@ -26,7 +29,10 @@ data class Timer(
 ) {
     private var elapsed = 0f
     private var executed = false
-    private var running = !triggered
+    var running = !triggered
+
+    var alpha: Float = 0f
+        get() { return max(0f, min(elapsed/durationSec, 1f)) }
 
     fun reset() {
         elapsed = 0f

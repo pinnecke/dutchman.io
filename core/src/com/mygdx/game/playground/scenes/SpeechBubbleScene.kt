@@ -10,12 +10,16 @@ import com.mygdx.game.engine.objects.FrameAnimation
 import com.mygdx.game.engine.objects.SpeechBubble
 import com.mygdx.game.engine.objects.SpeechBubblePivot
 
-class SpeechBubbleScene: Scene() {
+class SpeechBubbleScene(sceneManager: SceneManager): Scene(
+    "Speech Bubble Scene",
+    sceneManager
+) {
     private val sequence = SequenceController(this)
     private val controller = SceneController(this)
-    private var speechPivot = SpeechBubblePivot(500f, 500f, ::sceneToOverlay)
+    private var speechPivot = SpeechBubblePivot( 500f, 500f, ::sceneToOverlay)
 
     private var speechBubble = SpeechBubble(
+        "Speech Bubble Batman",
         textColor = Color.YELLOW,
         speechPivot
     )
@@ -102,6 +106,15 @@ class SpeechBubbleScene: Scene() {
         }
     }*/
 
+    init {
+        manageContent(
+            speechPivot,
+            speechBubble,
+            hotspot,
+            batman
+        )
+    }
+
     override fun update(dt: Float) {
         hotspot.update(dt)
         //enterCinematic.update(dt)
@@ -141,20 +154,6 @@ class SpeechBubbleScene: Scene() {
             speechPivot.x += 10
             println(sceneToOverlay(speechPivot.x, speechPivot.y))
         }
-    }
-
-    override fun create() {
-        hotspot.loadContent()
-        batman.create()
-        speechPivot.create()
-        speechBubble.create()
-    }
-
-    override fun destroy() {
-        hotspot.unloadContent()
-        batman.destroy()
-        speechBubble.destroy()
-        speechPivot.destroy()
     }
 
     override fun render(batch: SpriteBatch) {

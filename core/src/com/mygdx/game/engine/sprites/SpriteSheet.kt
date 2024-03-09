@@ -2,6 +2,7 @@ package com.mygdx.game.engine.sprites
 
 import com.badlogic.gdx.Gdx
 import com.mygdx.game.engine.YAML_MAPPER
+import com.mygdx.game.engine.utils.info
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -42,12 +43,12 @@ class SpriteSheetManager(
     private val spriteFramesIndex: MutableMap<String, List<String>> = mutableMapOf()
 
     fun init() {
-        println("Running asset directory scan for sprites")
+        info("Running asset directory scan for sprites...")
         val spriteSheetFiles = scanSpriteDirectory(spriteDirectoryName)
             .filter { it.endsWith(".yaml") }
             .map { "$spriteDirectoryName/$it" }
         spriteSheetFiles.forEach {
-            println("  - $it")
+            info("found: $it")
         }
         add(
             spriteSheetFiles.map {

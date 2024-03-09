@@ -4,17 +4,21 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.utils.Deferred
 
-class PanShot(
+class PanTiltShot(
     factory: Deferred<ShotFactory>,
     beginLeft: Float, beginBottom: Float, beginDimension: Float, beginType: ShotDimension,
     endLeft: Float, endBottom: Float, endDimension: Float, endType: ShotDimension,
-    val xTranslationDuration: Float,
-    val yTranslationDuration: Float = xTranslationDuration,
-    val sTranslationDuration: Float = xTranslationDuration,
+    duration: Float,
+    val xDuration: Float = duration,
+    val yDuration: Float = duration,
+    val sDuration: Float = duration,
     val interpolation: Interpolation = TweenFunction.EASE_IN_OUT.fn,
     caption: String = "Pan Shot",
+    onStart: () -> Unit = {},
+    onDone: () -> Unit = {},
+    onUpdates: (dt: Float, elapsed: Float, progress: Float) -> Unit = { _, _, _ -> },
     var debuggable: Boolean = true
-): Shot(factory) {
+): Shot(factory, caption, duration, onStart, onDone, onUpdates) {
 
     private val begin = Panel(
         surface = Surface2D(
@@ -52,47 +56,60 @@ class PanShot(
         caption = "$caption: ${this::class.simpleName} (End)"
     )
 
+    init {
+        managedContent.add(begin)
+        managedContent.add(end)
+    }
+
+
     private var xTween: Tween? = null
     private var yTween: Tween? = null
     private var sTween: Tween? = null
 
-    override fun setup() {
-        begin.create()
-        end.create()
-    }
-
-    override fun destroy() {
-        begin.destroy()
-        end.destroy()
-    }
-
-    override fun cut(onDone: () -> Unit) {
+    /*override fun onCut() {
         with (camera!!) {
             position.x = begin.center.x
             position.y = begin.center.y
             zoom = begin.zoom
         }
-        onDone()
-    }
 
-    override fun apply(onDone: () -> Unit) {
         with (camera!!) {
             xTween = Tween(
-                duration = xTranslationDuration,
+                duration = xDuration,
                 origin = { position.x },
                 target = { end.center.x },
                 onUpdate = { position.x = it },
                 interpolate = interpolation
             )
             xTween!!.start()
+
+            yTween = Tween(
+                duration = yDuration,
+                origin = { position.y },
+                target = { end.center.y },
+                onUpdate = { position.y = it },
+                interpolate = interpolation
+            )
+            yTween!!.start()
+
+            sTween = Tween(
+                duration = sDuration,
+                origin = { zoom },
+                target = { end.zoom },
+                onUpdate = { zoom = it },
+                interpolate = interpolation
+            )
+            sTween!!.start()
         }
     }
 
-    override fun update(dt: Float) {
+    override fun onUpdate(dt: Float) {
         begin.update(dt)
         end.update(dt)
         xTween?.update(dt)
-    }
+        yTween?.update(dt)
+        sTween?.update(dt)
+    }*/
 
     override fun render(batch: SpriteBatch) {
         if (debuggable) {

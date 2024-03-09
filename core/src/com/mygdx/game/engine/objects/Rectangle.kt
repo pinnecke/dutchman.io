@@ -1,40 +1,49 @@
 package com.mygdx.game.engine.objects
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.stdx.GameObject
 
 class Rectangle(
-    private val x: Float,
-    private val y: Float,
-    private val width: Float,
-    private val height: Float,
+    val x: Float,
+    val y: Float,
+    var width: Float,
+    val height: Float,
     private val color: Color
-): GameObject {
+): GameObject("Rectangle - ($x, $y, $width, $height)") {
 
     private var shapeRenderer: ShapeRenderer? = null
-    private var destroyed = false
 
-    override fun create() {
-        shapeRenderer = ShapeRenderer()
-        shapeRenderer!!.color = this.color
-        destroyed = false
-    }
+    override val managedContent = mutableListOf(
+        managedContentOf(
+            contentIdentifier = "Shape Renderer",
+            load = {
+                shapeRenderer = ShapeRenderer()
+            },
+            unload = {
+                shapeRenderer!!.dispose()
+            }
+        )
+    )
 
     override fun render(batch: SpriteBatch) {
-        if (!destroyed) {
-            batch.end()
-            shapeRenderer!!.projectionMatrix = batch.projectionMatrix
-            shapeRenderer!!.begin(ShapeRenderer.ShapeType.Filled)
-            shapeRenderer!!.rect(x, y, width, height)
-            shapeRenderer!!.end()
-            batch.begin()
-        }
-    }
+        batch.end()
 
-    override fun destroy() {
-        shapeRenderer!!.dispose()
-        destroyed = true
+        Gdx.gl.glEnable(GL20.GL_BLEND)
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+
+        shapeRenderer!!.projectionMatrix = batch.projectionMatrix
+
+
+        shapeRenderer!!.color = this.color
+        shapeRenderer!!.begin(ShapeRenderer.ShapeType.Filled)
+        shapeRenderer!!.rect(x, y, width, height)
+        shapeRenderer!!.end()
+
+        batch.begin()
     }
 }

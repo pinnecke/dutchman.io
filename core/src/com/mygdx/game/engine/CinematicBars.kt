@@ -6,10 +6,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
-import com.mygdx.game.engine.stdx.Create
-import com.mygdx.game.engine.stdx.Destroy
-import com.mygdx.game.engine.stdx.Render
-import com.mygdx.game.engine.stdx.Update
+import com.mygdx.game.engine.memory.managedContentOf
+import com.mygdx.game.engine.stdx.*
 
 enum class CinematicBarState {
     BARS_IN,
@@ -18,7 +16,37 @@ enum class CinematicBarState {
     BARS_OUT
 }
 
-class CinematicBars: Update, Render, Create, Destroy {
+class CinematicBars: GameObject("Cinematic Bards") {
+
+    override val managedContent = mutableListOf(
+        managedContentOf(
+            contentIdentifier = "Camera Setup",
+            load = {
+                viewport = StretchViewport(Config.WINDOW_WIDTH.toFloat(), Config.WINDOW_HEIGHT.toFloat())
+                viewport!!.apply()
+            },
+            unload = { }
+        ),
+        managedContentOf(
+            contentIdentifier = "Shape Renderer",
+            load = {
+                shapeRenderer = ShapeRenderer()
+                shapeRenderer!!.color = Color.BLACK
+            },
+            unload = {
+                shapeRenderer!!.dispose()
+            }
+        ),
+        managedContentOf(
+            contentIdentifier = "State setup",
+            load = {
+                destroyed = false
+            },
+            unload = {
+                destroyed = true
+            }
+        )
+    )
 
     private val barWidth = Config.WINDOW_WIDTH.toFloat()
     private val maximumBarHeight = 0.1f * Config.WINDOW_HEIGHT.toFloat()
@@ -46,14 +74,6 @@ class CinematicBars: Update, Render, Create, Destroy {
         }
     )
 
-    override fun create() {
-        viewport = StretchViewport(Config.WINDOW_WIDTH.toFloat(), Config.WINDOW_HEIGHT.toFloat())
-        viewport!!.apply()
-        shapeRenderer = ShapeRenderer()
-        shapeRenderer!!.color = Color.BLACK
-        destroyed = false
-    }
-
     fun show() {
         if (state == CinematicBarState.BARS_ABSENT) {
             state = CinematicBarState.BARS_IN
@@ -70,6 +90,7 @@ class CinematicBars: Update, Render, Create, Destroy {
 
     fun isPresent() = state == CinematicBarState.BARS_PRESENT || state == CinematicBarState.BARS_IN
     fun isAbsent() = state == CinematicBarState.BARS_ABSENT || state == CinematicBarState.BARS_OUT
+
 
     override fun update(dt: Float) {
         viewport!!.update(Gdx.graphics.width, Gdx.graphics.height, true)
@@ -93,11 +114,5 @@ class CinematicBars: Update, Render, Create, Destroy {
             shapeRenderer!!.end()
         }
     }
-
-    override fun destroy() {
-        shapeRenderer!!.dispose()
-        destroyed = true
-    }
-
 
 }

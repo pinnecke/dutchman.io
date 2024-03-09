@@ -2,6 +2,7 @@ package com.mygdx.game.engine.objects
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.Scene
+import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.sprites.Frame
 import com.mygdx.game.engine.sprites.SpriteSheetManager
 import com.mygdx.game.engine.stdx.*
@@ -39,18 +40,35 @@ class FrameAnimation(
     private val scale: Float = 1.0f,
     private val flipX: Boolean = false,
     private val flipY: Boolean = false,
+    private var visible: Boolean = true,
     fps: Int = 24,
-): GameObject {
+): GameObject("Frame Animation - $name") {
+
+    private var frames: List<Frame> = listOf()
+
+    override val managedContent = mutableListOf(
+        managedContentOf(
+            contentIdentifier = "Frames",
+            load = {
+                frames = sheets().get(name)
+            },
+            unload = {
+                frames.forEach {
+                    it.release()
+                }
+            }
+        )
+    )
+
     val surface: Surface
         get() { return Surface(
-            width = width.get { frames[0].value.width.toFloat() },
-            height = height.get { frames[0].value.height.toFloat() }
-        )
+                width = width.get { frames[0].value.width.toFloat() },
+                height = height.get { frames[0].value.height.toFloat() }
+            )
         }
 
     private var running = false
     private var index: Int = 0
-    private var frames: List<Frame> = listOf()
     private var iteration: Int = 0
     private val nextFrame = runRepeated(1/fps.toFloat()) {
         if (running && (iterations.isInfinite || iteration < iterations.get { 0 })) {
@@ -61,8 +79,20 @@ class FrameAnimation(
         }
     }
 
+    fun show() {
+        visible = true
+    }
+
+    fun hide() {
+        visible = false
+    }
+
     fun start() {
         running = true
+    }
+
+    fun stop() {
+        running = false
     }
 
     override fun update(dt: Float) {
@@ -70,29 +100,21 @@ class FrameAnimation(
     }
 
     override fun render(batch: SpriteBatch) {
-        val frame = frames[index].value
-        val position = position.get { Position.default }
-        batch.draw(
-            frame,
-            position.left(), position.bottom(),
-            0f, 0f,
-            surface.width,
-            surface.height,
-            scale, scale,
-            0f,
-            0, 0,
-            frame.width, frame.height,
-            flipX, flipY
-        )
-    }
-
-    override fun create() {
-        frames = sheets().get(name)
-    }
-
-    override fun destroy() {
-        frames.forEach {
-            it.release()
+        if (visible) {
+            val frame = frames[index].value
+            val position = position.get { Position.default }
+            batch.draw(
+                frame,
+                position.left(), position.bottom(),
+                0f, 0f,
+                surface.width,
+                surface.height,
+                scale, scale,
+                0f,
+                0, 0,
+                frame.width, frame.height,
+                flipX, flipY
+            )
         }
     }
 }

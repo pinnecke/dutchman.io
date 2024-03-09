@@ -2,21 +2,21 @@ package com.mygdx.game.engine
 
 import com.badlogic.gdx.Gdx
 import kotlin.reflect.KClass
+import kotlin.reflect.jvm.internal.impl.descriptors.deserialization.PlatformDependentDeclarationFilter.All
 
-interface DutchmanGame {
-    val namespace: String
-    val splash: KClass<*>
-    val scenes: List<Scene>
+abstract class DutchmanGame(val sceneManager: SceneManager) {
+    abstract val scenes: List<Scene>
 }
 
 class DutchmanEngine {
     private var sceneManager: SceneManager? = null
 
-    fun create(game: DutchmanGame) {
-        sceneManager = SceneManager(game.namespace)
+    fun create(namespace: String, bootScene: KClass<*>, init: (sceneManager: SceneManager) -> DutchmanGame) {
+        sceneManager = SceneManager(namespace, bootScene)
         with (sceneManager!!) {
+            val game = init(this)
             register(game.scenes)
-            startup(game.splash)
+            loadContent()
         }
     }
 
@@ -28,7 +28,9 @@ class DutchmanEngine {
     fun resize(width: Int, height: Int) =
         sceneManager!!.resize(width, height)
 
-    fun dispose() =
-        sceneManager!!.shutdown()
+    fun dispose() {
+        sceneManager!!.unloadContent()
+    }
+
 
 }

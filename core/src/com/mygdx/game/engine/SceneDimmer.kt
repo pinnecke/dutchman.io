@@ -5,9 +5,26 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.stdx.GameObject
 
-class SceneDimmer: GameObject {
+class SceneDimmer: GameObject("Scene Dimming Effect") {
+
+    private var shapeRenderer: ShapeRenderer? = null
+
+    override val managedContent = mutableListOf(
+        managedContentOf(
+            "Shape Renderer",
+            load = {
+                shapeRenderer = ShapeRenderer()
+                shapeRenderer!!.color = Color.BLACK
+            },
+            unload = {
+                shapeRenderer!!.dispose()
+                destroyed = true
+            }
+        )
+    )
 
     enum class DimSpeed(val duration: Float) {
         SLOW(0.5f),
@@ -15,7 +32,7 @@ class SceneDimmer: GameObject {
         HIGH(0.05f)
     }
 
-    private var shapeRenderer: ShapeRenderer? = null
+
     private var destroyed = false
 
     private var alpha: Float = 0.0f
@@ -39,16 +56,6 @@ class SceneDimmer: GameObject {
             )
             tween!!.start()
         }
-    }
-
-    override fun create() {
-        shapeRenderer = ShapeRenderer()
-        shapeRenderer!!.color = Color.BLACK
-    }
-
-    override fun destroy() {
-        shapeRenderer!!.dispose()
-        destroyed = true
     }
 
     override fun update(dt: Float) {

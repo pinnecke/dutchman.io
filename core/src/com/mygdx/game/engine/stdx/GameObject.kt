@@ -1,3 +1,5 @@
 package com.mygdx.game.engine.stdx
 
-interface GameObject: DynamicComponent, Update, Render
+import com.mygdx.game.engine.memory.AllocatorManagedContent
+
+abstract class GameObject(contentIdentifier: String): AllocatorManagedContent(contentIdentifier), Update, Render

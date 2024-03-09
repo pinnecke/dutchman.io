@@ -1,4 +1,4 @@
-root: "static-shot-dialog-b"
+root: "pan-shot-widescreen"
 sprites:
-  - name: "static-shot-dialog-b"
+  - name: "pan-shot-widescreen"
     frames: 1

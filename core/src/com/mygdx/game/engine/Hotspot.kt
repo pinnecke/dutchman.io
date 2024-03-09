@@ -1,19 +1,22 @@
 package com.mygdx.game.engine
 
-import com.badlogic.gdx.InputAdapter
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Polygon
+import com.mygdx.game.engine.memory.ManagedContent
+import com.mygdx.game.engine.memory.managedContentOf
+import com.mygdx.game.engine.stdx.GameObject
 
 fun closedPolygon(
-    vararg vs: Float
+    vararg vs: Float,
 ): Polygon = Polygon(
     (vs.toList() + listOf(vs[0], vs[1])).toFloatArray()
 )
 
 data class TouchDownPredicate(
     val pointer: Int,
-    val button: Int
+    val button: Int,
 ) {
     companion object {
         fun any() = TouchDownPredicate(-1 , -1)
@@ -22,13 +25,13 @@ data class TouchDownPredicate(
     val isAny = pointer == -1 && button == -1
 }
 
-data class TouchDownFilter (
+data class TouchDownFilter(
     val action: (button: Int, pointer: Int) -> Unit,
-    val predicates: List<TouchDownPredicate>
+    val predicates: List<TouchDownPredicate>,
 )
 
 data class EventFilter(
-    val touchDownFilter: TouchDownFilter?
+    val touchDownFilter: TouchDownFilter?,
 ) {
     companion object {
         fun builder() = EventFilterBuilder()
@@ -37,7 +40,7 @@ data class EventFilter(
 
 class TouchDownFilterBuilder(
     private val parent: EventFilterBuilder,
-    private val action: (button: Int, pointer: Int) -> Unit
+    private val action: (button: Int, pointer: Int) -> Unit,
 ) {
     private val touchDowns = mutableListOf<TouchDownPredicate>()
 
@@ -76,9 +79,35 @@ abstract class Hotspot(
     y: Float,
     private val region: Polygon,
     private val owner: Scene,
-    private val filter: EventFilter
-): InputAdapter() {
-    private var regionDebugRenderer = DebugRenderer(Config.DEBUG_RENDER_HOTSPOT_REGIONS, Color.RED)
+    private val filter: EventFilter,
+): InputProcessor, GameObject("Hotspot") {
+
+    private var regionDebugRenderer = DebugRenderer(
+        "Hotspot",
+        Config.DEBUG_RENDER_HOTSPOT_REGIONS, Color.RED
+    )
+
+    override val managedContent = mutableListOf<ManagedContent>(
+        regionDebugRenderer,
+        managedContentOf(
+            "Input processor",
+            load = {
+                owner.registerInput(layer, this)
+            },
+            unload = {
+                // TODO ?
+            }
+        ),
+        managedContentOf(
+            "Sub class loader",
+            load = {
+                load()
+            },
+            unload = {
+                unload()
+            }
+        )
+    )
 
     init {
         translate(x, y)
@@ -88,8 +117,6 @@ abstract class Hotspot(
 
     abstract fun load()
     abstract fun unload()
-    abstract fun update(dt: Float)
-    abstract fun render(batch: SpriteBatch)
 
     fun translate(x: Float, y: Float) {
         region.translate(x, y)
@@ -118,27 +145,9 @@ abstract class Hotspot(
     }
 
 
-
-    fun loadContent() {
-        load()
-        regionDebugRenderer.create()
-        owner.registerInput(layer, this)
-    }
-
-    fun unloadContent() {
-        unload()
-        regionDebugRenderer.destroy()
-    }
-
-
-
-
     fun render(layer: LayerType, batch: SpriteBatch) {
         if (layer == this.layer) {
             render(batch)
-
-
-
             regionDebugRenderer.render(batch) {
                 val vertices = region.vertices
                 for (i in 0 .. region.vertexCount step 2) {
