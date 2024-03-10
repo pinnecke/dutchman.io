@@ -37,6 +37,7 @@ fun panelOf(
 
 class Panel(
     val surface: Surface2D,
+    val rotation: Float = 0f,
     caption: String = "Untitled"
 ): GameObject("Panel - $caption") {
 

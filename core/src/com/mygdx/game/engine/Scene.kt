@@ -70,6 +70,12 @@ class SceneController(
     fun isInCinematicMode() = scene.cinematicBars.isPresent()
 }
 
+class CameraController(
+    private val scene: Scene
+) {
+    val camera = scene.sceneManager.sceneCamera
+}
+
 abstract class Scene(
     val name: String,
     val sceneManager: SceneManager,
@@ -82,6 +88,13 @@ abstract class Scene(
     internal val cinematicBars = CinematicBars()
     protected var initialShot: Shot = sceneManager.defaultShot()
 
+    internal val defaultPanel = panelOf(
+        caption = "Default scene panel",
+        left = 0f,
+        bottom = 0f,
+        dimension = Engine.canvas.surface.width, type = PanelDimension.WIDTH
+    )
+
     final override val managedContent = mutableListOf(
         managedContentOf(
             contentIdentifier = "Setup",
@@ -91,7 +104,8 @@ abstract class Scene(
             unload = { }
         ),
         cinematicBars,
-        initialShot
+        initialShot,
+        defaultPanel
     )
 
     protected fun manageContent(vararg content: ManagedContent) {
@@ -125,10 +139,12 @@ abstract class Scene(
 
     protected fun gameSceneComposerOf(
         composerName: String,
+        cameraController: CameraController,
         initialTimeline: GameScene,
         others: List<GameScene>
     ) = GameSceneComposer(
         parent = this,
+        camera = cameraController.camera,
         timelineName = composerName,
         initial = initialTimeline,
         others = others,

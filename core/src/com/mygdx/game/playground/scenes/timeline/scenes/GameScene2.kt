@@ -2,20 +2,17 @@ package com.mygdx.game.playground.scenes.timeline.scenes
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
+import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.memory.managedContentOf
 
 class GameScene2: GameScene("Game Scene 2") {
 
-    override val managedContent = mutableListOf(
-        managedContentOf(
-            "Dummy objects",
-            load = {
-                println("Timeline objects: created")
-            },
-            unload = {
-                println("Timeline objects: destroyed")
-            }
-        )
+    override val cutInEffect = CutEffectDescriptor.smooth(1f)
+
+    override val firstPanel = panelOf(
+        caption = "Initial Panel",
+        left = 2000f, bottom = 0f,
+        dimension = Engine.canvas.surface.width, type = PanelDimension.WIDTH
     )
 
     override val timeline = Timeline(
@@ -30,8 +27,17 @@ class GameScene2: GameScene("Game Scene 2") {
         )
     )
 
-    init {
-        install(timeline)
+    override val managedContent = mutableListOf<ManagedContent>(
+        timeline,
+        firstPanel
+    )
+
+    override fun update(dt: Float) {
+        firstPanel.update(dt)
+    }
+
+    override fun render(batch: SpriteBatch) {
+        firstPanel.render(batch)
     }
 
     class Sequence1: Sequence() {

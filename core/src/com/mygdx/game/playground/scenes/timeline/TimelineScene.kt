@@ -17,6 +17,7 @@ class TimelineScene(sceneManager: SceneManager): Scene(
     clearColor = Color.GRAY,
 ) {
     private val sequence = SequenceController(this)
+    private val cameraController = CameraController(this)
     private val input = GdxKeyboardInputUtil()
     private val inputDelayer = Sequencer(0.1f, onStart = { println("Wait") }, onDone = { println("Next") })
 
@@ -39,6 +40,7 @@ class TimelineScene(sceneManager: SceneManager): Scene(
 
     private val composer = gameSceneComposerOf(
         composerName = "Timeline Scene",
+        cameraController = cameraController,
         initialTimeline = GameScene1(),
         others = listOf(
             GameScene2()

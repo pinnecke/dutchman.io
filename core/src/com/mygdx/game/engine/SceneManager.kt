@@ -46,16 +46,21 @@ class SceneManager(
 
     private val emptyScene = emptyScene(this)
 
+    private val dimmer = SceneDimmer()
+
+    internal val diagnostics = DiagnosticsPanel()
+
+    internal val sceneCamera = SceneCamera()
+
     private val swapper = SceneSwapper(
         loadingScene = emptyScene,
         { scene -> scene.unloadContent() },
         { scene -> scene.loadContent() },
-        { scene -> currentScene = scene },
+        { scene ->
+            sceneCamera.hardCut(scene.defaultPanel)
+            currentScene = scene
+        },
     )
-
-    private val dimmer = SceneDimmer()
-
-    internal val diagnostics = DiagnosticsPanel()
 
     override val managedContent = mutableListOf(
         managedContentOf(
@@ -111,6 +116,13 @@ class SceneManager(
             unload = {
                 currentScene!!.unloadContent()
             }
+        ),
+        managedContentOf(
+            contentIdentifier = "Scene Camera setup",
+            load = {
+                sceneCamera.camera = worldCamera
+            },
+            unload = { }
         )
     )
 
@@ -143,6 +155,8 @@ class SceneManager(
         InputProcessorTranslator(::unprojectHud, hudInputProcessorTee),
         InputProcessorTranslator(::unprojectWorld, worldInputProcessorTee)
     )
+
+
 
 
 
@@ -202,6 +216,7 @@ class SceneManager(
         sceneTransition.update(dt)
         shotFactory.update(dt)
         diagnostics.update(dt)
+        sceneCamera.update(dt)
         currentScene!!.updateContents(dt)
     }
 
