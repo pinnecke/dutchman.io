@@ -1,0 +1,4 @@
+root: "camera-shot-whip-pan-2"
+sprites:
+  - name: "camera-shot-whip-pan-2"
+    frames: 1

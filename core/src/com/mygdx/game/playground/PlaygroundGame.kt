@@ -5,6 +5,7 @@ import com.mygdx.game.engine.SceneManager
 import com.mygdx.game.playground.scenes.*
 import com.mygdx.game.playground.scenes.camera.fixed.CameraMovementStaticShotScene
 import com.mygdx.game.playground.scenes.camera.pan.CameraMovementPanShotScene
+import com.mygdx.game.playground.scenes.camera.pan.CameraMovementWhipPanShotScene
 import com.mygdx.game.playground.scenes.timeline.TimelineScene
 
 class PlaygroundGame(sceneManager: SceneManager): DutchmanGame(sceneManager) {
@@ -24,7 +25,8 @@ class PlaygroundGame(sceneManager: SceneManager): DutchmanGame(sceneManager) {
         PanShotScene(sceneManager),
         TimelineScene(sceneManager),
         CameraMovementStaticShotScene(sceneManager),
-        CameraMovementPanShotScene(sceneManager)
+        CameraMovementPanShotScene(sceneManager),
+        CameraMovementWhipPanShotScene(sceneManager)
     )
 
 }

@@ -12,8 +12,8 @@ import com.mygdx.game.playground.scenes.SpeechBubbleScene
 import com.mygdx.game.playground.scenes.SplashScreenScene
 import com.mygdx.game.playground.scenes.camera.fixed.CameraMovementStaticShotScene
 import com.mygdx.game.playground.scenes.camera.pan.CameraMovementPanShotScene
+import com.mygdx.game.playground.scenes.camera.pan.CameraMovementWhipPanShotScene
 import com.mygdx.game.playground.scenes.timeline.TimelineScene
-import com.mygdx.game.playground.scenes.timeline.scenes.PanShotCameraMovement
 
 class MainMenuScene(sceneManager: SceneManager): Scene(
     "Main Menu Scene",
@@ -31,7 +31,7 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         "[4]   \t splash screen\n" +
         "[5]   \t camera static shot \n" +
         "[6]   \t camera pan shot\n" +
-        "[7]   \t \n" +
+        "[7]   \t camera whip pan shot\n" +
         "[8]   \t time line demo\n",
         Color.WHITE,
         300f, Engine.canvas.safeZone.height - 50f,
@@ -46,6 +46,7 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         input[Input.Keys.NUM_4] = { sequence.switch(SplashScreenScene::class) }
         input[Input.Keys.NUM_5] = { sequence.switch(CameraMovementStaticShotScene::class) }
         input[Input.Keys.NUM_6] = { sequence.switch(CameraMovementPanShotScene::class) }
+        input[Input.Keys.NUM_7] = { sequence.switch(CameraMovementWhipPanShotScene::class) }
 
 
         input[Input.Keys.NUM_8] = { sequence.switch(TimelineScene::class) }
