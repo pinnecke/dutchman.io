@@ -9,14 +9,20 @@ data class CutEffectDescriptor(
     val yDuration: Float = duration,
     val zoomDuration: Float = duration,
     val rotationDuration: Float = duration,
-    val xInterpolation: Interpolation = TweenFunction.EASE_IN_OUT.fn,
-    val yInterpolation: Interpolation = TweenFunction.EASE_IN_OUT.fn,
-    val zoomInterpolation: Interpolation = TweenFunction.EASE_IN_OUT.fn,
-    val rotationInterpolation: Interpolation = TweenFunction.EASE_IN_OUT.fn,
+    val interpolation: Interpolation = TweenFunction.EASE_IN_OUT.fn,
+    val xInterpolation: Interpolation = interpolation,
+    val yInterpolation: Interpolation = interpolation,
+    val zoomInterpolation: Interpolation = interpolation,
+    val rotationInterpolation: Interpolation = interpolation,
 ) {
     companion object {
         fun smooth(duration: Float) = CutEffectDescriptor(
-            duration = duration
+            duration = duration,
+            interpolation = TweenFunction.EASE_IN_OUT.fn
+        )
+        fun easeIn(duration: Float) = CutEffectDescriptor(
+            duration = duration,
+            interpolation = TweenFunction.EASE_IN.fn
         )
     }
 }

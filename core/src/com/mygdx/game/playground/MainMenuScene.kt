@@ -13,6 +13,7 @@ import com.mygdx.game.playground.scenes.SplashScreenScene
 import com.mygdx.game.playground.scenes.camera.fixed.CameraMovementStaticShotScene
 import com.mygdx.game.playground.scenes.camera.pan.CameraMovementPanShotScene
 import com.mygdx.game.playground.scenes.camera.pan.CameraMovementWhipPanShotScene
+import com.mygdx.game.playground.scenes.camera.pan.CameraMovementZoomShotScene
 import com.mygdx.game.playground.scenes.timeline.TimelineScene
 
 class MainMenuScene(sceneManager: SceneManager): Scene(
@@ -32,7 +33,8 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         "[5]   \t camera static shot \n" +
         "[6]   \t camera pan shot\n" +
         "[7]   \t camera whip pan shot\n" +
-        "[8]   \t time line demo\n",
+        "[8]   \t camera zoom shot\n" +
+        "[9]   \t time line demo\n",
         Color.WHITE,
         300f, Engine.canvas.safeZone.height - 50f,
     )
@@ -47,9 +49,9 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         input[Input.Keys.NUM_5] = { sequence.switch(CameraMovementStaticShotScene::class) }
         input[Input.Keys.NUM_6] = { sequence.switch(CameraMovementPanShotScene::class) }
         input[Input.Keys.NUM_7] = { sequence.switch(CameraMovementWhipPanShotScene::class) }
+        input[Input.Keys.NUM_8] = { sequence.switch(CameraMovementZoomShotScene::class) }
 
-
-        input[Input.Keys.NUM_8] = { sequence.switch(TimelineScene::class) }
+        input[Input.Keys.NUM_9] = { sequence.switch(TimelineScene::class) }
     }
 
     override fun render(batch: SpriteBatch) {

@@ -1,0 +1,4 @@
+root: "camera-shot-zoom-0"
+sprites:
+  - name: "camera-shot-zoom-0"
+    frames: 1

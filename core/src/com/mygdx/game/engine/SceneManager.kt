@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.mygdx.game.DiagnosticsPanel
 import com.mygdx.game.engine.memory.managedContentOf
@@ -19,7 +20,10 @@ import com.mygdx.game.engine.utils.InputProcessorHudFirst
 import com.mygdx.game.engine.utils.InputProcessorTee
 import com.mygdx.game.engine.utils.InputProcessorTranslator
 import com.mygdx.game.engine.utils.deferred
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.reflect.KClass
+
 
 fun emptyScene(sceneManager: SceneManager) = object: Scene("Empty Scene", sceneManager) {
 
@@ -29,13 +33,15 @@ class SceneManager(
     namespace: String,
     private val bootScene: KClass<*>,
     private val width: Float = Config.WINDOW_WIDTH.toFloat(),
-    private val height: Float = Config.WINDOW_HEIGHT.toFloat()
+    private val height: Float = Config.WINDOW_HEIGHT.toFloat(),
 ): GameObject("Scene Manager - $namespace") {
 
     private var batch: SpriteBatch? = null
+    private val renderBuffer = RenderBuffer("screen renderer")
 
     internal var worldCamera: OrthographicCamera? = null
     private var worldViewport: Viewport? = null
+    private var wordCameraDeltaStore: CameraDeltaStore? = null
 
     private var hudCamera: OrthographicCamera? = null
     private var hudViewport: Viewport? = null
@@ -72,17 +78,21 @@ class SceneManager(
                 batch!!.dispose()
             }
         ),
+        renderBuffer,
         managedContentOf(
             contentIdentifier = "Camera setup",
             load = {
                 worldCamera = OrthographicCamera()
-                worldViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, worldCamera)
+                worldViewport = StretchViewport(1920f, 1200f, worldCamera)
                 worldViewport!!.update(width.toInt(), height.toInt(), true)
 
                 worldCamera!!.translate(25f, 75f ,0f)
                 worldCamera!!.update()
 
                 sceneTransition.camera = worldCamera
+
+                wordCameraDeltaStore = CameraDeltaStore(worldCamera!!)
+                wordCameraDeltaStore!!.loadContent()
 
                 hudCamera = OrthographicCamera()
                 hudViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, hudCamera)
@@ -190,6 +200,7 @@ class SceneManager(
     fun resize(windowWidth: Int, windowHeight: Int) {
         worldViewport!!.update(windowWidth, windowHeight)
         hudViewport!!.update(windowWidth, windowHeight)
+        renderBuffer.resize(windowWidth, windowHeight)
     }
 
     fun register(gameScenes: List<Scene>) {
@@ -218,6 +229,9 @@ class SceneManager(
         diagnostics.update(dt)
         sceneCamera.update(dt)
         currentScene!!.updateContents(dt)
+
+        worldViewport!!.apply()
+        wordCameraDeltaStore?.update()
     }
 
     override fun render(batch: SpriteBatch) {
@@ -225,23 +239,62 @@ class SceneManager(
     }
 
     fun render() {
-        val clearColor = currentScene!!.clearColor
-        Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a)
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-
         renderScene()
         renderOverlay()
     }
 
-    private fun renderScene() = with(batch!!) {
+
+    private fun renderIntoBuffer() = with(batch!!) {
         worldViewport!!.apply()
         val worldProjectionMatrix = worldViewport!!.camera.combined
         this.projectionMatrix = worldProjectionMatrix
 
-        begin()
-        currentScene!!.renderWorldComplete(this)
-        //defaultShot.render(this)
-        end()
+        renderBuffer.renderIntoBuffer {
+            val clearColor = currentScene!!.clearColor
+            Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a)
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+
+            begin()
+            currentScene!!.renderWorldComplete(this)
+            end()
+        }
+    }
+
+    private fun renderToScreen() {
+        renderBuffer.renderOntoScreen { screen, content ->
+            val delta = wordCameraDeltaStore!!.delta
+            val span = delta.span
+            if (span < 80) {
+                screen.setColor(screen.color.r, screen.color.g, screen.color.b, 1.0f)
+                screen.draw(
+                    content,
+                    0f,
+                    0f,
+                    Engine.canvas.surface.width,
+                    Engine.canvas.surface.height
+                )
+            } else {
+                println("BLUR")
+                val steps = 10
+                for (i in steps downTo 1) {
+                    val alpha = i / steps.toFloat()
+                    screen.setColor(screen.color.r, screen.color.g, screen.color.b, alpha)
+                    screen.draw(
+                        content,
+                        alpha * delta.x,
+                        alpha * delta.y,
+                        Engine.canvas.surface.width,
+                        Engine.canvas.surface.height
+                    )
+                }
+            }
+        }
+    }
+
+    private fun renderScene() = with(batch!!) {
+
+        renderIntoBuffer()
+        renderToScreen()
 
         hudViewport!!.apply()
         val hudProjectionMatrix = hudViewport!!.camera.combined
