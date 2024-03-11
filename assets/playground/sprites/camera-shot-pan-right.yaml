@@ -1,0 +1,4 @@
+root: "camera-shot-pan-right"
+sprites:
+  - name: "camera-shot-pan-right"
+    frames: 1
