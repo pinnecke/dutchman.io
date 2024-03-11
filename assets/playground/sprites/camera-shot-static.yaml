@@ -1,0 +1,4 @@
+root: "camera-shot-static"
+sprites:
+  - name: "camera-shot-static"
+    frames: 1

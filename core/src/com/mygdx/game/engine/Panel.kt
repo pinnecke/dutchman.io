@@ -43,6 +43,7 @@ class Panel(
 
     val center = surface.center
     val zoom = surface.width / Engine.canvas.surface.width
+    var visible: Boolean = true
 
     var caption: String
         get() { return label.text }
@@ -69,74 +70,74 @@ class Panel(
 
 
     override fun render(batch: SpriteBatch) {
-        debugRenderer.render(batch) {
-            // the actual safe-zone bounds
-            val szWidth = zoom * (Engine.canvas.safeZone.width - Engine.canvas.safeZone.left)
-            val szHeight = zoom * (Engine.canvas.safeZone.height - Engine.canvas.safeZone.bottom)
-            val szDw = surface.width - szWidth
-            val szDh = surface.height - szHeight
+        if (visible) {
+            debugRenderer.render(batch) {
+                // the actual safe-zone bounds
+                val szWidth = zoom * (Engine.canvas.safeZone.width - Engine.canvas.safeZone.left)
+                val szHeight = zoom * (Engine.canvas.safeZone.height - Engine.canvas.safeZone.bottom)
+                val szDw = surface.width - szWidth
+                val szDh = surface.height - szHeight
 
-            // render parts of the view that might not be in the perspective of the camera
-            it.renderColor = Engine.colors.dimmedGray
-            it.filled(
-                batch.projectionMatrix,
-                surface.left, surface.bottom,
-                szDw / 2f, surface.height
-            )
-            it.filled(
-                batch.projectionMatrix,
-                surface.left + szWidth + szDw / 2f, surface.bottom,
-                szDw / 2f, surface.height
-            )
-            it.filled(
-                batch.projectionMatrix,
-                surface.left + szDw / 2, surface.bottom,
-                surface.width - szDw, szDh / 2f
-            )
-            it.filled(
-                batch.projectionMatrix,
-                surface.left + szDw / 2, surface.bottom + szHeight + szDh / 2f,
-                surface.width - szDw, szDh / 2f
-            )
+                // render parts of the view that might not be in the perspective of the camera
+                it.renderColor = Engine.colors.dimmedGray
+                it.filled(
+                    batch.projectionMatrix,
+                    surface.left, surface.bottom,
+                    szDw / 2f, surface.height
+                )
+                it.filled(
+                    batch.projectionMatrix,
+                    surface.left + szWidth + szDw / 2f, surface.bottom,
+                    szDw / 2f, surface.height
+                )
+                it.filled(
+                    batch.projectionMatrix,
+                    surface.left + szDw / 2, surface.bottom,
+                    surface.width - szDw, szDh / 2f
+                )
+                it.filled(
+                    batch.projectionMatrix,
+                    surface.left + szDw / 2, surface.bottom + szHeight + szDh / 2f,
+                    surface.width - szDw, szDh / 2f
+                )
 
-            // render the panel developer bounds
-            it.renderColor = Color.BLACK
-            it.filled(
-                batch.projectionMatrix,
-                surface.left, surface.top,
-                surface.width, 50f
-            )
-            it.filled(
-                batch.projectionMatrix,
-                surface.left, surface.bottom - 20f,
-                surface.width, 20f
-            )
-            it.filled(
-                batch.projectionMatrix,
-                surface.left - 20, surface.bottom - 20f,
-                20f, surface.height + 70f
-            )
-            it.filled(
-                batch.projectionMatrix,
-                surface.right, surface.bottom - 20f,
-                20f, surface.height + 70f
-            )
+                // render the panel developer bounds
+                it.renderColor = Color.BLACK
+                it.filled(
+                    batch.projectionMatrix,
+                    surface.left, surface.top,
+                    surface.width, 50f
+                )
+                it.filled(
+                    batch.projectionMatrix,
+                    surface.left, surface.bottom - 20f,
+                    surface.width, 20f
+                )
+                it.filled(
+                    batch.projectionMatrix,
+                    surface.left - 20, surface.bottom - 20f,
+                    20f, surface.height + 70f
+                )
+                it.filled(
+                    batch.projectionMatrix,
+                    surface.right, surface.bottom - 20f,
+                    20f, surface.height + 70f
+                )
 
-            // render the panel name
-            batch.begin()
-            label.render(batch)
-            batch.end()
+                // render the panel name
+                batch.begin()
+                label.render(batch)
+                batch.end()
 
-            // render lines for actual bounds of shot
-            it.renderColor = Color.ORANGE
-            it.rect(
-                batch.projectionMatrix,
-                surface.left, surface.bottom,
-                surface.width, surface.height,
-                lineWidth = 2
-            )
-
-
+                // render lines for actual bounds of shot
+                it.renderColor = Color.ORANGE
+                it.rect(
+                    batch.projectionMatrix,
+                    surface.left, surface.bottom,
+                    surface.width, surface.height,
+                    lineWidth = 2
+                )
+           }
         }
     }
 

@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.memory.ManagedContent
-import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.objects.Label
 
 class GameScene1: GameScene("Game Scene 1") {

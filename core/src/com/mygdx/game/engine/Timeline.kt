@@ -189,6 +189,8 @@ class GameSceneComposer(
     private val diagnosticsPanel: DiagnosticsPanel,
     timelineName: String,
     private val camera: SceneCamera,
+    private val cutOnStart: Boolean = true,
+    private val autoStart: Boolean = true,
     private val initial: GameScene,
     private val others: List<GameScene>
 ): GameObject("Timeline Master - ${parent.name} ($timelineName)") {
@@ -217,8 +219,9 @@ class GameSceneComposer(
                     (listOf(initial) + others).forEach {
                         register(it::class)
                     }
-
-                    start(initial::class)
+                    if (autoStart) {
+                        start(initial::class, cutOnStart)
+                    }
                 },
                 unload = { }
             )
@@ -252,15 +255,17 @@ class GameSceneComposer(
         timelines[scene.timeline] = true
     }
 
-    fun start(sceneId: KClass<*>) {
+    fun start(sceneId: KClass<*>, cut: Boolean = true) {
         val scene = index[sceneId]!!
         timelines.forEach { if (it.value) { it.key.stop() } }
         scene.timeline.start()
         active = scene.timeline
-        camera.cut(
-            scene.firstPanel,
-            scene.cutInEffect
-        )
+        if (cut) {
+            camera.cut(
+                scene.firstPanel,
+                scene.cutInEffect
+            )
+        }
     }
 
     fun pause() {
@@ -309,7 +314,7 @@ class Timeline(
     private val onStop: Action = noAction,
     private val onRewind: Action = noAction,
     private val onDone: Action = noAction
-): GameObject("Timeline - $timeLineName"), Playback, TimeFrame {
+): GameObject("$timeLineName"), Playback, TimeFrame {
 
     override val managedContent = mutableListOf<ManagedContent>()
 

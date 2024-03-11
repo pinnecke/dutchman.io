@@ -6,7 +6,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
-import com.mygdx.game.playground.scenes.*
+import com.mygdx.game.playground.scenes.CinematicModeScene
+import com.mygdx.game.playground.scenes.ScreenDimmingScene
+import com.mygdx.game.playground.scenes.SpeechBubbleScene
+import com.mygdx.game.playground.scenes.SplashScreenScene
+import com.mygdx.game.playground.scenes.timeline.CameraMovementStaticShotScene
 import com.mygdx.game.playground.scenes.timeline.TimelineScene
 
 class MainMenuScene(sceneManager: SceneManager): Scene(
@@ -23,9 +27,9 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         "[2]   \t screen dimming\n" +
         "[3]   \t speech bubble\n" +
         "[4]   \t splash screen\n" +
-        "[5]   \t  \n" +
-        "[6]   \t static shot demo\n" +
-        "[7]   \t pan shot demo\n" +
+        "[5]   \t camera movements \n" +
+        "[6]   \t \n" +
+        "[7]   \t \n" +
         "[8]   \t time line demo\n",
         Color.WHITE,
         300f, Engine.canvas.safeZone.height - 50f,
@@ -38,9 +42,9 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         input[Input.Keys.NUM_2] = { sequence.switch(ScreenDimmingScene::class) }
         input[Input.Keys.NUM_3] = { sequence.switch(SpeechBubbleScene::class) }
         input[Input.Keys.NUM_4] = { sequence.switch(SplashScreenScene::class) }
+        input[Input.Keys.NUM_5] = { sequence.switch(CameraMovementStaticShotScene::class) }
 
-        input[Input.Keys.NUM_6] = { sequence.switch(StaticShotScene::class) }
-        input[Input.Keys.NUM_7] = { sequence.switch(PanShotScene::class) }
+
         input[Input.Keys.NUM_8] = { sequence.switch(TimelineScene::class) }
     }
 

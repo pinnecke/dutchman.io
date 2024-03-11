@@ -3,7 +3,6 @@ package com.mygdx.game.playground.scenes.timeline.scenes
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.memory.ManagedContent
-import com.mygdx.game.engine.memory.managedContentOf
 
 class GameScene2: GameScene("Game Scene 2") {
 

@@ -82,6 +82,11 @@ abstract class Scene(
     val clearColor: Color = Color.BLACK,
     val width: Int = Config.WINDOW_WIDTH,
     val height: Int = Config.WINDOW_HEIGHT,
+    val defaultPanelCaption: String = "Default scene panel",
+    val defaultPanelLeft: Float = 0f,
+    val defaultPanelBottom: Float = 0f,
+    val defaultPanelDimension: Float = Engine.canvas.surface.width,
+    val defaultPanelType: PanelDimension = PanelDimension.WIDTH
 ): GameObject("Scene - $name") {
 
     internal var leavingScene = false
@@ -89,10 +94,10 @@ abstract class Scene(
     protected var initialShot: Shot = sceneManager.defaultShot()
 
     internal val defaultPanel = panelOf(
-        caption = "Default scene panel",
-        left = 0f,
-        bottom = 0f,
-        dimension = Engine.canvas.surface.width, type = PanelDimension.WIDTH
+        caption = defaultPanelCaption,
+        left = defaultPanelLeft,
+        bottom = defaultPanelBottom,
+        dimension = defaultPanelDimension, type = defaultPanelType
     )
 
     final override val managedContent = mutableListOf(
@@ -130,7 +135,7 @@ abstract class Scene(
 
 
 
-    protected val sheets: () -> SpriteSheetManager = {
+    val sheets: () -> SpriteSheetManager = {
         sceneManager!!.spriteSheetManager
     }
 
@@ -140,6 +145,8 @@ abstract class Scene(
     protected fun gameSceneComposerOf(
         composerName: String,
         cameraController: CameraController,
+        autoStart: Boolean = true,
+        cutOnStart: Boolean = true,
         initialTimeline: GameScene,
         others: List<GameScene>
     ) = GameSceneComposer(
@@ -148,6 +155,8 @@ abstract class Scene(
         timelineName = composerName,
         initial = initialTimeline,
         others = others,
+        autoStart = autoStart,
+        cutOnStart = cutOnStart,
         diagnosticsPanel = sceneManager!!.diagnostics
     )
 
