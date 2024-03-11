@@ -21,7 +21,6 @@ import com.mygdx.game.engine.utils.InputProcessorTee
 import com.mygdx.game.engine.utils.InputProcessorTranslator
 import com.mygdx.game.engine.utils.deferred
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.reflect.KClass
 
 
@@ -41,7 +40,7 @@ class SceneManager(
 
     internal var worldCamera: OrthographicCamera? = null
     private var worldViewport: Viewport? = null
-    private var wordCameraDeltaStore: CameraDeltaStore? = null
+    private var wordCameraPropMemory: CameraPropMemory? = null
 
     private var hudCamera: OrthographicCamera? = null
     private var hudViewport: Viewport? = null
@@ -91,8 +90,8 @@ class SceneManager(
 
                 sceneTransition.camera = worldCamera
 
-                wordCameraDeltaStore = CameraDeltaStore(worldCamera!!)
-                wordCameraDeltaStore!!.loadContent()
+                wordCameraPropMemory = CameraPropMemory(worldCamera!!)
+                wordCameraPropMemory!!.loadContent()
 
                 hudCamera = OrthographicCamera()
                 hudViewport = ExtendViewport(1600f, 1050f, 1920f, 1200f, hudCamera)
@@ -231,7 +230,7 @@ class SceneManager(
         currentScene!!.updateContents(dt)
 
         worldViewport!!.apply()
-        wordCameraDeltaStore?.update()
+        wordCameraPropMemory?.update()
     }
 
     override fun render(batch: SpriteBatch) {
@@ -262,9 +261,9 @@ class SceneManager(
 
     private fun renderToScreen() {
         renderBuffer.renderOntoScreen { screen, content ->
-            val delta = wordCameraDeltaStore!!.delta
-            val span = delta.span
-            if (span < 80) {
+            val delta = wordCameraPropMemory!!.delta
+
+            if (delta.velocity < 80) {
                 screen.setColor(screen.color.r, screen.color.g, screen.color.b, 1.0f)
                 screen.draw(
                     content,
@@ -274,7 +273,6 @@ class SceneManager(
                     Engine.canvas.surface.height
                 )
             } else {
-                println("BLUR")
                 val steps = 10
                 for (i in steps downTo 1) {
                     val alpha = i / steps.toFloat()
@@ -287,6 +285,32 @@ class SceneManager(
                         Engine.canvas.surface.height
                     )
                 }
+            }
+
+            if (delta.gravity > 5) {
+                val maxGravity = 30f
+                val relativeGravity = delta.gravity/maxGravity
+                val blend = TweenFunction.EASE_IN_OUT.fn(relativeGravity, 10f, 150f)
+                for (q in -1 .. 1 step 2) {
+                    for (s in -1..1 step 2) {
+                        val alpha = 0.05f
+                        screen.setColor(screen.color.r, screen.color.g, screen.color.b, alpha)
+                        screen.draw(
+                            content,
+                            q * (alpha * blend),
+                            q * (alpha * blend),
+                            Engine.canvas.surface.width + s * (alpha * blend),
+                            Engine.canvas.surface.height + s * (alpha * blend)
+                        )
+                    }
+                }
+                screen.draw(
+                    content,
+                    0f,
+                    0f,
+                    Engine.canvas.surface.width,
+                    Engine.canvas.surface.height
+                )
             }
         }
     }

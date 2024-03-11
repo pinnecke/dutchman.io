@@ -16,6 +16,10 @@ data class CutEffectDescriptor(
     val rotationInterpolation: Interpolation = interpolation,
 ) {
     companion object {
+        fun cut() = CutEffectDescriptor(
+            duration = 0f,
+            interpolation = TweenFunction.LINEAR.fn
+        )
         fun smooth(duration: Float) = CutEffectDescriptor(
             duration = duration,
             interpolation = TweenFunction.EASE_IN_OUT.fn

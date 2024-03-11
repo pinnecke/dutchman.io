@@ -43,14 +43,19 @@ data class Tween (
 
     override fun update(dt: Float) {
         if (running) {
-            elapsed += dt
             if (elapsed > duration) {
                 running = false
                 onDone()
             } else {
-                val alpha = min(1.0f, max(0.0f, elapsed / duration))
-                onUpdate(interpolate(alpha, x0!!, x1!!))
+                if (dt > duration) {
+                    onUpdate(x1!!)
+                } else {
+                    val alpha = min(1.0f, max(0.0f, elapsed / duration))
+                    onUpdate(interpolate(alpha, x0!!, x1!!))
+                }
+
             }
+            elapsed += dt
         }
     }
 
