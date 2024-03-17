@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.hotspots.HudButton
-import com.mygdx.game.engine.objects.FrameAnimation
+import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.objects.SpeechBubble
 import com.mygdx.game.engine.objects.SpeechBubblePivot
 
@@ -86,7 +86,7 @@ class SpeechBubbleScene(sceneManager: SceneManager): Scene(
             .build()
     )
 
-    private var batman = FrameAnimation(
+    private var batman = Decal(
         name = "batman",
         sheets = super.sheets
     )

@@ -4,7 +4,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
-import com.mygdx.game.engine.objects.FrameAnimation
+import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Position
 import com.mygdx.game.engine.shots.StaticShot
@@ -40,29 +40,29 @@ class StaticShotScene(sceneManager: SceneManager): Scene(
         duration = Float.POSITIVE_INFINITY
     )
 
-    private var dialogAFrame = FrameAnimation(
+    private var dialogA = Decal(
         name = "static-shot-dialog-a",
         sheets = super.sheets
     )
 
-    private var southParkLipsFrame = FrameAnimation(
+    private var southParkLipsDecal = Decal(
         name = "south-park-lips",
         sheets = super.sheets,
-        position = value(Position(
-            left = { 1150f },
-            bottom = { 620f }
-        )),
+        position = Position(
+            left = 1150f,
+            bottom = 620f
+        ),
         flipX = true,
         visible = false
     )
 
-    private var dialogBFrame = FrameAnimation(
+    private var dialogBDecal = Decal(
         name = "static-shot-dialog-b",
         sheets = super.sheets,
-        position = value(Position(
-            left = { 2852f + 100f },
-            bottom = { 0f }
-        ))
+        position = Position(
+            left = 2852f + 100f,
+            bottom = 0f
+        )
     )
 
     private val dialogAShot = StaticShot(
@@ -79,11 +79,11 @@ class StaticShotScene(sceneManager: SceneManager): Scene(
         onUpdates = { dt, elapsed, progress ->
             println("Dialog shot A update: $dt, $elapsed, $progress")
             if (elapsed > 2f && elapsed <= 4.5f) {
-                southParkLipsFrame.show()
-                southParkLipsFrame.start()
+                southParkLipsDecal.visible = true
+                southParkLipsDecal.animiate = true
             } else if (elapsed > 4.5f) {
-                southParkLipsFrame.hide()
-                southParkLipsFrame.stop()
+                southParkLipsDecal.visible = false
+                southParkLipsDecal.animiate = false
             }
         },
         onDone = {
@@ -102,13 +102,13 @@ class StaticShotScene(sceneManager: SceneManager): Scene(
         duration = 3f
     )
 
-    private var compositionFrame = FrameAnimation(
+    private var composition = Decal(
         name = "static-shot-composition",
         sheets = super.sheets,
-        position = value(Position(
-            left = { 0f },
-            bottom = { -1600f }
-        ))
+        position = Position(
+            left = 0f,
+            bottom = -1600f
+        )
     )
 
     private val compositionShot = StaticShot(
@@ -129,12 +129,12 @@ class StaticShotScene(sceneManager: SceneManager): Scene(
         manageContent(
             instructions,
             overviewShot,
-            dialogAFrame,
-            southParkLipsFrame,
-            dialogBFrame,
+            dialogA,
+            southParkLipsDecal,
+            dialogBDecal,
             dialogAShot,
             dialogBShot,
-            compositionFrame,
+            composition,
             compositionShot
         )
         
@@ -157,14 +157,14 @@ class StaticShotScene(sceneManager: SceneManager): Scene(
         dialogAShot.update(dt)
         dialogBShot.update(dt)
         compositionShot.update(dt)
-        southParkLipsFrame.update(dt)
+        southParkLipsDecal.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {
-        dialogAFrame.render(batch)
-        dialogBFrame.render(batch)
-        compositionFrame.render(batch)
-        southParkLipsFrame.render(batch)
+        dialogA.render(batch)
+        dialogBDecal.render(batch)
+        composition.render(batch)
+        southParkLipsDecal.render(batch)
 
         dialogAShot.render(batch)
         dialogBShot.render(batch)

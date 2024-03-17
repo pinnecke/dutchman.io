@@ -26,6 +26,7 @@ interface Player {
     fun pause()
     fun resume()
     fun stop()
+    fun done()
     fun rewind()
 }
 
@@ -71,6 +72,11 @@ abstract class Sequence: Update, Render, TimeFrame, Playback {
     override fun stop() {
         hasStopped = true
         isRunning = false
+    }
+
+    override fun done() {
+        stop()
+        onDone()
     }
 
     override fun rewind() {
@@ -158,6 +164,10 @@ class Lane(
 
     override fun stop() {
         sequences.forEach { it.stop() }
+    }
+
+    override fun done() {
+        sequences.forEach { it.done() }
     }
 
     override fun rewind() {
@@ -370,6 +380,12 @@ class Timeline(
         elapsed = 0f
         lanes.forEach { it.stop() }
         onStop()
+    }
+
+    override fun done() {
+        elapsed = 0f
+        lanes.forEach { it.done() }
+        onDone()
     }
 
     override fun rewind() {

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.FrameBuffer
@@ -18,9 +19,9 @@ class RenderBuffer(
 ): ManagedContent {
     private var worldFboCamera: OrthographicCamera? = null
     private var worldFboViewport: Viewport? = null
-    private var m_fbo: FrameBuffer? = null
-    private var m_fboRegion: TextureRegion? = null
-    private var fboBatch: SpriteBatch? = null
+    private var frameBuffer: FrameBuffer? = null
+    private var sprite: Sprite? = null
+    private var batch: SpriteBatch? = null
 
     override fun loadContent() {
         worldFboCamera = OrthographicCamera()
@@ -30,16 +31,16 @@ class RenderBuffer(
         worldFboCamera!!.translate(25f, 75f ,0f)
         worldFboCamera!!.update()
 
-        m_fbo = FrameBuffer(Pixmap.Format.RGB565, width, height, false)
-        m_fboRegion = TextureRegion(m_fbo!!.colorBufferTexture)
-        m_fboRegion!!.flip(false, true)
+        frameBuffer = FrameBuffer(Pixmap.Format.RGB565, width, height, false)
+        sprite = Sprite(frameBuffer!!.colorBufferTexture)
+        sprite!!.flip(false, true)
 
-        fboBatch = SpriteBatch()
+        batch = SpriteBatch()
     }
 
     override fun unloadContent() {
-        m_fbo!!.dispose()
-        fboBatch!!.dispose()
+        frameBuffer!!.dispose()
+        batch!!.dispose()
     }
 
     fun resize(windowWidth: Int, windowHeight: Int) {
@@ -47,19 +48,19 @@ class RenderBuffer(
     }
 
     fun renderIntoBuffer(action: () -> Unit) {
-        m_fbo!!.begin()
+        frameBuffer!!.begin()
         action()
-        m_fbo!!.end()
+        frameBuffer!!.end()
     }
 
-    fun renderOntoScreen(action: (screen: SpriteBatch, content: TextureRegion) -> Unit) {
+    fun renderOntoScreen(action: (screen: SpriteBatch, content: Sprite) -> Unit) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        with (fboBatch!!) {
+        with (batch!!) {
             begin()
             enableBlending()
             worldFboViewport!!.apply()
             projectionMatrix = worldFboViewport!!.camera.combined
-            action(this, m_fboRegion!!)
+            action(this, sprite!!)
             end()
         }
     }

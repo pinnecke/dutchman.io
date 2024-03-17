@@ -19,9 +19,9 @@ enum class TweenFunction(
 
 data class Tween (
     val duration: Float,
+    val onInit: () -> Unit = { },
     val origin: () -> Float,
     val target: () -> Float,
-    val onInit: () -> Unit = { },
     val onUpdate: (actual: Float) -> Unit,
     val onStart: () -> Unit = { },
     val onDone: () -> Unit = { },
@@ -35,9 +35,9 @@ data class Tween (
     fun start() {
         running = true
         elapsed = 0f
+        onInit()
         x0 = origin()
         x1 = target()
-        onInit()
         onStart()
     }
 

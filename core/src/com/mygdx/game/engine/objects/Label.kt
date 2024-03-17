@@ -14,17 +14,19 @@ class Label(
     val textColor: Color,
     val x: Float,
     val y: Float,
-    val fontSize: Int = 28
+    val fontSize: Int = 28,
+    var visible: Boolean = true
 ): GameObject("Label - ${text.replace("\n", ", ")}") {
 
     private var font: BitmapFont? = null
-    var visible: Boolean = true
+    private val resetVisible = visible
 
     override val managedContent = mutableListOf(
         managedContentOf(
             contentIdentifier = "Font",
             load = {
-                visible = true
+                visible = resetVisible
+
                 val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/backissue_reg.otf"))
                 val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
                 parameter.genMipMaps = true

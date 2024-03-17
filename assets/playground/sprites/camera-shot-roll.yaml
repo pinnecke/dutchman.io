@@ -1,0 +1,4 @@
+root: "camera-shot-roll"
+sprites:
+  - name: "camera-shot-roll"
+    frames: 1

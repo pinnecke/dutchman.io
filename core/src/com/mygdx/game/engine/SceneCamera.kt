@@ -1,6 +1,7 @@
 package com.mygdx.game.engine
 
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.math.Vector3
 import com.mygdx.game.engine.stdx.Update
 
 data class CutEffectDescriptor(
@@ -8,12 +9,10 @@ data class CutEffectDescriptor(
     val xDuration: Float = duration,
     val yDuration: Float = duration,
     val zoomDuration: Float = duration,
-    val rotationDuration: Float = duration,
     val interpolation: Interpolation = TweenFunction.EASE_IN_OUT.fn,
     val xInterpolation: Interpolation = interpolation,
     val yInterpolation: Interpolation = interpolation,
-    val zoomInterpolation: Interpolation = interpolation,
-    val rotationInterpolation: Interpolation = interpolation,
+    val zoomInterpolation: Interpolation = interpolation
 ) {
     companion object {
         fun cut() = CutEffectDescriptor(
@@ -31,34 +30,31 @@ data class CutEffectDescriptor(
     }
 }
 
-class SceneCamera(
-): Update {
+private val rotationAxis = Vector3(0f, 0f, 1f)
+
+class SceneCamera: Update {
     var camera: OrthographicCamera? = null
 
     private var x: Float = 0f
     private var y: Float = 0f
     private var zoom: Float = 1f
-    private var rotation: Float = 0f
 
     private var tweenX: Tween? = null
     private var tweenY: Tween? = null
     private var tweenZoom: Tween? = null
-    private var tweenRotation: Tween? = null
 
     private var tweenXDone = false
     private var tweenYDone = false
     private var tweenZoomDone = false
-    private var tweenRotationDone = false
 
     private val allDone: Boolean
-        get() = tweenXDone && tweenYDone && tweenZoomDone && tweenRotationDone
+        get() = tweenXDone && tweenYDone && tweenZoomDone
 
     override fun update(dt: Float) {
         if (!allDone) {
             tweenX?.update(dt)
             tweenY?.update(dt)
             tweenZoom?.update(dt)
-            tweenRotation?.update(dt)
         }
     }
 
@@ -68,12 +64,10 @@ class SceneCamera(
         tweenXDone = true
         tweenYDone = true
         tweenZoomDone = true
-        tweenRotationDone = true
 
         camera?.position?.x = panel.center.x
         camera?.position?.y = panel.center.y
         camera?.zoom = panel.zoom
-        camera?.rotate(panel.rotation)
     }
 
     fun cut(
@@ -135,27 +129,9 @@ class SceneCamera(
             },
             interpolate = effect.zoomInterpolation
         )
-        tweenRotation = Tween(
-            duration = effect.rotationDuration,
-            origin = { rotation },
-            target = { panel.rotation },
-            onStart = { tweenRotationDone = false },
-            onUpdate = {
-                rotation = it
-                camera!!.rotate(rotation)
-            },
-            onDone = {
-                tweenRotationDone = true
-                if (allDone) {
-                    onDone()
-                }
-            },
-            interpolate = effect.rotationInterpolation
-        )
         tweenX?.start()
         tweenY?.start()
         tweenZoom?.start()
-        tweenRotation?.start()
     }
 
 }

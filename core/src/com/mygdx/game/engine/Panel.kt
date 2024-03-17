@@ -2,6 +2,7 @@ package com.mygdx.game.engine
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.Vector3
 import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.stdx.GameObject
@@ -37,7 +38,6 @@ fun panelOf(
 
 class Panel(
     val surface: Surface2D,
-    val rotation: Float = 0f,
     caption: String = "Untitled"
 ): GameObject("Panel - $caption") {
 

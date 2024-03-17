@@ -4,7 +4,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
-import com.mygdx.game.engine.objects.FrameAnimation
+import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.shots.PanTiltShot
 import com.mygdx.game.engine.shots.StaticShot
@@ -39,7 +39,7 @@ class PanShotScene(sceneManager: SceneManager): Scene(
         duration = Float.POSITIVE_INFINITY
     )
 
-    private var widescreenFrame = FrameAnimation(
+    private var widescreen = Decal(
         name = "pan-shot-widescreen",
         sheets = super.sheets
     )
@@ -63,7 +63,7 @@ class PanShotScene(sceneManager: SceneManager): Scene(
         manageContent(
             instructions,
             overviewShot,
-            widescreenFrame,
+            widescreen,
             widescreenShot
         )
 
@@ -86,7 +86,7 @@ class PanShotScene(sceneManager: SceneManager): Scene(
     }
 
     override fun render(batch: SpriteBatch) {
-        widescreenFrame.render(batch)
+        widescreen.render(batch)
 
         widescreenShot.render(batch)
         overviewShot.render(batch)

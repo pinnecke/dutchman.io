@@ -4,10 +4,8 @@ import com.mygdx.game.engine.DutchmanGame
 import com.mygdx.game.engine.SceneManager
 import com.mygdx.game.playground.scenes.*
 import com.mygdx.game.playground.scenes.camera.fixed.CameraMovementStaticShotScene
-import com.mygdx.game.playground.scenes.camera.pan.CameraMovementCrashZoomShotScene
-import com.mygdx.game.playground.scenes.camera.pan.CameraMovementPanShotScene
-import com.mygdx.game.playground.scenes.camera.pan.CameraMovementWhipPanShotScene
-import com.mygdx.game.playground.scenes.camera.pan.CameraMovementZoomShotScene
+import com.mygdx.game.playground.scenes.camera.pan.*
+import com.mygdx.game.playground.scenes.decal.DecalScene
 import com.mygdx.game.playground.scenes.timeline.TimelineScene
 
 class PlaygroundGame(sceneManager: SceneManager): DutchmanGame(sceneManager) {
@@ -30,7 +28,8 @@ class PlaygroundGame(sceneManager: SceneManager): DutchmanGame(sceneManager) {
         CameraMovementPanShotScene(sceneManager),
         CameraMovementWhipPanShotScene(sceneManager),
         CameraMovementZoomShotScene(sceneManager),
-        CameraMovementCrashZoomShotScene(sceneManager)
+        CameraMovementCrashZoomShotScene(sceneManager),
+        DecalScene(sceneManager)
     )
 
 }

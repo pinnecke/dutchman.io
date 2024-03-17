@@ -3,7 +3,7 @@ package com.mygdx.game.playground.scenes.timeline.scenes
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.memory.ManagedContent
-import com.mygdx.game.engine.objects.FrameAnimation
+import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Position
 import com.mygdx.game.engine.stdx.value
@@ -17,13 +17,13 @@ class StaticShotCameraMovement(
 
     override val cutInEffect = CutEffectDescriptor.smooth(1f)
 
-    private var shotFrame = FrameAnimation(
+    private var shotFrame = Decal(
         name = "camera-shot-static",
         sheets = scene.sheets,
-        position = value(Position(
-            left = { 0f },
-            bottom = { 0f }
-        ))
+        position = Position(
+            left = 0f,
+            bottom = 0f
+        )
     )
 
     override val firstPanel = panelOf(

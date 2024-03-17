@@ -1,0 +1,6 @@
+root: "tobi"
+sprites:
+  - name: "tobi-idle"
+    frames: 46
+  - name: "tobi-walking"
+    frames: 7

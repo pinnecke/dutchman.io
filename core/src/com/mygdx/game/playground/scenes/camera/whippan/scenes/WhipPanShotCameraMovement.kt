@@ -3,7 +3,7 @@ package com.mygdx.game.playground.scenes.timeline.scenes
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.memory.ManagedContent
-import com.mygdx.game.engine.objects.FrameAnimation
+import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Position
 import com.mygdx.game.engine.stdx.value
@@ -17,37 +17,37 @@ class WhipPanShotCameraMovement(
 
     override val cutInEffect = CutEffectDescriptor.smooth(1f)
 
-    private var frame0 = FrameAnimation(
+    private var frame0 = Decal(
         name = "camera-shot-whip-pan-0",
         sheets = scene.sheets,
-        position = value(Position(
-            left = { 0 * 2048f },
-            bottom = { 0f }
-        ))
+        position = Position(
+            left = 0 * 2048f,
+            bottom = 0f
+        )
     )
-    private var frame1 = FrameAnimation(
+    private var frame1 = Decal(
         name = "camera-shot-whip-pan-1",
         sheets = scene.sheets,
-        position = value(Position(
-            left = { 1 * 2048f },
-            bottom = { 0f }
-        ))
+        position = Position(
+            left = 1 * 2048f,
+            bottom = 0f
+        )
     )
-    private var frame2 = FrameAnimation(
+    private var frame2 = Decal(
         name = "camera-shot-whip-pan-2",
         sheets = scene.sheets,
-        position = value(Position(
-            left = { 2 * 2048f },
-            bottom = { 0f }
-        ))
+        position = Position(
+            left = 2 * 2048f,
+            bottom = 0f
+        )
     )
-    private var frame3 = FrameAnimation(
+    private var frame3 = Decal(
         name = "camera-shot-whip-pan-3",
         sheets = scene.sheets,
-        position = value(Position(
-            left = { 3 * 2048f },
-            bottom = { 0f }
-        ))
+        position = Position(
+            left = 3 * 2048f,
+            bottom = 0f
+        )
     )
 
     override val firstPanel = panelOf(

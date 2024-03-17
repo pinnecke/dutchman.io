@@ -7,7 +7,7 @@ import com.mygdx.game.engine.Scene
 import com.mygdx.game.engine.SceneController
 import com.mygdx.game.engine.SceneManager
 import com.mygdx.game.engine.SequenceController
-import com.mygdx.game.engine.objects.FrameAnimation
+import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.stdx.once
 import com.mygdx.game.engine.stdx.runDelayed
 import com.mygdx.game.engine.stdx.seconds
@@ -23,7 +23,7 @@ class SplashScreenScene(sceneManager: SceneManager): Scene(
     private val controller = SceneController(this)
     private val input = GdxKeyboardInputUtil()
 
-    private var nemonicLogo = FrameAnimation(
+    private var nemonicLogo = Decal(
         name = "nemonic-logo",
         scale = 0.5f,
         iterations = once(),
@@ -32,7 +32,7 @@ class SplashScreenScene(sceneManager: SceneManager): Scene(
 
     private var startLogoAnimation = runDelayed(
         delay = 1.seconds()) {
-        nemonicLogo.start()
+        nemonicLogo.animiate = true
     }
 
     private var exitScene = runDelayed(

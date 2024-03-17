@@ -3,8 +3,10 @@ package com.mygdx.game.engine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
@@ -21,6 +23,8 @@ import com.mygdx.game.engine.utils.InputProcessorTee
 import com.mygdx.game.engine.utils.InputProcessorTranslator
 import com.mygdx.game.engine.utils.deferred
 import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sign
 import kotlin.reflect.KClass
 
 
@@ -41,6 +45,7 @@ class SceneManager(
     internal var worldCamera: OrthographicCamera? = null
     private var worldViewport: Viewport? = null
     private var wordCameraPropMemory: CameraPropMemory? = null
+    private var worldRotation: Float = 0f
 
     private var hudCamera: OrthographicCamera? = null
     private var hudViewport: Viewport? = null
@@ -263,24 +268,26 @@ class SceneManager(
         renderBuffer.renderOntoScreen { screen, content ->
             val delta = wordCameraPropMemory!!.delta
 
-            if (delta.velocity < 80) {
-                screen.setColor(screen.color.r, screen.color.g, screen.color.b, 1.0f)
-                screen.draw(
-                    content,
-                    0f,
-                    0f,
-                    Engine.canvas.surface.width,
-                    Engine.canvas.surface.height
-                )
-            } else {
-                val steps = 10
+            screen.setColor(screen.color.r, screen.color.g, screen.color.b, 1.0f)
+            screen.draw(
+                content,
+                0f,
+                0f,
+                Engine.canvas.surface.width,
+                Engine.canvas.surface.height
+            )
+
+            if (delta.velocity > 80) {
+                val steps = 3
                 for (i in steps downTo 1) {
-                    val alpha = i / steps.toFloat()
+                    val progress = i / steps.toFloat()
+                    val alpha = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 0.5f)
+                    val blend = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 50f)
                     screen.setColor(screen.color.r, screen.color.g, screen.color.b, alpha)
                     screen.draw(
                         content,
-                        alpha * delta.x,
-                        alpha * delta.y,
+                        alpha * delta.x + (delta.x.sign * blend),
+                        alpha * delta.y + (delta.y.sign * blend),
                         Engine.canvas.surface.width,
                         Engine.canvas.surface.height
                     )
@@ -288,29 +295,20 @@ class SceneManager(
             }
 
             if (delta.gravity > 5) {
-                val maxGravity = 30f
-                val relativeGravity = delta.gravity/maxGravity
-                val blend = TweenFunction.EASE_IN_OUT.fn(relativeGravity, 10f, 150f)
-                for (q in -1 .. 1 step 2) {
-                    for (s in -1..1 step 2) {
-                        val alpha = 0.05f
-                        screen.setColor(screen.color.r, screen.color.g, screen.color.b, alpha)
-                        screen.draw(
-                            content,
-                            q * (alpha * blend),
-                            q * (alpha * blend),
-                            Engine.canvas.surface.width + s * (alpha * blend),
-                            Engine.canvas.surface.height + s * (alpha * blend)
-                        )
-                    }
+                val steps = 2
+                for (i in 1 .. steps) {
+                    val progress = i / steps.toFloat()
+                    val alpha = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 0.15f)
+                    val blend = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 7f)
+                    screen.setColor(screen.color.r, screen.color.g, screen.color.b, alpha)
+                    screen.draw(
+                        content,
+                        -blend,
+                        -blend,
+                        Engine.canvas.surface.width + (2 * blend),
+                        Engine.canvas.surface.height + (2 * blend)
+                    )
                 }
-                screen.draw(
-                    content,
-                    0f,
-                    0f,
-                    Engine.canvas.surface.width,
-                    Engine.canvas.surface.height
-                )
             }
         }
     }

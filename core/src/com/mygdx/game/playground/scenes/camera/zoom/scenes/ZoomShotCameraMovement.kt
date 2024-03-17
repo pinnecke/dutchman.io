@@ -3,7 +3,7 @@ package com.mygdx.game.playground.scenes.timeline.scenes
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
 import com.mygdx.game.engine.memory.ManagedContent
-import com.mygdx.game.engine.objects.FrameAnimation
+import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Position
 import com.mygdx.game.engine.stdx.value
@@ -17,37 +17,37 @@ class ZoomShotCameraMovement(
 
     override val cutInEffect = CutEffectDescriptor.smooth(1f)
 
-    private var frame0 = FrameAnimation(
+    private var frame0 = Decal(
         name = "camera-shot-zoom-0",
         sheets = scene.sheets,
-        position = value(Position(
-            left = { 0 * 2000f },
-            bottom = { 1 * 2000f }
-        ))
+        position = Position(
+            left = 0 * 2000f,
+            bottom = 1 * 2000f
+        )
     )
-    private var frame1 = FrameAnimation(
+    private var frame1 = Decal(
         name = "camera-shot-zoom-1",
         sheets = scene.sheets,
-        position = value(Position(
-            left = { 1 * 2000f },
-            bottom = { 1 * 2000f }
-        ))
+        position = Position(
+            left = 1 * 2000f,
+            bottom = 1 * 2000f
+        )
     )
-    private var frame2 = FrameAnimation(
+    private var frame2 = Decal(
         name = "camera-shot-zoom-2",
         sheets = scene.sheets,
-        position = value(Position(
-            left = { 0 * 2000f },
-            bottom = { 0 * 2000f }
-        ))
+        position = Position(
+            left = 0 * 2000f,
+            bottom = 0 * 2000f
+        )
     )
-    private var frame3 = FrameAnimation(
+    private var frame3 = Decal(
         name = "camera-shot-zoom-3",
         sheets = scene.sheets,
-        position = value(Position(
-            left = { 1 * 2000f },
-            bottom = { 0 * 2000f }
-        ))
+        position = Position(
+            left = 1 * 2000f,
+            bottom = 0 * 2000f
+        )
     )
 
     override val firstPanel = panelOf(
