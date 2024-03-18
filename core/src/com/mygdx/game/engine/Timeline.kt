@@ -261,7 +261,7 @@ class GameSceneComposer(
 
     fun register(sceneId: KClass<*>) {
         val scene = index[sceneId]!!
-        info( "registering: ${scene.timeline.contentIdentifier}")
+        info( "registering: ${scene.timeline.id}")
         timelines[scene.timeline] = true
     }
 
@@ -295,7 +295,7 @@ class GameSceneComposer(
     }
 
     override fun update(dt: Float) {
-        diagnosticsPanel.sceneName = active?.contentIdentifier ?: "Unknown"
+        diagnosticsPanel.sceneName = active?.id ?: "Unknown"
         diagnosticsPanel.shotName = "???"
         diagnosticsPanel.shotElapsed = active?.elapsed ?: 0f
         diagnosticsPanel.shotTotal = active?.duration ?: Float.POSITIVE_INFINITY

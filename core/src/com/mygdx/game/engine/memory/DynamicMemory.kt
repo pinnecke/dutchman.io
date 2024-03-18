@@ -4,7 +4,7 @@ import com.mygdx.game.engine.utils.info
 
 interface ManagedContent {
 
-    val contentIdentifier: String
+    val id: String
 
     fun loadContent()
     fun unloadContent()
@@ -17,7 +17,7 @@ fun managedContentOf(
     unload: () -> Unit
 ) = object : ManagedContent {
 
-    override val contentIdentifier = contentIdentifier
+    override val id = contentIdentifier
 
     override fun loadContent() {
         load()
@@ -26,9 +26,9 @@ fun managedContentOf(
     override fun unloadContent() = unload()
 }
 
-abstract class AllocatorManagedContent(override val contentIdentifier: String) : ManagedContent {
+abstract class AllocatorManagedContent(override val id: String) : ManagedContent {
 
-    private val allocator = ContentAllocator("$contentIdentifier (allocator)")
+    private val allocator = ContentAllocator("$id (allocator)")
 
     protected abstract val managedContent: MutableList<ManagedContent>
 
@@ -59,7 +59,7 @@ class ContentAllocator(private val allocatorIdentifier: String) {
     fun allocate() {
         info(t("start allocating..."))
         managedContent.forEach {
-            info(t("loading ${it.contentIdentifier}"))
+            info(t("loading ${it.id}"))
             it.loadContent()
         }
     }
@@ -67,7 +67,7 @@ class ContentAllocator(private val allocatorIdentifier: String) {
     fun deallocate() {
         info(t("start deallocating..."))
         managedContent.reversed().forEach {
-            info(t("unloading ${it.contentIdentifier}"))
+            info(t("unloading ${it.id}"))
             it.unloadContent()
         }
     }

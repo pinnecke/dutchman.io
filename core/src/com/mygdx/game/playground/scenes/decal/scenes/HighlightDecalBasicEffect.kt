@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
-import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Position
@@ -29,7 +28,7 @@ class HighlightDecalBasicEffect(
     )
 
     private var tobi = Decal(
-        name = "tobi-idle",
+        name = "batman",
         scale = 1.0f,
         iterations = infinite(),
         sheets = spriteManager,
@@ -49,10 +48,13 @@ class HighlightDecalBasicEffect(
         visible = false
     )
 
-    override val managedContent = mutableListOf<ManagedContent>(
+    private val effect = RenderEffects.outlineShaderEffect()
+
+    override val managedContent = mutableListOf(
         firstPanel,
         tobi,
-        goBackHint
+        goBackHint,
+        effect
     )
 
     override val timeline = Timeline(
@@ -67,7 +69,8 @@ class HighlightDecalBasicEffect(
                         instructionHint1,
                         instructionHint2,
                         goBackHint,
-                        tobi
+                        tobi,
+                        effect
                     )
                 )
             )
@@ -85,7 +88,12 @@ class HighlightDecalBasicEffect(
     }
 
     override fun render(batch: SpriteBatch) {
-        tobi.render(batch)
+        //effect.amount += 0.01f
+        //println(effect.amount)
+        effect.render(batch) {
+            tobi.render(it)
+        }
+
         firstPanel.render(batch)
         goBackHint.render(batch)
     }
@@ -96,7 +104,8 @@ class HighlightDecalBasicEffect(
         private val instructionHint1: Label,
         private val instructionHint2: Label,
         private val instructionHint3: Label,
-        private val tobi: Decal
+        private val tobi: Decal,
+        private val effect: ShaderEffect
     ): Sequence() {
 
         override val duration: Float = Float.POSITIVE_INFINITY

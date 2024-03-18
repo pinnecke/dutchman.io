@@ -70,6 +70,40 @@ class SceneController(
     fun isInCinematicMode() = scene.cinematicBars.isPresent()
 }
 
+class EffectWrapper(
+    private val scene: Scene,
+    private val accessEffect: (scenePostEffects: ScenePostEffects) -> Tweenable<*>
+) {
+    private val effect: Tweenable<*>
+        get() { return accessEffect(scene.sceneManager!!.scenePostEffects) }
+
+    fun configure(
+        amount: Float, duration: Float,
+        tweenFunction: TweenFunction = TweenFunction.EASE_IN_OUT,
+        onDone: () -> Unit = { }
+    ) = effect.configure(
+        amount, duration, tweenFunction, onDone
+    )
+
+    var enabled: Boolean
+        get() { return effect.enabled }
+        set(value) { effect.enabled = value }
+
+    val amount: Float
+        get() { return effect.amount }
+}
+
+class PostEffects(
+    scene: Scene
+) {
+    val blur = EffectWrapper(scene) { it.blur }
+    val gamma = EffectWrapper(scene) { it.gamma }
+    val crt = EffectWrapper(scene) { it.crt }
+    val grain = EffectWrapper(scene) { it.grain }
+    val white = EffectWrapper(scene) { it.white }
+    val vignette = EffectWrapper(scene) { it.vignette }
+}
+
 class CameraController(
     private val scene: Scene
 ) {

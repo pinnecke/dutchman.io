@@ -1,8 +1,6 @@
 package com.mygdx.game.engine.objects
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
@@ -10,8 +8,6 @@ import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.sprites.Frame
 import com.mygdx.game.engine.sprites.SpriteSheetManager
 import com.mygdx.game.engine.stdx.*
-import kotlin.math.max
-import kotlin.math.min
 
 fun centered(
     scene: Scene,

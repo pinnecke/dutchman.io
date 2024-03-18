@@ -15,7 +15,7 @@ data class CameraDelta(
 class CameraPropMemory(
     private val camera: OrthographicCamera
 ): ManagedContent {
-    override val contentIdentifier = "Camera delta store"
+    override val id = "Camera delta store"
 
     private var lastPosition = Vector3()
     private var currentPosition = Vector3()

@@ -77,8 +77,6 @@ class SceneDimmer: GameObject("Scene Dimming Effect") {
                 setColor(color.r, color.g, color.b, alpha)
 
                 rect(
-                    //Engine.canvas.surface.left, Engine.canvas.surface.bottom,
-                    //Engine.canvas.surface.width, Engine.canvas.surface.height,
                     0f, 0f,
                     Engine.canvas.surface.width, Engine.canvas.surface.height
                 )

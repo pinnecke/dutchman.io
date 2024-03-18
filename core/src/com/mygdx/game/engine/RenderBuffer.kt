@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.viewport.Viewport
 import com.mygdx.game.engine.memory.ManagedContent
 
 class RenderBuffer(
-    override val contentIdentifier: String,
+    override val id: String,
     val width: Int = (Engine.canvas.surface.width).toInt(),
     val height: Int = (Engine.canvas.surface.height).toInt()
 ): ManagedContent {

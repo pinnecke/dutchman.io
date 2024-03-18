@@ -2,11 +2,10 @@ package com.mygdx.game.engine
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
@@ -22,8 +21,6 @@ import com.mygdx.game.engine.utils.InputProcessorHudFirst
 import com.mygdx.game.engine.utils.InputProcessorTee
 import com.mygdx.game.engine.utils.InputProcessorTranslator
 import com.mygdx.game.engine.utils.deferred
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sign
 import kotlin.reflect.KClass
 
@@ -50,6 +47,7 @@ class SceneManager(
     private var hudCamera: OrthographicCamera? = null
     private var hudViewport: Viewport? = null
 
+    val scenePostEffects = ScenePostEffects { worldViewport!! }
     val spriteSheetManager: SpriteSheetManager = SpriteSheetManager(namespace)
 
     var sceneTransition = SceneTransition()
@@ -137,7 +135,8 @@ class SceneManager(
                 sceneCamera.camera = worldCamera
             },
             unload = { }
-        )
+        ),
+        scenePostEffects
     )
 
     private val worldUnprojectBuffer = Vector3.Zero
@@ -236,6 +235,8 @@ class SceneManager(
 
         worldViewport!!.apply()
         wordCameraPropMemory?.update()
+
+        scenePostEffects.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {
@@ -265,49 +266,52 @@ class SceneManager(
     }
 
     private fun renderToScreen() {
-        renderBuffer.renderOntoScreen { screen, content ->
-            val delta = wordCameraPropMemory!!.delta
 
-            screen.setColor(screen.color.r, screen.color.g, screen.color.b, 1.0f)
-            screen.draw(
-                content,
-                0f,
-                0f,
-                Engine.canvas.surface.width,
-                Engine.canvas.surface.height
-            )
+        scenePostEffects.apply {
+            renderBuffer.renderOntoScreen { screen, content ->
+                val delta = wordCameraPropMemory!!.delta
 
-            if (delta.velocity > 80) {
-                val steps = 3
-                for (i in steps downTo 1) {
-                    val progress = i / steps.toFloat()
-                    val alpha = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 0.5f)
-                    val blend = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 50f)
-                    screen.setColor(screen.color.r, screen.color.g, screen.color.b, alpha)
-                    screen.draw(
-                        content,
-                        alpha * delta.x + (delta.x.sign * blend),
-                        alpha * delta.y + (delta.y.sign * blend),
-                        Engine.canvas.surface.width,
-                        Engine.canvas.surface.height
-                    )
+                screen.setColor(screen.color.r, screen.color.g, screen.color.b, 1.0f)
+                screen.draw(
+                    content,
+                    0f,
+                    0f,
+                    Engine.canvas.surface.width,
+                    Engine.canvas.surface.height
+                )
+
+                if (delta.velocity > 80) {
+                    val steps = 3
+                    for (i in steps downTo 1) {
+                        val progress = i / steps.toFloat()
+                        val alpha = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 0.5f)
+                        val blend = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 50f)
+                        screen.setColor(screen.color.r, screen.color.g, screen.color.b, alpha)
+                        screen.draw(
+                            content,
+                            alpha * delta.x + (delta.x.sign * blend),
+                            alpha * delta.y + (delta.y.sign * blend),
+                            Engine.canvas.surface.width,
+                            Engine.canvas.surface.height
+                        )
+                    }
                 }
-            }
 
-            if (delta.gravity > 5) {
-                val steps = 2
-                for (i in 1 .. steps) {
-                    val progress = i / steps.toFloat()
-                    val alpha = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 0.15f)
-                    val blend = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 7f)
-                    screen.setColor(screen.color.r, screen.color.g, screen.color.b, alpha)
-                    screen.draw(
-                        content,
-                        -blend,
-                        -blend,
-                        Engine.canvas.surface.width + (2 * blend),
-                        Engine.canvas.surface.height + (2 * blend)
-                    )
+                if (delta.gravity > 5) {
+                    val steps = 2
+                    for (i in 1 .. steps) {
+                        val progress = i / steps.toFloat()
+                        val alpha = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 0.15f)
+                        val blend = TweenFunction.EASE_IN_OUT.fn(progress, 0f, 7f)
+                        screen.setColor(screen.color.r, screen.color.g, screen.color.b, alpha)
+                        screen.draw(
+                            content,
+                            -blend,
+                            -blend,
+                            Engine.canvas.surface.width + (2 * blend),
+                            Engine.canvas.surface.height + (2 * blend)
+                        )
+                    }
                 }
             }
         }
