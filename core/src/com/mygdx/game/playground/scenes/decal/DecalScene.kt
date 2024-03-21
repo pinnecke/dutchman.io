@@ -7,7 +7,7 @@ import com.mygdx.game.engine.*
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
-import com.mygdx.game.playground.scenes.decal.scenes.HighlightDecalBasicEffect
+import com.mygdx.game.playground.scenes.decal.scenes.ScaleDecalBasicEffect
 import com.mygdx.game.playground.scenes.decal.scenes.MoveAroundDecalBasicEffect
 import com.mygdx.game.playground.scenes.decal.scenes.OpacityDecalBasicEffect
 
@@ -27,15 +27,16 @@ class DecalScene(sceneManager: SceneManager): Scene(
     private val inputDelayer = Sequencer(0.1f, onStart = { println("Wait") }, onDone = { println("Next") })
 
     private val instructionHint1 = Label(
-        "[1] move around\n" +
+        "[1] positioning\n" +
+        "[2] opacity\n" +
+        "[3] scaling\n"
+        ,
        // "[2] start movement path\n" +
        // "[3] masking on/off\n" +
-        "[4] opacity\n" +
-        "[5] highlight\n" +
-        "[6] scale small/normal/high\n" +
-        "[7] crash scale on/off\n" +
-        "[8] tint none/low/medium/high/full\n" +
-        "[9] blur none/low/medium/high",
+       // "[5] highlight\n" +
+       // "[7] crash scale on/off\n" +
+       // "[8] tint none/low/medium/high/full\n" +
+        //"[9] blur none/low/medium/high",
         Color.BLACK,
         Engine.canvas.safeZone.left + 50f, Engine.canvas.safeZone.height - 50f,
     )
@@ -72,7 +73,7 @@ class DecalScene(sceneManager: SceneManager): Scene(
                 instructionHint1,
                 instructionHint2
             ),
-            HighlightDecalBasicEffect(
+            ScaleDecalBasicEffect(
                 this,
                 cameraController,
                 this.sheets,
@@ -97,7 +98,7 @@ class DecalScene(sceneManager: SceneManager): Scene(
                 }
             }
         }
-        input[Input.Keys.NUM_4] = {
+        input[Input.Keys.NUM_2] = {
             if (inputDelayer.isNotRunning) {
                 inputDelayer.start()
                 if (!composer.isRunning) {
@@ -105,11 +106,11 @@ class DecalScene(sceneManager: SceneManager): Scene(
                 }
             }
         }
-        input[Input.Keys.NUM_5] = {
+        input[Input.Keys.NUM_3] = {
             if (inputDelayer.isNotRunning) {
                 inputDelayer.start()
                 if (!composer.isRunning) {
-                    composer.start(HighlightDecalBasicEffect::class)
+                    composer.start(ScaleDecalBasicEffect::class)
                 }
             }
         }

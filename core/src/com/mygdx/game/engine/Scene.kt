@@ -27,6 +27,7 @@ class SequenceController(
                 otherScene
             ) {
                 scene.sceneManager!!.dimScene(0.0f, SceneDimmer.DimSpeed.HIGH) {  }
+                scene.sceneManager!!.scenePostEffects.reset()
                 //scene.sceneManager!!.defaultShot.cut()
             }
         }

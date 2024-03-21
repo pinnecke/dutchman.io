@@ -30,7 +30,6 @@ class MoveAroundDecalBasicEffect(
 
     private var tobi1 = Decal(
         name = "tobi-walking",
-        scale = 1.0f,
         iterations = infinite(),
         sheets = spriteManager,
         position = Position(
@@ -41,7 +40,6 @@ class MoveAroundDecalBasicEffect(
 
     private var tobi2 = Decal(
         name = "tobi-idle",
-        scale = 1.0f,
         iterations = once(),
         sheets = spriteManager,
         position = Position(

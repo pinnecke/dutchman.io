@@ -16,6 +16,15 @@ class ScenePostEffects(
     private var manager: VfxManager? = null
     private var viewport: Viewport? = null
 
+    fun reset() {
+        blur.enabled = false
+        gamma.enabled = false
+        crt.enabled = false
+        grain.enabled = false
+        white.enabled = false
+        vignette.enabled = false
+    }
+
     val blur = Tweenable(
         id = "blur effect",
         create = { GaussianBlurEffect() },

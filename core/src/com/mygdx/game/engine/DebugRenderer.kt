@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Matrix4
 import com.mygdx.game.engine.memory.AllocatorManagedContent
 import com.mygdx.game.engine.memory.managedContentOf
+import com.mygdx.game.engine.objects.Label
 
 private val IDENTITY = Matrix4()
 
@@ -18,6 +19,12 @@ class DebugRenderer(
 ): AllocatorManagedContent("Debug Renderer ($renderContextName)") {
 
     private var shapeRenderer: ShapeRenderer? = null
+    private var font = Label(
+        fontSize = 16,
+        textColor = Color.WHITE,
+        borderColor = Engine.colors.darkDimmedGray,
+        borderWidth = 2f
+    )
 
     override val managedContent = mutableListOf(
         managedContentOf(
@@ -28,8 +35,18 @@ class DebugRenderer(
             unload = {
                 shapeRenderer!!.dispose()
             }
-        )
+        ),
+        font
     )
+
+    fun print(batch: SpriteBatch, text: String, x: Float, y: Float) {
+        if (enabled) {
+            font.text = text
+            font.x = x
+            font.y = y
+            font.render(batch)
+        }
+    }
 
     fun render(batch: SpriteBatch, action: (renderer: DebugRenderer) -> Unit) {
         if (enabled) {

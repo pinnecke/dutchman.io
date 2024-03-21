@@ -9,6 +9,7 @@ import com.mygdx.game.engine.hotspots.HudButton
 import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.objects.SpeechBubble
 import com.mygdx.game.engine.objects.SpeechBubblePivot
+import com.mygdx.game.playground.MainMenuScene
 
 class SpeechBubbleScene(sceneManager: SceneManager): Scene(
     "Speech Bubble Scene",
@@ -130,6 +131,9 @@ class SpeechBubbleScene(sceneManager: SceneManager): Scene(
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             speechBubble.abort()
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            sequence.switch(MainMenuScene::class)
         }
         if (Gdx.input.isKeyPressed(Input.Keys.C)) {
             if (controller.isInCinematicMode()) {

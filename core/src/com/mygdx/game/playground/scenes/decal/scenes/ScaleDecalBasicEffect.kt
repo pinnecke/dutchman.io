@@ -5,56 +5,55 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
+import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Position
 import com.mygdx.game.engine.sprites.SpriteSheetManager
 import com.mygdx.game.engine.stdx.infinite
 
-class HighlightDecalBasicEffect(
+class ScaleDecalBasicEffect(
     scene: Scene,
     cameraController: CameraController,
     spriteManager: () -> SpriteSheetManager,
     instructionHint1: Label,
     instructionHint2: Label
-): GameScene("Highlight Decal Basic Effect") {
+): GameScene("Scale Decal Basic Effect") {
 
     override val cutInEffect = CutEffectDescriptor.smooth(1f)
 
     override val firstPanel = panelOf(
-        caption = "Decal Basic Effects",
+        caption = "Scale Basic Effects",
         left = 750f + 6000f, bottom = -100f,
         dimension = 1400f, type = PanelDimension.HEIGHT
     )
 
     private var tobi = Decal(
-        name = "batman",
-        scale = 1.0f,
+        name = "tobi-walking",
         iterations = infinite(),
         sheets = spriteManager,
         position = Position(
-            left = 4688f + 3000f,
-            bottom = 420f
+            left = 7700f,
+            bottom = 460f
         )
     )
 
-    private val goBackHint = Label(
-        "Highlight\n" +
-        "[1] off\n" +
-        "[2] on\n\n" +
+    private val instructionHint = Label(
+        "Scale\n" +
+        "[1] small\n" +
+        "[2] normal\n" +
+        "[3] large\n" +
+        "\n\n" +
         "[X] go back",
         Color.BLACK,
         4088f + 3000f, 1100f,
         visible = false
     )
 
-    private val effect = RenderEffects.outlineShaderEffect()
-
-    override val managedContent = mutableListOf(
+    override val managedContent = mutableListOf<ManagedContent>(
         firstPanel,
         tobi,
-        goBackHint,
-        effect
+        instructionHint
     )
 
     override val timeline = Timeline(
@@ -63,14 +62,13 @@ class HighlightDecalBasicEffect(
             Lane(
                 name = "Lane 1",
                 sequences = listOf(
-                    HighlightSequence(
+                    ScaleSequence(
                         cameraController,
                         scene.defaultPanel,
                         instructionHint1,
                         instructionHint2,
-                        goBackHint,
-                        tobi,
-                        effect
+                        instructionHint,
+                        tobi
                     )
                 )
             )
@@ -84,28 +82,22 @@ class HighlightDecalBasicEffect(
     override fun update(dt: Float) {
         tobi.update(dt)
         firstPanel.update(dt)
-        goBackHint.update(dt)
+        instructionHint.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {
-        //effect.amount += 0.01f
-        //println(effect.amount)
-        effect.render(batch) {
-            tobi.render(it)
-        }
-
+        tobi.render(batch)
         firstPanel.render(batch)
-        goBackHint.render(batch)
+        instructionHint.render(batch)
     }
 
-    class HighlightSequence(
+    class ScaleSequence(
         val cameraController: CameraController,
         private val devPanel: Panel,
         private val instructionHint1: Label,
         private val instructionHint2: Label,
         private val instructionHint3: Label,
-        private val tobi: Decal,
-        private val effect: ShaderEffect
+        private val tobi: Decal
     ): Sequence() {
 
         override val duration: Float = Float.POSITIVE_INFINITY
@@ -129,17 +121,21 @@ class HighlightDecalBasicEffect(
                 done()
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
-                tobi.highlight(
-                    enabled = false,
-                    duration = 1.0f,
-                    tween = TweenFunction.EASE_IN_OUT
+                tobi.scale.configure(
+                    amount = 0.5f,
+                    duration = 1.0f
                 )
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
-                tobi.highlight(
-                    enabled = true,
-                    duration = 1.0f,
-                    tween = TweenFunction.EASE_IN_OUT
+                tobi.scale.configure(
+                    amount = 1.0f,
+                    duration = 1.0f
+                )
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.NUM_3)) {
+                tobi.scale.configure(
+                    amount = 2.0f,
+                    duration = 1.0f
                 )
             }
         }

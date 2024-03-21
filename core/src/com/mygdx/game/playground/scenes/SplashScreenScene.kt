@@ -25,7 +25,6 @@ class SplashScreenScene(sceneManager: SceneManager): Scene(
 
     private var nemonicLogo = Decal(
         name = "nemonic-logo",
-        scale = 0.5f,
         iterations = once(),
         sheets = super.sheets
     )

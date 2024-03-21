@@ -6,16 +6,19 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
+import com.mygdx.game.engine.Engine
 import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.stdx.GameObject
 
 class Label(
-    var text: String,
-    val textColor: Color,
-    val x: Float,
-    val y: Float,
+    var text: String = "",
+    var textColor: Color = Color.WHITE,
+    var x: Float = 0f,
+    var y: Float = 0f,
     val fontSize: Int = 28,
-    var visible: Boolean = true
+    var visible: Boolean = true,
+    var borderColor: Color = Color.BLACK,
+    var borderWidth: Float = 0f
 ): GameObject("Label - ${text.replace("\n", ", ")}") {
 
     private var font: BitmapFont? = null
@@ -34,6 +37,8 @@ class Label(
                 parameter.magFilter = Texture.TextureFilter.Linear
                 parameter.size = fontSize
                 parameter.color = textColor
+                parameter.borderColor = borderColor
+                parameter.borderWidth = borderWidth
                 font = generator.generateFont(parameter)
                 generator.dispose()
             },

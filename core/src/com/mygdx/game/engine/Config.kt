@@ -12,6 +12,9 @@ class Config {
         const val DEBUG_RENDER_SHOW_DECAL_BOUNDS: Boolean = true
         const val DEBUG_RENDER_SHOW_DECAL_MOVE_TARGET: Boolean = true
         const val DEBUG_RENDER_SHOW_DECAL_OPACITY: Boolean = true
+        const val DEBUG_RENDER_SHOW_SCALING: Boolean = true
+        const val DEBUG_RENDER_SHOW_NAMES: Boolean = true
+        const val DEBUG_RENDER_SHOW_POSITION: Boolean = true
         const val DEBUG_SHOW_DIAGNOSTICS: Boolean = true
     }
 

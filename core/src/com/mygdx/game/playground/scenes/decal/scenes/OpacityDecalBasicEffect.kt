@@ -33,7 +33,6 @@ class OpacityDecalBasicEffect(
 
     private var tobi = Decal(
         name = "tobi-idle",
-        scale = 1.0f,
         iterations = infinite(),
         sheets = spriteManager,
         position = Position(

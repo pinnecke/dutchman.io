@@ -8,6 +8,7 @@ import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.sprites.Frame
 import com.mygdx.game.engine.sprites.SpriteSheetManager
 import com.mygdx.game.engine.stdx.*
+import java.util.*
 
 fun centered(
     scene: Scene,
@@ -44,7 +45,7 @@ class Decal(
     private val width: Auto<Float> = auto(),
     private val height: Auto<Float> = auto(),
     private val iterations: Auto<Int> = infinite(),
-    val scale: Float = 1.0f,
+    var scaling: Float = 1.0f,
     val flipX: Boolean = false,
     val flipY: Boolean = false,
     var visible: Boolean = true,
@@ -69,6 +70,16 @@ class Decal(
 
     private var highlightTween: Tween? = null
     private var highlightValue = 0f
+
+    val scale = Tweenable(
+        id ="scaling",
+        init = 1.0f,
+        create = { scaling },
+        enable = { },
+        disable = { },
+        destroy = { },
+        configure = { _, amount -> scaling = amount }
+    )
 
     private val isMoveDone: Boolean
         get() { return moveLeftDone && moveBottomDone }
@@ -97,6 +108,24 @@ class Decal(
         renderColor = Color.RED
     )
 
+    private val nameDebugRenderer = DebugRenderer(
+        renderContextName = "Decal '$name' Name",
+        enabled = Config.DEBUG_RENDER_SHOW_NAMES,
+        renderColor = Color.DARK_GRAY
+    )
+
+    private val scaleDebugRenderer = DebugRenderer(
+        renderContextName = "Decal '$name' Scale",
+        enabled = Config.DEBUG_RENDER_SHOW_SCALING,
+        renderColor = Color.DARK_GRAY
+    )
+
+    private val positionDebugRenderer = DebugRenderer(
+        renderContextName = "Decal '$name' Position",
+        enabled = Config.DEBUG_RENDER_SHOW_POSITION,
+        renderColor = Color.DARK_GRAY
+    )
+
     override val managedContent = mutableListOf(
         managedContentOf(
             contentIdentifier = "Frames",
@@ -112,7 +141,11 @@ class Decal(
         movementDebugRenderer,
         decalBoundsDebugRenderer,
         opacityDebugRenderer,
-        opacityTargetDebugRenderer
+        opacityTargetDebugRenderer,
+        scaleDebugRenderer,
+        positionDebugRenderer,
+        nameDebugRenderer,
+        scale
     )
 
     val surface: Surface
@@ -143,12 +176,15 @@ class Decal(
         moveTweenBottom?.update(dt)
         opacityTween?.update(dt)
         highlightTween?.update(dt)
+        scale.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {
         if (visible) {
             val frame = frames[index].value
             val color = batch.color
+            val scaledLeft = position.left + frame.width.toFloat() / 2f - ((scale.amount * frame.width.toFloat()) / 2f)
+            val scaledBottom = position.bottom + frame.height.toFloat() / 2f - ((scale.amount * frame.height.toFloat()) / 2f)
             batch.setColor(
                 color.r,
                 color.g,
@@ -157,11 +193,12 @@ class Decal(
             )
             batch.draw(
                 frame,
-                position.left, position.bottom,
+                scaledLeft,
+                scaledBottom,
                 0f, 0f,
-                surface.width,
-                surface.height,
-                scale, scale,
+                scale.amount * frame.width.toFloat(),
+                scale.amount * frame.height.toFloat(),
+                1f, 1f,
                 0f,
                 0, 0,
                 frame.width, frame.height,
@@ -172,9 +209,10 @@ class Decal(
             decalBoundsDebugRenderer.render(batch) { renderer ->
                 renderer.rect(
                     batch.projectionMatrix,
-                    position.left,
-                    position.bottom,
-                    currentFrame.width.toFloat(), currentFrame.height.toFloat(),
+                    scaledLeft,
+                    scaledBottom,
+                    scale.amount * frame.width.toFloat(),
+                    scale.amount * frame.height.toFloat(),
                     1
                 )
             }
@@ -182,24 +220,29 @@ class Decal(
             opacityDebugRenderer.render(batch) { renderer ->
                 renderer.filled(
                     batch.projectionMatrix,
-                    position.left,
-                    position.bottom,
-                    opacity * currentFrame.width.toFloat(), 5f,
+                    scaledLeft,
+                    scaledBottom,
+                    opacity * scale.amount * frame.width.toFloat(), 5f,
                     1
                 )
             }
 
             opacityTargetDebugRenderer.render(batch) { renderer ->
                 if (targetOpacity != null) {
-                    val left = position.left + (targetOpacity ?: 0f) * currentFrame.width.toFloat()
+                    val left = scaledLeft + (targetOpacity ?: 0f) * scale.amount * frame.width.toFloat()
                     renderer.line(
                         batch.projectionMatrix,
-                        left, position.bottom,
-                        left, position.bottom + 5f,
+                        left, scaledBottom,
+                        left, scaledBottom + 5f,
                         5
                     )
                 }
             }
+
+            nameDebugRenderer.print(batch, name, scaledLeft + 8f, scaledBottom + scale.amount * frame.height - 8f)
+            scaleDebugRenderer.print(batch, "${"%.2f".format(scale.amount)}%", scaledLeft + 8f, scaledBottom + scale.amount * frame.height - 23f)
+            positionDebugRenderer.print(batch, "x: ${"%.2f".format(position.left).padEnd(8, ' ')}, y: ${"%.2f".format(position.bottom).padEnd(8, ' ')}", scaledLeft + 8f, scaledBottom + 38f)
+            positionDebugRenderer.print(batch, "w: ${"%.2f".format(scale.amount * frame.width).padEnd(8, ' ')}, h:${"%.2f".format(scale.amount * frame.height).padEnd(8, ' ')}", scaledLeft + 8f, scaledBottom + 23f)
 
             movementDebugRenderer.render(batch) { renderer ->
                 if (originLeft != null && originBottom != null && targetLeft != null && targetBottom != null) {
@@ -316,25 +359,6 @@ class Decal(
         opacityTween?.start()
     }
 
-
-    fun highlight(
-        enabled: Boolean,
-        duration: Float,
-        tween: TweenFunction,
-        onDone: () -> Unit = { }
-    ) {
-        highlightTween = Tween(
-            duration = duration,
-            origin = { highlightValue },
-            target = { if (enabled) { 1.0f } else { 0.0f } },
-            onUpdate = { highlightValue = it },
-            interpolate = tween.fn,
-            onDone = {
-                onDone()
-            }
-        )
-        highlightTween?.start()
-    }
 
     private fun resetDebuggerMovement() {
         originLeft = null

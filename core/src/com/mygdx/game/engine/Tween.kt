@@ -15,11 +15,12 @@ class Tweenable<T>(
     private val enable: (obj: T) -> Unit,
     private val disable: (obj: T) -> Unit,
     private val destroy: (obj: T) -> Unit,
-    private val configure: (obj: T, amount: Float) -> Unit
+    private val configure: (obj: T, amount: Float) -> Unit,
+    init: Float = MINIMUM_AMOUNT
 ): ManagedContent, Update {
 
     private var tween: Tween? = null
-    private var currentAmount = MINIMUM_AMOUNT
+    private var currentAmount = init
     private var targetAmount = 0f
     private var obj: T? = null
 
