@@ -20,7 +20,7 @@ class CinematicBars: GameObject("Cinematic Bards") {
 
     override val managedContent = mutableListOf(
         managedContentOf(
-            contentIdentifier = "Camera Setup",
+            id = "Camera Setup",
             load = {
                 viewport = StretchViewport(Config.WINDOW_WIDTH.toFloat(), Config.WINDOW_HEIGHT.toFloat())
                 viewport!!.apply()
@@ -28,7 +28,7 @@ class CinematicBars: GameObject("Cinematic Bards") {
             unload = { }
         ),
         managedContentOf(
-            contentIdentifier = "Shape Renderer",
+            id = "Shape Renderer",
             load = {
                 shapeRenderer = ShapeRenderer()
                 shapeRenderer!!.color = Color.BLACK
@@ -38,7 +38,7 @@ class CinematicBars: GameObject("Cinematic Bards") {
             }
         ),
         managedContentOf(
-            contentIdentifier = "State setup",
+            id = "State setup",
             load = {
                 destroyed = false
             },
@@ -58,7 +58,7 @@ class CinematicBars: GameObject("Cinematic Bards") {
 
     private var state = CinematicBarState.BARS_ABSENT
     private var actualBarHeight = 0f
-    private var tween = Tween(
+    private var tween = TweenProcessor(
         duration = 0.5f,
         interpolate = TweenFunction.EASE_IN_OUT.fn,
         origin = { 0f },

@@ -20,7 +20,7 @@ class Rectangle(
 
     override val managedContent = mutableListOf(
         managedContentOf(
-            contentIdentifier = "Shape Renderer",
+            id = "Shape Renderer",
             load = {
                 shapeRenderer = ShapeRenderer()
             },

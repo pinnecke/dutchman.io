@@ -13,10 +13,10 @@ import com.mygdx.game.engine.objects.Label
 private val IDENTITY = Matrix4()
 
 class DebugRenderer(
-    renderContextName: String,
+    id: String,
     private val enabled: Boolean,
-    var renderColor: Color = Color.RED
-): AllocatorManagedContent("Debug Renderer ($renderContextName)") {
+    var shapeColor: Color = Color.RED
+): AllocatorManagedContent("Debug Renderer ($id)") {
 
     private var shapeRenderer: ShapeRenderer? = null
     private var font = Label(
@@ -28,7 +28,7 @@ class DebugRenderer(
 
     override val managedContent = mutableListOf(
         managedContentOf(
-            contentIdentifier = "Shape Renderer",
+            id = "Shape Renderer",
             load = {
                 shapeRenderer = ShapeRenderer()
             },
@@ -66,7 +66,7 @@ class DebugRenderer(
                     projectionMatrix = IDENTITY
                 }
                 begin(ShapeRenderer.ShapeType.Line)
-                color = renderColor
+                color = shapeColor
                 line(x0, y0, x1, y1)
                 end()
                 Gdx.gl.glLineWidth(1f)
@@ -89,7 +89,7 @@ class DebugRenderer(
                     IDENTITY
                 }
                 begin(ShapeRenderer.ShapeType.Line)
-                color = renderColor
+                color = shapeColor
                 rect(x, y, width, height)
                 end()
                 Gdx.gl.glLineWidth(1f)
@@ -115,7 +115,7 @@ class DebugRenderer(
                     IDENTITY
                 }
                 begin(ShapeRenderer.ShapeType.Filled)
-                color = renderColor
+                color = shapeColor
                 rect(x, y, width, height)
                 end()
                 Gdx.gl.glLineWidth(1f)

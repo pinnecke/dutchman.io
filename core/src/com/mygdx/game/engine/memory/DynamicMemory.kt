@@ -12,12 +12,12 @@ interface ManagedContent {
 }
 
 fun managedContentOf(
-    contentIdentifier: String,
+    id: String,
     load: () -> Unit,
     unload: () -> Unit
 ) = object : ManagedContent {
 
-    override val id = contentIdentifier
+    override val id = id
 
     override fun loadContent() {
         load()

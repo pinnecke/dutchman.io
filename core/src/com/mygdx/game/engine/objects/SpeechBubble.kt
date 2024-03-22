@@ -83,7 +83,7 @@ class SpeechBubble(
 
     override val managedContent = mutableListOf(
         managedContentOf(
-            contentIdentifier = "Font",
+            id = "Font",
             load = {
                 val generator = FreeTypeFontGenerator(Gdx.files.internal("fonts/backissue_reg.otf"))
                 val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
@@ -100,7 +100,7 @@ class SpeechBubble(
             }
         ),
         managedContentOf(
-            contentIdentifier = "Shape Renderer",
+            id = "Shape Renderer",
             load = {
                 shapeRender = ShapeRenderer()
             },
@@ -126,7 +126,7 @@ class SpeechBubble(
         get() { return state == SpeechBubbleState.GONE }
 
     private var boxAlpha = 0f
-    private var boxTween = Tween(
+    private var boxTween = TweenProcessor(
         duration = 0.25f,
         origin = { 0f },
         target = { 1f },
@@ -154,7 +154,7 @@ class SpeechBubble(
     )
 
     private var textAlpha = 0f
-    private var textTween = Tween(
+    private var textTween = TweenProcessor(
         duration = 0.2f,
         origin = { 0f },
         target = { 1f },

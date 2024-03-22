@@ -2,7 +2,6 @@ package com.mygdx.game.engine
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.Vector3
 import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.stdx.GameObject
@@ -79,7 +78,7 @@ class Panel(
                 val szDh = surface.height - szHeight
 
                 // render parts of the view that might not be in the perspective of the camera
-                it.renderColor = Engine.colors.dimmedGray
+                it.shapeColor = Engine.colors.dimmedGray
                 it.filled(
                     batch.projectionMatrix,
                     surface.left, surface.bottom,
@@ -102,7 +101,7 @@ class Panel(
                 )
 
                 // render the panel developer bounds
-                it.renderColor = Color.BLACK
+                it.shapeColor = Color.BLACK
                 it.filled(
                     batch.projectionMatrix,
                     surface.left, surface.top,
@@ -130,7 +129,7 @@ class Panel(
                 batch.end()
 
                 // render lines for actual bounds of shot
-                it.renderColor = Color.ORANGE
+                it.shapeColor = Color.ORANGE
                 it.rect(
                     batch.projectionMatrix,
                     surface.left, surface.bottom,

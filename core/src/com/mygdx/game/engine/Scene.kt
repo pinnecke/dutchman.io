@@ -73,9 +73,9 @@ class SceneController(
 
 class EffectWrapper(
     private val scene: Scene,
-    private val accessEffect: (scenePostEffects: ScenePostEffects) -> Tweenable<*>
+    private val accessEffect: (scenePostEffects: ScenePostEffects) -> Tween<*>
 ) {
-    private val effect: Tweenable<*>
+    private val effect: Tween<*>
         get() { return accessEffect(scene.sceneManager!!.scenePostEffects) }
 
     fun configure(
@@ -137,7 +137,7 @@ abstract class Scene(
 
     final override val managedContent = mutableListOf(
         managedContentOf(
-            contentIdentifier = "Setup",
+            id = "Setup",
             load = {
                 leavingScene = false
             },

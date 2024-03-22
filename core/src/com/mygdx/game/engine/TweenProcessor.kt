@@ -9,7 +9,73 @@ import kotlin.math.sin
 
 private const val ALMOST_ZERO = 0.0001f
 
-class Tweenable<T>(
+interface Tweenable: ManagedContent, Update {
+
+    var enabled: Boolean
+    val amount: Float
+    val target: Float
+    val isTweening: Boolean
+
+    fun set(
+        amount: Float,
+        duration: Float,
+        tween: TweenFunction = TweenFunction.EASE_IN_OUT,
+        onDone: () -> Unit = { }
+    )
+
+}
+
+class TweenMultiplexer<T>(
+    vararg val tweens: Tween<T>
+): Tweenable {
+
+    private var onDoneCallback: (() -> Unit)? = null
+
+    override val id: String = "Tween Multiplexer for ${tweens.joinToString(",") { it.id }}"
+
+    override var enabled: Boolean
+        get() {
+            return tweens.map { enabled }.reduceRight { lhs, rhs -> lhs && rhs }
+        }
+        set(value) {
+            tweens.forEach { it.enabled = value }
+        }
+
+    override val amount: Float
+        get() {
+            return tweens.first().amount
+        }
+
+    override val target: Float
+        get() {
+            return tweens.first().target
+        }
+
+    override val isTweening: Boolean
+        get() {
+            return tweens.map { isTweening }.reduceRight { lhs, rhs -> lhs && rhs }
+        }
+
+    override fun set(amount: Float, duration: Float, tween: TweenFunction, onDone: () -> Unit) {
+        tweens.forEach {
+            it.set(amount, duration, tween) { }
+        }
+        onDoneCallback = onDone
+    }
+
+    override fun loadContent() { }
+    override fun unloadContent() { }
+
+    override fun update(dt: Float) {
+        tweens.forEach { it.update(dt) }
+        if (!isTweening && onDoneCallback != null) {
+            onDoneCallback!!()
+            onDoneCallback = null
+        }
+    }
+}
+
+class Tween<T>(
     override val id: String,
     private val create: () -> T,
     private val enable: (obj: T) -> Unit = { },
@@ -17,20 +83,23 @@ class Tweenable<T>(
     private val destroy: (obj: T) -> Unit = { },
     private val configure: (obj: T, amount: Float) -> Unit = { _, _ -> },
     init: Float = ALMOST_ZERO
-): ManagedContent, Update {
+): Tweenable {
 
-    private var tween: Tween? = null
+    private var tween: TweenProcessor? = null
     private var currentAmount = init
     private var targetAmount = 0f
     private var obj: T? = null
 
-    val amount: Float
+    override var enabled: Boolean = false
+        set(value) { if (value != field) { if (value) { enable(obj!!) } else { disable(obj!!) }; field = value } }
+
+    override val amount: Float
         get() { return currentAmount }
 
-    val target: Float
+    override val target: Float
         get() { return targetAmount }
 
-    val isTweening: Boolean
+    override val isTweening: Boolean
         get() { return tween?.isNotDone ?: false }
 
     override fun loadContent() {
@@ -51,16 +120,13 @@ class Tweenable<T>(
         }
     }
 
-    var enabled: Boolean = false
-        set(value) { if (value != field) { if (value) { enable(obj!!) } else { disable(obj!!) }; field = value } }
-
-    fun set(
+    override fun set(
         amount: Float,
         duration: Float,
-        tween: TweenFunction = TweenFunction.EASE_IN_OUT,
-        onDone: () -> Unit = { }
+        tween: TweenFunction,
+        onDone: () -> Unit
     ) {
-        this.tween = Tween(
+        this.tween = TweenProcessor(
             duration = duration,
             onInit = {
                 targetAmount = max(ALMOST_ZERO, amount)
@@ -90,7 +156,7 @@ enum class TweenFunction(
     EASE_IN_OUT( { alpha, start, end -> start + (-(cos(Math.PI.toFloat() * alpha) - 1) / 2) * (end - start) } )
 }
 
-data class Tween (
+data class TweenProcessor (
     val duration: Float,
     val onInit: () -> Unit = { },
     val origin: () -> Float,

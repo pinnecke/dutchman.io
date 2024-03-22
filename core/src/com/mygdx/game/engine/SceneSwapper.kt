@@ -33,7 +33,7 @@ class ScummBlendAnimation: GameObject("Scumm Blend Animation") {
 
     override val managedContent = mutableListOf(
         managedContentOf(
-            contentIdentifier = "Camera setup",
+            id = "Camera setup",
             load = {
                 viewport = StretchViewport(Config.WINDOW_WIDTH.toFloat(), Config.WINDOW_HEIGHT.toFloat())
                 viewport!!.apply()
@@ -41,7 +41,7 @@ class ScummBlendAnimation: GameObject("Scumm Blend Animation") {
             unload = { }
         ),
         managedContentOf(
-            contentIdentifier = "Shape Renderer",
+            id = "Shape Renderer",
             load = {
                 shapeRenderer = ShapeRenderer()
                 shapeRenderer!!.color = Color.BLACK

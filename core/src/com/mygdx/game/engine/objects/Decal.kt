@@ -1,32 +1,16 @@
 package com.mygdx.game.engine.objects
 
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.mygdx.game.engine.*
-import com.mygdx.game.engine.memory.managedContentOf
-import com.mygdx.game.engine.sprites.Frame
+import com.mygdx.game.engine.sprites.FrameList
 import com.mygdx.game.engine.sprites.SpriteSheetManager
 import com.mygdx.game.engine.stdx.*
-import java.util.*
-
-fun centered(
-    scene: Scene,
-    surface: () -> Surface,
-    offset: Auto<Position> = value(Position.default.copy())
-): Auto<Position> = value(Position(
-    left = scene.width.toFloat() / 2f - surface().width / 2f + offset.get { Position.default.copy() }.left,
-    bottom = scene.height.toFloat() / 2f - surface().height / 2f + offset.get { Position.default.copy() }.bottom
-))
 
 data class Position(
     var left: Float,
     var bottom: Float
-) {
-    companion object {
-        val default: Position = Position(0f, 0f)
-    }
-}
+)
 
 data class Surface(
     val width: Float,
@@ -49,15 +33,20 @@ class Decal(
     val flipY: Boolean = false,
     var visible: Boolean = true,
     var animiate: Boolean = false,
-    scaling: Float = 1f,
+    stretch: Float = 1f,
+    compress: Float = 1f,
     opacity: Float = 1f,
-    var fps: Int = 24,
+    fps: Int = 24,
 ): GameObject("Decal - $name") {
 
-    private var frames: List<Frame> = listOf()
+    private var frameList = FrameList(
+        id = "Decal '$name' Frames",
+        sprite = name,
+        sheets = sheets
+    )
 
-    private var moveTweenLeft: Tween? = null
-    private var moveTweenBottom: Tween? = null
+    private var moveTweenLeft: TweenProcessor? = null
+    private var moveTweenBottom: TweenProcessor? = null
     private var moveLeftDone = false
     private var moveBottomDone = false
     private var originLeft: Float? = null
@@ -65,13 +54,24 @@ class Decal(
     private var targetLeft: Float? = null
     private var targetBottom: Float? = null
 
-    val scale = Tweenable(
-        id ="scaling",
-        init = scaling,
+    val stretch = Tween(
+        id ="stretch",
+        init = stretch,
         create = { }
     )
 
-    val opacity = Tweenable(
+    val compress = Tween(
+        id ="compress",
+        init = compress,
+        create = { }
+    )
+
+    val scale = TweenMultiplexer(
+        this.stretch,
+        this.compress
+    )
+
+    val opacity = Tween(
         id ="opacity",
         init = opacity,
         create = { }
@@ -81,59 +81,49 @@ class Decal(
         get() { return moveLeftDone && moveBottomDone }
 
     private val decalBoundsDebugRenderer = DebugRenderer(
-        renderContextName = "Decal '$name' Bounds",
+        id = "Decal '$name' Bounds",
         enabled = Config.DEBUG_RENDER_SHOW_DECAL_BOUNDS,
-        renderColor = Color.DARK_GRAY
+        shapeColor = Color.DARK_GRAY
     )
 
     private val movementDebugRenderer = DebugRenderer(
-        renderContextName = "Decal '$name' Movement Target",
+        id = "Decal '$name' Movement Target",
         enabled = Config.DEBUG_RENDER_SHOW_DECAL_MOVE_TARGET,
-        renderColor = Color.DARK_GRAY
+        shapeColor = Color.DARK_GRAY
     )
 
     private val opacityDebugRenderer = DebugRenderer(
-        renderContextName = "Decal '$name' Opacity",
+        id = "Decal '$name' Opacity",
         enabled = Config.DEBUG_RENDER_SHOW_DECAL_OPACITY,
-        renderColor = Color.DARK_GRAY
+        shapeColor = Color.DARK_GRAY
     )
 
     private val opacityTargetDebugRenderer = DebugRenderer(
-        renderContextName = "Decal '$name' Opacity Target",
+        id = "Decal '$name' Opacity Target",
         enabled = Config.DEBUG_RENDER_SHOW_DECAL_OPACITY,
-        renderColor = Color.RED
+        shapeColor = Color.RED
     )
 
     private val nameDebugRenderer = DebugRenderer(
-        renderContextName = "Decal '$name' Name",
+        id = "Decal '$name' Name",
         enabled = Config.DEBUG_RENDER_SHOW_NAMES,
-        renderColor = Color.DARK_GRAY
+        shapeColor = Color.DARK_GRAY
     )
 
     private val scaleDebugRenderer = DebugRenderer(
-        renderContextName = "Decal '$name' Scale",
+        id = "Decal '$name' Scale",
         enabled = Config.DEBUG_RENDER_SHOW_SCALING,
-        renderColor = Color.DARK_GRAY
+        shapeColor = Color.DARK_GRAY
     )
 
     private val positionDebugRenderer = DebugRenderer(
-        renderContextName = "Decal '$name' Position",
+        id = "Decal '$name' Position",
         enabled = Config.DEBUG_RENDER_SHOW_POSITION,
-        renderColor = Color.DARK_GRAY
+        shapeColor = Color.DARK_GRAY
     )
 
     override val managedContent = mutableListOf(
-        managedContentOf(
-            contentIdentifier = "Frames",
-            load = {
-                frames = sheets().get(name)
-            },
-            unload = {
-                frames.forEach {
-                    it.release()
-                }
-            }
-        ),
+        frameList,
         movementDebugRenderer,
         decalBoundsDebugRenderer,
         opacityDebugRenderer,
@@ -141,14 +131,16 @@ class Decal(
         scaleDebugRenderer,
         positionDebugRenderer,
         nameDebugRenderer,
-        scale,
+        this.stretch,
+        this.compress,
+        this.scale,
         this.opacity
     )
 
     val surface: Surface
         get() { return Surface(
-                width = width.get { frames[0].value.width.toFloat() },
-                height = height.get { frames[0].value.height.toFloat() }
+                width = width.get { frameList.first.value.width.toFloat() },
+                height = height.get { frameList.first.value.height.toFloat() }
             )
         }
 
@@ -169,16 +161,17 @@ class Decal(
         nextFrame.update(dt)
         moveTweenLeft?.update(dt)
         moveTweenBottom?.update(dt)
-        scale.update(dt)
+        stretch.update(dt)
+        compress.update(dt)
         opacity.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {
         if (visible) {
-            val frame = frames[index].value
+            val frame = frameList[index].value
             val color = batch.color
-            val scaledLeft = position.left + frame.width.toFloat() / 2f - ((scale.amount * frame.width.toFloat()) / 2f)
-            val scaledBottom = position.bottom + frame.height.toFloat() / 2f - ((scale.amount * frame.height.toFloat()) / 2f)
+            val scaledLeft = position.left + frame.width.toFloat() / 2f - ((stretch.amount * frame.width.toFloat()) / 2f)
+            val scaledBottom = position.bottom + frame.height.toFloat() / 2f - ((compress.amount * frame.height.toFloat()) / 2f)
             batch.setColor(
                 color.r,
                 color.g,
@@ -190,8 +183,8 @@ class Decal(
                 scaledLeft,
                 scaledBottom,
                 0f, 0f,
-                scale.amount * frame.width.toFloat(),
-                scale.amount * frame.height.toFloat(),
+                stretch.amount * frame.width.toFloat(),
+                compress.amount * frame.height.toFloat(),
                 1f, 1f,
                 0f,
                 0, 0,
@@ -205,8 +198,8 @@ class Decal(
                     batch.projectionMatrix,
                     scaledLeft,
                     scaledBottom,
-                    scale.amount * frame.width.toFloat(),
-                    scale.amount * frame.height.toFloat(),
+                    stretch.amount * frame.width.toFloat(),
+                    compress.amount * frame.height.toFloat(),
                     1
                 )
             }
@@ -216,14 +209,14 @@ class Decal(
                     batch.projectionMatrix,
                     scaledLeft,
                     scaledBottom,
-                    opacity.amount * scale.amount * frame.width.toFloat(), 5f,
+                    opacity.amount * stretch.amount * frame.width.toFloat(), 5f,
                     1
                 )
             }
 
             opacityTargetDebugRenderer.render(batch) { renderer ->
                 if (opacity.isTweening) {
-                    val left = scaledLeft + (opacity.target * scale.amount * frame.width.toFloat())
+                    val left = scaledLeft + (opacity.target * stretch.amount * frame.width.toFloat())
                     renderer.line(
                         batch.projectionMatrix,
                         left, scaledBottom,
@@ -233,10 +226,10 @@ class Decal(
                 }
             }
 
-            nameDebugRenderer.print(batch, name, scaledLeft + 8f, scaledBottom + scale.amount * frame.height - 8f)
-            scaleDebugRenderer.print(batch, "${"%.2f".format(scale.amount)}%", scaledLeft + 8f, scaledBottom + scale.amount * frame.height - 23f)
+            nameDebugRenderer.print(batch, name, scaledLeft + 8f, scaledBottom + compress.amount * frame.height - 8f)
+            scaleDebugRenderer.print(batch, "s: ${"%.2f".format(stretch.amount)}%, c: ${"%.2f".format(compress.amount)}%", scaledLeft + 8f, scaledBottom + compress.amount * frame.height - 23f)
             positionDebugRenderer.print(batch, "x: ${"%.2f".format(position.left).padEnd(8, ' ')}, y: ${"%.2f".format(position.bottom).padEnd(8, ' ')}", scaledLeft + 8f, scaledBottom + 38f)
-            positionDebugRenderer.print(batch, "w: ${"%.2f".format(scale.amount * frame.width).padEnd(8, ' ')}, h:${"%.2f".format(scale.amount * frame.height).padEnd(8, ' ')}", scaledLeft + 8f, scaledBottom + 23f)
+            positionDebugRenderer.print(batch, "w: ${"%.2f".format(stretch.amount * frame.width).padEnd(8, ' ')}, h:${"%.2f".format(compress.amount * frame.height).padEnd(8, ' ')}", scaledLeft + 8f, scaledBottom + 23f)
 
             movementDebugRenderer.render(batch) { renderer ->
                 if (originLeft != null && originBottom != null && targetLeft != null && targetBottom != null) {
@@ -265,10 +258,10 @@ class Decal(
     }
 
     fun nextFrame() {
-        if (index + 1 == frames.size) {
+        if (index + 1 == frameList.size) {
             iteration++
         }
-        index = (index + 1) % frames.size
+        index = (index + 1) % frameList.size
     }
 
     fun move(
@@ -286,7 +279,7 @@ class Decal(
         tween: TweenFunction = TweenFunction.EASE_IN_OUT,
         onDone: () -> Unit = { },
     ) {
-        moveTweenLeft = Tween(
+        moveTweenLeft = TweenProcessor(
             duration = duration,
             onInit = {
                 moveLeftDone = false
@@ -307,7 +300,7 @@ class Decal(
         )
         moveTweenLeft?.start()
 
-        moveTweenBottom = Tween(
+        moveTweenBottom = TweenProcessor(
             duration = duration,
             onInit = {
                 moveBottomDone = false

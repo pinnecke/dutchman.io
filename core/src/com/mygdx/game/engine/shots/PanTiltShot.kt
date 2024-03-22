@@ -62,9 +62,9 @@ class PanTiltShot(
     }
 
 
-    private var xTween: Tween? = null
-    private var yTween: Tween? = null
-    private var sTween: Tween? = null
+    private var xTween: TweenProcessor? = null
+    private var yTween: TweenProcessor? = null
+    private var sTween: TweenProcessor? = null
 
     /*override fun onCut() {
         with (camera!!) {

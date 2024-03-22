@@ -39,9 +39,9 @@ class SceneCamera: Update {
     private var y: Float = 0f
     private var zoom: Float = 1f
 
-    private var tweenX: Tween? = null
-    private var tweenY: Tween? = null
-    private var tweenZoom: Tween? = null
+    private var tweenX: TweenProcessor? = null
+    private var tweenY: TweenProcessor? = null
+    private var tweenZoom: TweenProcessor? = null
 
     private var tweenXDone = false
     private var tweenYDone = false
@@ -75,7 +75,7 @@ class SceneCamera: Update {
         effect: CutEffectDescriptor,
         onDone: () -> Unit = {}
     ) {
-        tweenX = Tween(
+        tweenX = TweenProcessor(
             duration = effect.xDuration,
             origin = { camera!!.position.x },
             target = { panel.center.x },
@@ -93,7 +93,7 @@ class SceneCamera: Update {
             },
             interpolate = effect.xInterpolation
         )
-        tweenY = Tween(
+        tweenY = TweenProcessor(
             duration = effect.yDuration,
             origin = { camera!!.position.y },
             target = { panel.center.y },
@@ -111,7 +111,7 @@ class SceneCamera: Update {
             },
             interpolate = effect.yInterpolation
         )
-        tweenZoom = Tween(
+        tweenZoom = TweenProcessor(
             duration = effect.zoomDuration,
             origin = { camera!!.zoom },
             target = { panel.zoom },

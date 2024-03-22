@@ -44,7 +44,7 @@ abstract class Shot(
 
     override val managedContent: MutableList<ManagedContent> = mutableListOf(
         managedContentOf(
-            contentIdentifier = "Wiring members",
+            id = "Wiring members",
             load = {
                 with (factory.unwrap()) {
                     camera = worldCamera
@@ -88,9 +88,9 @@ class SceneTransition: GameObject("Scene Transition Effect") {
 
     var camera: OrthographicCamera? = null
 
-    private var tweenX: Tween? = null
-    private var tweenY: Tween? = null
-    private var tweenZoom: Tween? = null
+    private var tweenX: TweenProcessor? = null
+    private var tweenY: TweenProcessor? = null
+    private var tweenZoom: TweenProcessor? = null
 
     private var tweenXDone = false
     private var tweenYDone = false
@@ -118,7 +118,7 @@ class SceneTransition: GameObject("Scene Transition Effect") {
         zoomInterpolation: Interpolation = TweenFunction.EASE_IN_OUT.fn,
         onDone: () -> Unit = {}
     ) {
-        tweenX = Tween(
+        tweenX = TweenProcessor(
             duration = xDuration,
             origin = { camera!!.position.x },
             target = { shot.center.x },
@@ -140,7 +140,7 @@ class SceneTransition: GameObject("Scene Transition Effect") {
             },
             interpolate = xInterpolation
         )
-        tweenY = Tween(
+        tweenY = TweenProcessor(
             duration = yDuration,
             origin = { camera!!.position.y },
             target = { shot.center.y },
@@ -157,7 +157,7 @@ class SceneTransition: GameObject("Scene Transition Effect") {
             },
             interpolate = yInterpolation
         )
-        tweenZoom = Tween(
+        tweenZoom = TweenProcessor(
             duration = zoomDuration,
             origin = { camera!!.zoom },
             target = { shot.zoom },

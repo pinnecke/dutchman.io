@@ -25,7 +25,7 @@ class ScenePostEffects(
         vignette.enabled = false
     }
 
-    val blur = Tweenable(
+    val blur = Tween(
         id = "blur effect",
         create = { GaussianBlurEffect() },
         enable = { manager?.addEffect(it) },
@@ -34,7 +34,7 @@ class ScenePostEffects(
         configure = { effect, amount -> effect.amount = amount }
     )
 
-    val gamma = Tweenable(
+    val gamma = Tween(
         id = "gamma effect",
         create = { GammaThresholdEffect(GammaThresholdEffect.Type.RGBA) },
         enable = { manager?.addEffect(it) },
@@ -45,7 +45,7 @@ class ScenePostEffects(
         }
     )
 
-    val crt = Tweenable(
+    val crt = Tween(
         id = "crt effect",
         create = { CrtEffect(CrtEffect.LineStyle.HORIZONTAL_SMOOTH, 0.85f, 1.0f) },
         enable = { manager?.addEffect(it) },
@@ -54,7 +54,7 @@ class ScenePostEffects(
         configure = { _, _ -> }
     )
 
-    val grain = Tweenable(
+    val grain = Tween(
         id = "grain effect",
         create = { FilmGrainEffect() },
         enable = { manager?.addEffect(it) },
@@ -65,7 +65,7 @@ class ScenePostEffects(
         }
     )
 
-    val white = Tweenable(
+    val white = Tween(
         id = "white blend effect",
         create = { LevelsEffect() },
         enable = { manager?.addEffect(it) },
@@ -76,7 +76,7 @@ class ScenePostEffects(
         }
     )
 
-    val vignette = Tweenable(
+    val vignette = Tween(
         id = "vignetting effect",
         create = { VignettingEffect(false) },
         enable = { manager?.addEffect(it) },

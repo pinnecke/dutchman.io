@@ -2,7 +2,6 @@ package com.mygdx.game.engine
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -72,7 +71,7 @@ class SceneManager(
 
     override val managedContent = mutableListOf(
         managedContentOf(
-            contentIdentifier = "Sprite Batch",
+            id = "Sprite Batch",
             load = {
                 batch = SpriteBatch()
             },
@@ -82,7 +81,7 @@ class SceneManager(
         ),
         renderBuffer,
         managedContentOf(
-            contentIdentifier = "Camera setup",
+            id = "Camera setup",
             load = {
                 worldCamera = OrthographicCamera()
                 worldViewport = StretchViewport(1920f, 1200f, worldCamera)
@@ -106,7 +105,7 @@ class SceneManager(
             unload = { }
         ),
         managedContentOf(
-            contentIdentifier = "Sprite Sheet Manager",
+            id = "Sprite Sheet Manager",
             load = {
                 spriteSheetManager.init()
             },
@@ -120,7 +119,7 @@ class SceneManager(
         emptyScene,
         diagnostics,
         managedContentOf(
-            contentIdentifier = "Boot scene setup",
+            id = "Boot scene setup",
             load = {
                 currentScene = emptyScene
                 switch(bootScene)
@@ -130,7 +129,7 @@ class SceneManager(
             }
         ),
         managedContentOf(
-            contentIdentifier = "Scene Camera setup",
+            id = "Scene Camera setup",
             load = {
                 sceneCamera.camera = worldCamera
             },

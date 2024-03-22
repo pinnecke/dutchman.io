@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
-import com.mygdx.game.engine.Engine
 import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.stdx.GameObject
 
@@ -26,7 +25,7 @@ class Label(
 
     override val managedContent = mutableListOf(
         managedContentOf(
-            contentIdentifier = "Font",
+            id = "Font",
             load = {
                 visible = resetVisible
 

@@ -44,6 +44,16 @@ class ScaleDecalBasicEffect(
         "[2] normal\n" +
         "[3] large\n" +
         "\n\n" +
+        "Stretch\n" +
+        "[4] small\n" +
+        "[5] normal\n" +
+        "[6] large\n" +
+        "\n\n" +
+        "Compress\n" +
+        "[7] small\n" +
+        "[8] normal\n" +
+        "[9] large\n" +
+        "\n\n" +
         "[X] go back",
         Color.BLACK,
         4088f + 3000f, 1100f,
@@ -134,6 +144,42 @@ class ScaleDecalBasicEffect(
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_3)) {
                 tobi.scale.set(
+                    amount = 2.0f,
+                    duration = 1.0f
+                )
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.NUM_4)) {
+                tobi.stretch.set(
+                    amount = 0.5f,
+                    duration = 1.0f
+                )
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.NUM_5)) {
+                tobi.stretch.set(
+                    amount = 1.0f,
+                    duration = 1.0f
+                )
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.NUM_6)) {
+                tobi.stretch.set(
+                    amount = 2.0f,
+                    duration = 1.0f
+                )
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.NUM_7)) {
+                tobi.compress.set(
+                    amount = 0.5f,
+                    duration = 1.0f
+                )
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.NUM_8)) {
+                tobi.compress.set(
+                    amount = 1.0f,
+                    duration = 1.0f
+                )
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.NUM_9)) {
+                tobi.compress.set(
                     amount = 2.0f,
                     duration = 1.0f
                 )

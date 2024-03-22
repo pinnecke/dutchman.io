@@ -136,7 +136,7 @@ abstract class Hotspot(
             for (predicate in filter.touchDownFilter.predicates) {
                 if (predicate.isAny || (predicate.button == button && predicate.pointer == pointer)) {
                     filter.touchDownFilter.action(button, pointer)
-                    regionDebugRenderer.renderColor = Color.WHITE
+                    regionDebugRenderer.shapeColor = Color.WHITE
                     return true
                 }
             }

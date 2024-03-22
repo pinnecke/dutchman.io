@@ -215,7 +215,7 @@ class GameSceneComposer(
         allScenes +
         mutableListOf(
             managedContentOf(
-                contentIdentifier = "Diagnostics setup",
+                id = "Diagnostics setup",
                 load = {
                     diagnosticsPanel.visible = true
                 },
@@ -224,7 +224,7 @@ class GameSceneComposer(
                 }
             ),
             managedContentOf(
-                contentIdentifier = "Timeline setup",
+                id = "Timeline setup",
                 load = {
                     (listOf(initial) + others).forEach {
                         register(it::class)

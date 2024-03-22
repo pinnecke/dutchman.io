@@ -36,11 +36,11 @@ class SceneDimmer: GameObject("Scene Dimming Effect") {
     private var destroyed = false
 
     private var alpha: Float = 0.0f
-    private var tween: Tween? = null
+    private var tween: TweenProcessor? = null
 
     fun apply(targetAmount: Float, speed: DimSpeed, onDone: () -> Unit) {
         if (tween == null) {
-            tween = Tween(
+            tween = TweenProcessor(
                 duration = speed.duration,
                 origin = { alpha },
                 target = { targetAmount },
