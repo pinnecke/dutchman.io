@@ -41,7 +41,6 @@ class SceneManager(
     internal var worldCamera: OrthographicCamera? = null
     private var worldViewport: Viewport? = null
     private var wordCameraPropMemory: CameraPropMemory? = null
-    private var worldRotation: Float = 0f
 
     private var hudCamera: OrthographicCamera? = null
     private var hudViewport: Viewport? = null
@@ -68,6 +67,8 @@ class SceneManager(
             currentScene = scene
         },
     )
+
+    private val emptyGameScene = EmptyGameScene()
 
     override val managedContent = mutableListOf(
         managedContentOf(
@@ -135,7 +136,8 @@ class SceneManager(
             },
             unload = { }
         ),
-        scenePostEffects
+        scenePostEffects,
+        emptyGameScene
     )
 
     private val worldUnprojectBuffer = Vector3.Zero
@@ -163,14 +165,21 @@ class SceneManager(
         duration = Float.POSITIVE_INFINITY
     )
 
+    internal fun emptyGameSceneComposer() = GameSceneComposer(
+        parentName = "empty scene",
+        camera = SceneCamera(),
+        timelineName = "empty composer",
+        initial = null,
+        others = emptyList(),
+        autoStart = false,
+        cutOnStart = true,
+        diagnosticsPanel = null
+    )
+
     private val inputProcessor = InputProcessorHudFirst(
         InputProcessorTranslator(::unprojectHud, hudInputProcessorTee),
         InputProcessorTranslator(::unprojectWorld, worldInputProcessorTee)
     )
-
-
-
-
 
     fun addInputProcessor(layer: LayerType, inputProcessor: InputProcessor) =
         when (layer) {
@@ -225,17 +234,17 @@ class SceneManager(
         handleInput()
         swapper.update(dt)
         dimmer.update(dt)
-        //defaultShot.update(dt)
         sceneTransition.update(dt)
         shotFactory.update(dt)
         diagnostics.update(dt)
         sceneCamera.update(dt)
         currentScene!!.updateContents(dt)
+        scenePostEffects.update(dt)
+        emptyGameScene.update(dt)
 
         worldViewport!!.apply()
         wordCameraPropMemory?.update()
 
-        scenePostEffects.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {

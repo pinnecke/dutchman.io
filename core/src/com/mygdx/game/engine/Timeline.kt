@@ -182,6 +182,26 @@ private val noAction: Action = { }
 typealias Updater = (dt: Float, alpha: Float, elapsed: Float, total: Float) -> Unit
 private val noUpdates: Updater = { _, _, _, _ -> }
 
+class EmptyGameScene: GameScene(
+    contentIdentifier = "empty game scene"
+) {
+    override val firstPanel = panelOf(
+        caption = "Empty Game Scene Panel",
+        left = 0f, bottom = 0f,
+        dimension = Engine.canvas.surface.width, type = PanelDimension.WIDTH
+    )
+
+    override val cutInEffect = CutEffectDescriptor.cut()
+
+    override val timeline = Timeline(
+        timeLineName = "Empty Game Scene Timeline"
+    )
+
+    override val managedContent = mutableListOf<ManagedContent>(
+        firstPanel
+    )
+
+}
 
 abstract class GameScene(contentIdentifier: String): GameObject(contentIdentifier) {
 
@@ -195,17 +215,21 @@ abstract class GameScene(contentIdentifier: String): GameObject(contentIdentifie
 }
 
 class GameSceneComposer(
-    parent: Scene,
-    private val diagnosticsPanel: DiagnosticsPanel,
+    parentName: String,
+    private val diagnosticsPanel: DiagnosticsPanel?,
     timelineName: String,
     private val camera: SceneCamera,
     private val cutOnStart: Boolean = true,
     private val autoStart: Boolean = true,
-    private val initial: GameScene,
+    private val initial: GameScene?,
     private val others: List<GameScene>
-): GameObject("Timeline Master - ${parent.name} ($timelineName)") {
+): GameObject("Timeline Master - $parentName ($timelineName)") {
 
-    private val allScenes = (listOf(initial) + others)
+    private val allScenes = if (initial != null) {
+        (listOf(initial) + others)
+    } else {
+        listOf()
+    }
 
     private val index: Map<KClass<*>, GameScene> = allScenes.associateBy {
         it::class
@@ -217,19 +241,19 @@ class GameSceneComposer(
             managedContentOf(
                 id = "Diagnostics setup",
                 load = {
-                    diagnosticsPanel.visible = true
+                    diagnosticsPanel?.visible = true
                 },
                 unload = {
-                    diagnosticsPanel.visible = false
+                    diagnosticsPanel?.visible = false
                 }
             ),
             managedContentOf(
                 id = "Timeline setup",
                 load = {
-                    (listOf(initial) + others).forEach {
+                    allScenes.forEach {
                         register(it::class)
                     }
-                    if (autoStart) {
+                    if (autoStart && initial != null) {
                         start(initial::class, cutOnStart)
                     }
                 },
@@ -295,11 +319,11 @@ class GameSceneComposer(
     }
 
     override fun update(dt: Float) {
-        diagnosticsPanel.sceneName = active?.id ?: "Unknown"
-        diagnosticsPanel.shotName = "???"
-        diagnosticsPanel.shotElapsed = active?.elapsed ?: 0f
-        diagnosticsPanel.shotTotal = active?.duration ?: Float.POSITIVE_INFINITY
-        diagnosticsPanel.shotProgress = active?.alpha ?: 0f
+        diagnosticsPanel?.sceneName = active?.id ?: "Unknown"
+        diagnosticsPanel?.shotName = "???"
+        diagnosticsPanel?.shotElapsed = active?.elapsed ?: 0f
+        diagnosticsPanel?.shotTotal = active?.duration ?: Float.POSITIVE_INFINITY
+        diagnosticsPanel?.shotProgress = active?.alpha ?: 0f
 
         allScenes.forEach { it.update(dt) }
         timelines.forEach { if (it.value) { it.key.update(dt) } }
@@ -316,7 +340,7 @@ class GameSceneComposer(
 
 class Timeline(
     timeLineName: String,
-    private val lanes: List<Lane>,
+    private val lanes: List<Lane> = emptyList(),
     private val onStart: Action = noAction,
     private val onUpdate: Updater = noUpdates,
     private val onPause: Action = noAction,

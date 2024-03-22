@@ -77,6 +77,12 @@ class Decal(
         create = { }
     )
 
+    val blend = TweakFlagMultiplexer(
+        on = 1f,
+        off = 0f,
+        this.opacity
+    )
+
     private val isMoveDone: Boolean
         get() { return moveLeftDone && moveBottomDone }
 
@@ -133,7 +139,6 @@ class Decal(
         nameDebugRenderer,
         this.stretch,
         this.compress,
-        this.scale,
         this.opacity
     )
 
@@ -164,6 +169,7 @@ class Decal(
         stretch.update(dt)
         compress.update(dt)
         opacity.update(dt)
+        blend.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {

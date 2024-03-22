@@ -32,7 +32,7 @@ class CameraMovementStaticShotScene(sceneManager: SceneManager): Scene(
         Engine.canvas.safeZone.left + 50f, Engine.canvas.safeZone.height - 50f,
     )
 
-    private val composer = gameSceneComposerOf(
+    override val composer = composerOf(
         composerName = "Timeline Scene",
         cameraController = cameraController,
         autoStart = false,

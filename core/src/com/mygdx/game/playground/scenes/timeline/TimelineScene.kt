@@ -38,7 +38,7 @@ class TimelineScene(sceneManager: SceneManager): Scene(
         Engine.canvas.safeZone.left + 50f, Engine.canvas.safeZone.height - 260f,
     )
 
-    private val composer = gameSceneComposerOf(
+    override val composer = composerOf(
         composerName = "Timeline Scene",
         cameraController = cameraController,
         initialTimeline = GameScene1(),

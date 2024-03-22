@@ -8,7 +8,6 @@ import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
 import com.mygdx.game.playground.scenes.timeline.scenes.PanShotCameraMovement
-import com.mygdx.game.playground.scenes.timeline.scenes.StaticShotCameraMovement
 import kotlin.reflect.KClass
 
 class CameraMovementPanShotScene(sceneManager: SceneManager): Scene(
@@ -33,7 +32,7 @@ class CameraMovementPanShotScene(sceneManager: SceneManager): Scene(
         Engine.canvas.safeZone.left + 50f, Engine.canvas.safeZone.height - 50f,
     )
 
-    private val composer = gameSceneComposerOf(
+    override val composer = composerOf(
         composerName = "Timeline Scene",
         cameraController = cameraController,
         autoStart = false,

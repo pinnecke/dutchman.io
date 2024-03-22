@@ -48,6 +48,9 @@ class OpacityDecalBasicEffect(
         "[3] medium\n" +
         "[4] high\n" +
         "[5] full\n\n" +
+        "Blend\n" +
+        "[6] on\n" +
+        "[7] off\n\n" +
         "[X] go back",
         Color.BLACK,
         4088f, 1100f,
@@ -155,6 +158,18 @@ class OpacityDecalBasicEffect(
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_5)) {
                 tobi.opacity.set(
                     amount = 1.00f,
+                    duration = 1.0f,
+                    tween = TweenFunction.EASE_IN_OUT
+                )
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.NUM_6)) {
+                tobi.blend.on(
+                    duration = 1.0f,
+                    tween = TweenFunction.EASE_IN_OUT
+                )
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.NUM_7)) {
+                tobi.blend.off(
                     duration = 1.0f,
                     tween = TweenFunction.EASE_IN_OUT
                 )

@@ -8,7 +8,6 @@ import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
 import com.mygdx.game.playground.scenes.timeline.scenes.CrashZoomShotCameraMovement
-import com.mygdx.game.playground.scenes.timeline.scenes.ZoomShotCameraMovement
 import kotlin.reflect.KClass
 
 class CameraMovementCrashZoomShotScene(sceneManager: SceneManager): Scene(
@@ -33,7 +32,7 @@ class CameraMovementCrashZoomShotScene(sceneManager: SceneManager): Scene(
         Engine.canvas.safeZone.left + 50f, Engine.canvas.safeZone.height - 50f,
     )
 
-    private val composer = gameSceneComposerOf(
+    override val composer = composerOf(
         composerName = "Timeline Scene",
         cameraController = cameraController,
         autoStart = false,

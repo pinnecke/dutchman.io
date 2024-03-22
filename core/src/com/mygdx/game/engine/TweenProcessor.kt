@@ -2,14 +2,11 @@ package com.mygdx.game.engine
 
 import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.stdx.Update
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sin
+import kotlin.math.*
 
 private const val ALMOST_ZERO = 0.0001f
 
-interface Tweenable: ManagedContent, Update {
+interface Tweenable: Update {
 
     var enabled: Boolean
     val amount: Float
@@ -25,13 +22,66 @@ interface Tweenable: ManagedContent, Update {
 
 }
 
+fun Float.approxEqual(other: Float): Boolean = abs(this - other) < 0.0001
+
+class TweakFlagMultiplexer<T> (
+    private val on: Float,
+    private val off: Float,
+    vararg val tweens: Tween<T>
+): Update {
+    private var onDoneCallback: (() -> Unit)? = null
+
+    var enabled: Boolean
+        get() {
+            return tweens.map { enabled }.reduceRight { lhs, rhs -> lhs && rhs }
+        }
+        set(value) {
+            tweens.forEach { it.enabled = value }
+        }
+
+    val isOn: Boolean
+        get() {
+            return tweens.first().amount.approxEqual(on)
+        }
+
+    val isOff: Boolean
+        get() {
+            return tweens.first().amount.approxEqual(off)
+        }
+
+    val isTweening: Boolean
+        get() {
+            return tweens.first().isTweening
+        }
+
+    fun on(duration: Float, tween: TweenFunction, onDone: () -> Unit = { }) {
+        tweens.forEach {
+            it.set(on, duration, tween) { }
+        }
+        onDoneCallback = onDone
+    }
+
+    fun off(duration: Float, tween: TweenFunction, onDone: () -> Unit = { }) {
+        tweens.forEach {
+            it.set(off, duration, tween) { }
+        }
+        onDoneCallback = onDone
+    }
+
+    override fun update(dt: Float) {
+        tweens.forEach { it.update(dt) }
+        if (!isTweening && onDoneCallback != null) {
+            onDoneCallback!!()
+            onDoneCallback = null
+        }
+    }
+}
+
 class TweenMultiplexer<T>(
     vararg val tweens: Tween<T>
 ): Tweenable {
 
     private var onDoneCallback: (() -> Unit)? = null
-
-    override val id: String = "Tween Multiplexer for ${tweens.joinToString(",") { it.id }}"
 
     override var enabled: Boolean
         get() {
@@ -53,7 +103,7 @@ class TweenMultiplexer<T>(
 
     override val isTweening: Boolean
         get() {
-            return tweens.map { isTweening }.reduceRight { lhs, rhs -> lhs && rhs }
+            return tweens.first().isTweening
         }
 
     override fun set(amount: Float, duration: Float, tween: TweenFunction, onDone: () -> Unit) {
@@ -62,9 +112,6 @@ class TweenMultiplexer<T>(
         }
         onDoneCallback = onDone
     }
-
-    override fun loadContent() { }
-    override fun unloadContent() { }
 
     override fun update(dt: Float) {
         tweens.forEach { it.update(dt) }
@@ -83,7 +130,7 @@ class Tween<T>(
     private val destroy: (obj: T) -> Unit = { },
     private val configure: (obj: T, amount: Float) -> Unit = { _, _ -> },
     init: Float = ALMOST_ZERO
-): Tweenable {
+): Tweenable, ManagedContent {
 
     private var tween: TweenProcessor? = null
     private var currentAmount = init

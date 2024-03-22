@@ -28,7 +28,8 @@ class SequenceController(
             ) {
                 scene.sceneManager!!.dimScene(0.0f, SceneDimmer.DimSpeed.HIGH) {  }
                 scene.sceneManager!!.scenePostEffects.reset()
-                //scene.sceneManager!!.defaultShot.cut()
+                scene.composer.stop()
+                scene.composer.rewind()
             }
         }
     }
@@ -135,6 +136,8 @@ abstract class Scene(
         dimension = defaultPanelDimension, type = defaultPanelType
     )
 
+    open val composer: GameSceneComposer = sceneManager.emptyGameSceneComposer()
+
     final override val managedContent = mutableListOf(
         managedContentOf(
             id = "Setup",
@@ -152,24 +155,6 @@ abstract class Scene(
         managedContent.addAll(content)
     }
 
-    /*StaticShot(
-        allocator = localAllocator,
-        caption = "Default Scene Shot",
-        factory = shotFactory,
-        scene = this,
-        left = 0f,
-        bottom = 0f,
-        dimension = Engine.canvas.surface.width,
-        type = ShotDimension.WIDTH,
-        duration = 10f
-    )*/
-
-
-
-
-
-
-
     val sheets: () -> SpriteSheetManager = {
         sceneManager!!.spriteSheetManager
     }
@@ -177,7 +162,7 @@ abstract class Scene(
     protected val shotFactory: Deferred<ShotFactory>
         get() { return deferred { sceneManager!!.shotFactory } }
 
-    protected fun gameSceneComposerOf(
+    protected fun composerOf(
         composerName: String,
         cameraController: CameraController,
         autoStart: Boolean = true,
@@ -185,7 +170,7 @@ abstract class Scene(
         initialTimeline: GameScene,
         others: List<GameScene>
     ) = GameSceneComposer(
-        parent = this,
+        parentName = this.id,
         camera = cameraController.camera,
         timelineName = composerName,
         initial = initialTimeline,
@@ -205,18 +190,6 @@ abstract class Scene(
         val dy = desktop.y
         return sceneManager!!.unprojectHud(dx, dy)
     }
-
-    protected fun self(): Scene = this
-
-
-
-    // ----------------------------------------------------------------------------------
-    // Scene API
-    // ----------------------------------------------------------------------------------
-
-
-
-    // ----------------------------------------------------------------------------------
 
     fun updateContents(dt: Float) {
         cinematicBars.update(dt)
