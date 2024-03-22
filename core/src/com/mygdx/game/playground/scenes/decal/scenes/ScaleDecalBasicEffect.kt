@@ -121,19 +121,19 @@ class ScaleDecalBasicEffect(
                 done()
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
-                tobi.scale.configure(
+                tobi.scale.set(
                     amount = 0.5f,
                     duration = 1.0f
                 )
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
-                tobi.scale.configure(
+                tobi.scale.set(
                     amount = 1.0f,
                     duration = 1.0f
                 )
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_3)) {
-                tobi.scale.configure(
+                tobi.scale.set(
                     amount = 2.0f,
                     duration = 1.0f
                 )

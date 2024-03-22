@@ -7,16 +7,16 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
 
-private const val MINIMUM_AMOUNT = 0.0001f
+private const val ALMOST_ZERO = 0.0001f
 
 class Tweenable<T>(
     override val id: String,
     private val create: () -> T,
-    private val enable: (obj: T) -> Unit,
-    private val disable: (obj: T) -> Unit,
-    private val destroy: (obj: T) -> Unit,
-    private val configure: (obj: T, amount: Float) -> Unit,
-    init: Float = MINIMUM_AMOUNT
+    private val enable: (obj: T) -> Unit = { },
+    private val disable: (obj: T) -> Unit = { },
+    private val destroy: (obj: T) -> Unit = { },
+    private val configure: (obj: T, amount: Float) -> Unit = { _, _ -> },
+    init: Float = ALMOST_ZERO
 ): ManagedContent, Update {
 
     private var tween: Tween? = null
@@ -26,6 +26,12 @@ class Tweenable<T>(
 
     val amount: Float
         get() { return currentAmount }
+
+    val target: Float
+        get() { return targetAmount }
+
+    val isTweening: Boolean
+        get() { return tween?.isNotDone ?: false }
 
     override fun loadContent() {
         obj = create()
@@ -48,28 +54,28 @@ class Tweenable<T>(
     var enabled: Boolean = false
         set(value) { if (value != field) { if (value) { enable(obj!!) } else { disable(obj!!) }; field = value } }
 
-    fun configure(
+    fun set(
         amount: Float,
         duration: Float,
-        tweenFunction: TweenFunction = TweenFunction.EASE_IN_OUT,
+        tween: TweenFunction = TweenFunction.EASE_IN_OUT,
         onDone: () -> Unit = { }
     ) {
-        tween = Tween(
+        this.tween = Tween(
             duration = duration,
             onInit = {
-                targetAmount = max(MINIMUM_AMOUNT, amount)
+                targetAmount = max(ALMOST_ZERO, amount)
                 enabled = true
             },
             origin = { currentAmount },
             target = { amount },
             onUpdate = { currentAmount = it },
-            interpolate = tweenFunction.fn,
+            interpolate = tween.fn,
             onDone = {
                 targetAmount = currentAmount
                 onDone()
             }
         )
-        tween?.start()
+        this.tween?.start()
     }
 }
 
@@ -98,6 +104,12 @@ data class Tween (
     private var running = false
     private var x0: Float? = null
     private var x1: Float? = null
+
+    val isDone: Boolean
+        get() { return !running }
+
+    val isNotDone: Boolean
+        get() { return !isDone }
 
     fun start() {
         running = true

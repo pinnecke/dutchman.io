@@ -125,35 +125,35 @@ class OpacityDecalBasicEffect(
                 done()
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
-                tobi.opacity(
+                tobi.opacity.set(
                     amount = 0f,
                     duration = 0.5f,
                     tween = TweenFunction.EASE_IN_OUT
                 )
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
-                tobi.opacity(
+                tobi.opacity.set(
                     amount = 0.25f,
                     duration = 1.0f,
                     tween = TweenFunction.EASE_IN_OUT
                 )
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_3)) {
-                tobi.opacity(
+                tobi.opacity.set(
                     amount = 0.5f,
                     duration = 1.0f,
                     tween = TweenFunction.EASE_IN_OUT
                 )
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_4)) {
-                tobi.opacity(
+                tobi.opacity.set(
                     amount = 0.75f,
                     duration = 1.0f,
                     tween = TweenFunction.EASE_IN_OUT
                 )
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_5)) {
-                tobi.opacity(
+                tobi.opacity.set(
                     amount = 1.00f,
                     duration = 1.0f,
                     tween = TweenFunction.EASE_IN_OUT

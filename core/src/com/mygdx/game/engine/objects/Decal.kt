@@ -45,12 +45,12 @@ class Decal(
     private val width: Auto<Float> = auto(),
     private val height: Auto<Float> = auto(),
     private val iterations: Auto<Int> = infinite(),
-    var scaling: Float = 1.0f,
     val flipX: Boolean = false,
     val flipY: Boolean = false,
     var visible: Boolean = true,
     var animiate: Boolean = false,
-    var opacity: Float = 1f,
+    scaling: Float = 1f,
+    opacity: Float = 1f,
     var fps: Int = 24,
 ): GameObject("Decal - $name") {
 
@@ -65,20 +65,16 @@ class Decal(
     private var targetLeft: Float? = null
     private var targetBottom: Float? = null
 
-    private var opacityTween: Tween? = null
-    private var targetOpacity: Float? = null
-
-    private var highlightTween: Tween? = null
-    private var highlightValue = 0f
-
     val scale = Tweenable(
         id ="scaling",
-        init = 1.0f,
-        create = { scaling },
-        enable = { },
-        disable = { },
-        destroy = { },
-        configure = { _, amount -> scaling = amount }
+        init = scaling,
+        create = { }
+    )
+
+    val opacity = Tweenable(
+        id ="opacity",
+        init = opacity,
+        create = { }
     )
 
     private val isMoveDone: Boolean
@@ -145,7 +141,8 @@ class Decal(
         scaleDebugRenderer,
         positionDebugRenderer,
         nameDebugRenderer,
-        scale
+        scale,
+        this.opacity
     )
 
     val surface: Surface
@@ -162,8 +159,6 @@ class Decal(
             nextFrame()
         }
     }
-    private val currentFrame: Texture
-        get() { return frames[index].value }
 
     fun reset() {
         index = 0
@@ -174,9 +169,8 @@ class Decal(
         nextFrame.update(dt)
         moveTweenLeft?.update(dt)
         moveTweenBottom?.update(dt)
-        opacityTween?.update(dt)
-        highlightTween?.update(dt)
         scale.update(dt)
+        opacity.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {
@@ -189,7 +183,7 @@ class Decal(
                 color.r,
                 color.g,
                 color.b,
-                opacity
+                opacity.amount
             )
             batch.draw(
                 frame,
@@ -222,14 +216,14 @@ class Decal(
                     batch.projectionMatrix,
                     scaledLeft,
                     scaledBottom,
-                    opacity * scale.amount * frame.width.toFloat(), 5f,
+                    opacity.amount * scale.amount * frame.width.toFloat(), 5f,
                     1
                 )
             }
 
             opacityTargetDebugRenderer.render(batch) { renderer ->
-                if (targetOpacity != null) {
-                    val left = scaledLeft + (targetOpacity ?: 0f) * scale.amount * frame.width.toFloat()
+                if (opacity.isTweening) {
+                    val left = scaledLeft + (opacity.target * scale.amount * frame.width.toFloat())
                     renderer.line(
                         batch.projectionMatrix,
                         left, scaledBottom,
@@ -334,31 +328,6 @@ class Decal(
         )
         moveTweenBottom?.start()
     }
-
-
-    fun opacity(
-        amount: Float,
-        duration: Float,
-        tween: TweenFunction,
-        onDone: () -> Unit = { }
-    ) {
-        opacityTween = Tween(
-            duration = duration,
-            onInit = {
-                targetOpacity = amount
-            },
-            origin = { opacity },
-            target = { amount },
-            onUpdate = { opacity = it },
-            interpolate = tween.fn,
-            onDone = {
-                targetOpacity = null
-                onDone()
-            }
-        )
-        opacityTween?.start()
-    }
-
 
     private fun resetDebuggerMovement() {
         originLeft = null
