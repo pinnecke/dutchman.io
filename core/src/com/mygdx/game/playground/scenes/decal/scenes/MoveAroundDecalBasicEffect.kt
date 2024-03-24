@@ -16,8 +16,7 @@ class MoveAroundDecalBasicEffect(
     scene: Scene,
     cameraController: CameraController,
     spriteManager: () -> SpriteSheetManager,
-    instructionHint1: Label,
-    instructionHint2: Label
+    globalInstructions: Label
 ): GameScene("Move Around Decal Basic Effect") {
 
     override val cutInEffect = CutEffectDescriptor.smooth(1f)
@@ -64,8 +63,7 @@ class MoveAroundDecalBasicEffect(
                     MoveAroundSequence(
                         cameraController,
                         scene.defaultPanel,
-                        instructionHint1,
-                        instructionHint2,
+                        globalInstructions,
                         tobi1,
                         tobi2
                     )
@@ -93,8 +91,7 @@ class MoveAroundDecalBasicEffect(
     class MoveAroundSequence(
         val cameraController: CameraController,
         private val devPanel: Panel,
-        private val instructionHint1: Label,
-        private val instructionHint2: Label,
+        private val globalInstructions: Label,
         private val tobi1: Decal,
         private val tobi2: Decal
     ): Sequence() {
@@ -120,8 +117,7 @@ class MoveAroundDecalBasicEffect(
         }
 
         override fun onReset() {
-            instructionHint1.visible = true
-            instructionHint2.visible = true
+            globalInstructions.visible = true
             tobi1.animiate = false
             tobi2.animiate = false
             tobi1.visible = true
@@ -136,8 +132,7 @@ class MoveAroundDecalBasicEffect(
         }
 
         override fun onStart() {
-            instructionHint1.visible = false
-            instructionHint2.visible = false
+            globalInstructions.visible = false
             startTobie.start()
         }
 

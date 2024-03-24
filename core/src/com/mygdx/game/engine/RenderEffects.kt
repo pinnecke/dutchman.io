@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.mygdx.game.engine.memory.ManagedContent
-import java.lang.RuntimeException
 
 class ShaderCompilationError(
     shaderName: String,

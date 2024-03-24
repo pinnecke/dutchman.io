@@ -37,6 +37,7 @@ class Decal(
     compress: Float = 1f,
     opacity: Float = 1f,
     fps: Int = 24,
+    shakeSettings: HorizontalShakeAnimation.Settings = HorizontalShakeAnimation.Settings()
 ): GameObject("Decal - $name") {
 
     private var frameList = FrameList(
@@ -56,13 +57,13 @@ class Decal(
 
     val stretch = Tween(
         id ="stretch",
-        init = stretch,
+        init = { stretch },
         create = { }
     )
 
     val compress = Tween(
         id ="compress",
-        init = compress,
+        init = { compress },
         create = { }
     )
 
@@ -73,7 +74,7 @@ class Decal(
 
     val opacity = Tween(
         id ="opacity",
-        init = opacity,
+        init = { opacity },
         create = { }
     )
 
@@ -81,6 +82,11 @@ class Decal(
         on = 1f,
         off = 0f,
         this.opacity
+    )
+
+    val shake = HorizontalShakeAnimation(
+        name = name,
+        settings = shakeSettings
     )
 
     private val isMoveDone: Boolean
@@ -139,7 +145,8 @@ class Decal(
         nameDebugRenderer,
         this.stretch,
         this.compress,
-        this.opacity
+        this.opacity,
+        shake
     )
 
     val surface: Surface
@@ -170,6 +177,7 @@ class Decal(
         compress.update(dt)
         opacity.update(dt)
         blend.update(dt)
+        shake.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {
@@ -186,8 +194,8 @@ class Decal(
             )
             batch.draw(
                 frame,
-                scaledLeft,
-                scaledBottom,
+                scaledLeft + shake.horizontal,
+                scaledBottom + shake.vertical,
                 0f, 0f,
                 stretch.amount * frame.width.toFloat(),
                 compress.amount * frame.height.toFloat(),

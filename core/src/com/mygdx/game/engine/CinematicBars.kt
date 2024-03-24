@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.mygdx.game.engine.memory.managedContentOf
-import com.mygdx.game.engine.stdx.*
+import com.mygdx.game.engine.stdx.GameObject
 
 enum class CinematicBarState {
     BARS_IN,

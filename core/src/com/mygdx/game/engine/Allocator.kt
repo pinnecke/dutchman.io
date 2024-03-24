@@ -1,7 +1,5 @@
 package com.mygdx.game.engine
 
-import com.badlogic.gdx.Application.LOG_INFO
-import com.badlogic.gdx.Gdx
 import com.mygdx.game.engine.stdx.DynamicComponent
 import com.mygdx.game.engine.utils.info
 

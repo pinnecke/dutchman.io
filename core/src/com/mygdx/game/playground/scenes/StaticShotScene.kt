@@ -8,7 +8,6 @@ import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Position
 import com.mygdx.game.engine.shots.StaticShot
-import com.mygdx.game.engine.stdx.value
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
 

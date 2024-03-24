@@ -359,7 +359,6 @@ class SceneManager(
 
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             worldCamera!!.zoom += 0.005f
-            println("${worldCamera!!.zoom}")
         }
         if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
             worldCamera!!.zoom -= 0.005f

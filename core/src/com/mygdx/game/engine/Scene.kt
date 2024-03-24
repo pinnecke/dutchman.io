@@ -83,7 +83,7 @@ class EffectWrapper(
         amount: Float, duration: Float,
         tweenFunction: TweenFunction = TweenFunction.EASE_IN_OUT,
         onDone: () -> Unit = { }
-    ) = effect.set(
+    ) = effect.start(
         amount, duration, tweenFunction, onDone
     )
 

@@ -12,50 +12,50 @@ import com.mygdx.game.engine.objects.Position
 import com.mygdx.game.engine.sprites.SpriteSheetManager
 import com.mygdx.game.engine.stdx.infinite
 
-class ScaleDecalBasicEffect(
+class ShakeDecalBasicEffect(
     scene: Scene,
     cameraController: CameraController,
     spriteManager: () -> SpriteSheetManager,
     globalInstructions: Label
-): GameScene("Scale Decal Basic Effect") {
+): GameScene("Shake Decal Basic Effect") {
 
     override val cutInEffect = CutEffectDescriptor.smooth(1f)
 
     override val firstPanel = panelOf(
-        caption = "Scale Basic Effects",
-        left = 750f + 6000f, bottom = -100f,
+        caption = "Decal Basic Effects",
+        left = 750f + 9000f, bottom = -100f,
         dimension = 1400f, type = PanelDimension.HEIGHT
     )
 
     private var tobi = Decal(
-        name = "tobi-walking",
+        name = "tobi-idle",
         iterations = infinite(),
         sheets = spriteManager,
         position = Position(
-            left = 7700f,
+            left = 10700f,
             bottom = 460f
         )
     )
 
     private val localInstructions = Label(
-        "Scale\n" +
-        "[1] small\n" +
-        "[2] normal\n" +
-        "[3] large\n" +
+        "Shake Effect\n" +
+        "[SPACE] on/off\n" +
         "\n\n" +
-        "Stretch\n" +
-        "[4] small\n" +
-        "[5] normal\n" +
-        "[6] large\n" +
+        "Horizontal Shake Amount\n" +
+        "[1] none\n" +
+        "[2] medium\n" +
+        "[3] high\n" +
         "\n\n" +
-        "Compress\n" +
-        "[7] small\n" +
-        "[8] normal\n" +
-        "[9] large\n" +
+        "Vertical Shake Amount\n" +
+        "[4] none\n" +
+        "[5] positive medium\n" +
+        "[6] positive high\n" +
+        "[7] negative medium\n" +
+        "[8] negative high\n" +
         "\n\n" +
         "[X] go back",
         Color.BLACK,
-        4088f + 3000f, 1100f,
+        4088f + 6000f, 1100f,
         visible = false
     )
 
@@ -71,7 +71,7 @@ class ScaleDecalBasicEffect(
             Lane(
                 name = "Lane 1",
                 sequences = listOf(
-                    ScaleSequence(
+                    ShakeSequence(
                         cameraController,
                         scene.defaultPanel,
                         globalInstructions,
@@ -99,7 +99,7 @@ class ScaleDecalBasicEffect(
         localInstructions.render(batch)
     }
 
-    class ScaleSequence(
+    class ShakeSequence(
         val cameraController: CameraController,
         private val devPanel: Panel,
         private val globalInstructions: Label,
@@ -122,62 +122,40 @@ class ScaleDecalBasicEffect(
         }
 
         override fun onUpdate(dt: Float, alpha: Float, elapsed: Float, total: Float) {
-            if (Gdx.input.isKeyPressed(Input.Keys.X)) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
                 done()
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
-                tobi.scale.start(
-                    amount = 0.5f,
-                    duration = 1.0f
-                )
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+                tobi.shake.horizontal = 0.0f
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
-                tobi.scale.start(
-                    amount = 1.0f,
-                    duration = 1.0f
-                )
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+                tobi.shake.horizontal = 0.5f
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.NUM_3)) {
-                tobi.scale.start(
-                    amount = 2.0f,
-                    duration = 1.0f
-                )
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
+                tobi.shake.horizontal = 1.0f
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.NUM_4)) {
-                tobi.stretch.start(
-                    amount = 0.5f,
-                    duration = 1.0f
-                )
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
+                tobi.shake.vertical = 0.0f
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.NUM_5)) {
-                tobi.stretch.start(
-                    amount = 1.0f,
-                    duration = 1.0f
-                )
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
+                tobi.shake.vertical = 0.5f
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.NUM_6)) {
-                tobi.stretch.start(
-                    amount = 2.0f,
-                    duration = 1.0f
-                )
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_6)) {
+                tobi.shake.vertical = 1.0f
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.NUM_7)) {
-                tobi.compress.start(
-                    amount = 0.5f,
-                    duration = 1.0f
-                )
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_7)) {
+                tobi.shake.vertical = -0.5f
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.NUM_8)) {
-                tobi.compress.start(
-                    amount = 1.0f,
-                    duration = 1.0f
-                )
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_8)) {
+                tobi.shake.vertical = -1.0f
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.NUM_9)) {
-                tobi.compress.start(
-                    amount = 2.0f,
-                    duration = 1.0f
-                )
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                if (tobi.shake.isNotRunning) {
+                    tobi.shake.start()
+                } else {
+                    tobi.shake.stop()
+                }
             }
         }
 

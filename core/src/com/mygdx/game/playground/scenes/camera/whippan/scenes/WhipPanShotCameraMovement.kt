@@ -6,7 +6,6 @@ import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.objects.Decal
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Position
-import com.mygdx.game.engine.stdx.value
 
 class WhipPanShotCameraMovement(
     scene: Scene,

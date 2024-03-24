@@ -1,7 +1,6 @@
 package com.mygdx.game.engine
 
 import com.mygdx.game.engine.stdx.Update
-import java.util.PrimitiveIterator
 import kotlin.math.max
 import kotlin.math.min
 

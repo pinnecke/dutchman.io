@@ -11,16 +11,12 @@ import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.objects.Position
 import com.mygdx.game.engine.sprites.SpriteSheetManager
 import com.mygdx.game.engine.stdx.infinite
-import com.mygdx.game.engine.stdx.once
-import com.mygdx.game.engine.stdx.runDelayed
-import com.mygdx.game.engine.stdx.runTriggered
 
 class OpacityDecalBasicEffect(
     scene: Scene,
     cameraController: CameraController,
     spriteManager: () -> SpriteSheetManager,
-    instructionHint1: Label,
-    instructionHint2: Label
+    globalInstructions: Label
 ): GameScene("Opacity Decal Basic Effect") {
 
     override val cutInEffect = CutEffectDescriptor.smooth(1f)
@@ -41,7 +37,7 @@ class OpacityDecalBasicEffect(
         )
     )
 
-    private val goBackHint = Label(
+    private val localInstructions = Label(
         "Opacity\n" +
         "[1] none\n" +
         "[2] low\n" +
@@ -60,7 +56,7 @@ class OpacityDecalBasicEffect(
     override val managedContent = mutableListOf<ManagedContent>(
         firstPanel,
         tobi,
-        goBackHint
+        localInstructions
     )
 
     override val timeline = Timeline(
@@ -72,9 +68,8 @@ class OpacityDecalBasicEffect(
                     OpacitySequence(
                         cameraController,
                         scene.defaultPanel,
-                        instructionHint1,
-                        instructionHint2,
-                        goBackHint,
+                        globalInstructions,
+                        localInstructions,
                         tobi
                     )
                 )
@@ -89,21 +84,20 @@ class OpacityDecalBasicEffect(
     override fun update(dt: Float) {
         tobi.update(dt)
         firstPanel.update(dt)
-        goBackHint.update(dt)
+        localInstructions.update(dt)
     }
 
     override fun render(batch: SpriteBatch) {
         tobi.render(batch)
         firstPanel.render(batch)
-        goBackHint.render(batch)
+        localInstructions.render(batch)
     }
 
     class OpacitySequence(
         val cameraController: CameraController,
         private val devPanel: Panel,
-        private val instructionHint1: Label,
-        private val instructionHint2: Label,
-        private val instructionHint3: Label,
+        private val globalInstructions: Label,
+        private val localInstructions: Label,
         private val tobi: Decal
     ): Sequence() {
 
@@ -111,15 +105,13 @@ class OpacityDecalBasicEffect(
 
 
         override fun onReset() {
-            instructionHint1.visible = true
-            instructionHint2.visible = true
-            instructionHint3.visible = false
+            globalInstructions.visible = true
+            localInstructions.visible = false
         }
 
         override fun onStart() {
-            instructionHint1.visible = false
-            instructionHint2.visible = false
-            instructionHint3.visible = true
+            globalInstructions.visible = false
+            localInstructions.visible = true
             tobi.animiate = true
         }
 
@@ -128,35 +120,35 @@ class OpacityDecalBasicEffect(
                 done()
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
-                tobi.opacity.set(
+                tobi.opacity.start(
                     amount = 0f,
                     duration = 0.5f,
                     tween = TweenFunction.EASE_IN_OUT
                 )
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
-                tobi.opacity.set(
+                tobi.opacity.start(
                     amount = 0.25f,
                     duration = 1.0f,
                     tween = TweenFunction.EASE_IN_OUT
                 )
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_3)) {
-                tobi.opacity.set(
+                tobi.opacity.start(
                     amount = 0.5f,
                     duration = 1.0f,
                     tween = TweenFunction.EASE_IN_OUT
                 )
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_4)) {
-                tobi.opacity.set(
+                tobi.opacity.start(
                     amount = 0.75f,
                     duration = 1.0f,
                     tween = TweenFunction.EASE_IN_OUT
                 )
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_5)) {
-                tobi.opacity.set(
+                tobi.opacity.start(
                     amount = 1.00f,
                     duration = 1.0f,
                     tween = TweenFunction.EASE_IN_OUT

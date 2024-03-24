@@ -13,12 +13,18 @@ interface Tweenable: Update {
     val target: Float
     val isTweening: Boolean
 
-    fun set(
+    val isNotTweening: Boolean
+        get() = !isTweening
+
+    fun start(
         amount: Float,
         duration: Float,
         tween: TweenFunction = TweenFunction.EASE_IN_OUT,
+        onStart: () -> Unit = { },
         onDone: () -> Unit = { }
     )
+
+    fun stop()
 
 }
 
@@ -56,14 +62,14 @@ class TweakFlagMultiplexer<T> (
 
     fun on(duration: Float, tween: TweenFunction, onDone: () -> Unit = { }) {
         tweens.forEach {
-            it.set(on, duration, tween) { }
+            it.start(on, duration, tween) { }
         }
         onDoneCallback = onDone
     }
 
     fun off(duration: Float, tween: TweenFunction, onDone: () -> Unit = { }) {
         tweens.forEach {
-            it.set(off, duration, tween) { }
+            it.start(off, duration, tween) { }
         }
         onDoneCallback = onDone
     }
@@ -106,12 +112,18 @@ class TweenMultiplexer<T>(
             return tweens.first().isTweening
         }
 
-    override fun set(amount: Float, duration: Float, tween: TweenFunction, onDone: () -> Unit) {
+    override fun start(
+        amount: Float, duration: Float,
+        tween: TweenFunction,
+        onStart: () -> Unit, onDone: () -> Unit
+    ) {
         tweens.forEach {
-            it.set(amount, duration, tween) { }
+            it.start(amount, duration, tween) { }
         }
         onDoneCallback = onDone
     }
+
+    override fun stop() = tweens.forEach { it.stop() }
 
     override fun update(dt: Float) {
         tweens.forEach { it.update(dt) }
@@ -129,11 +141,11 @@ class Tween<T>(
     private val disable: (obj: T) -> Unit = { },
     private val destroy: (obj: T) -> Unit = { },
     private val configure: (obj: T, amount: Float) -> Unit = { _, _ -> },
-    init: Float = ALMOST_ZERO
+    private val init: () -> Float = { ALMOST_ZERO }
 ): Tweenable, ManagedContent {
 
     private var tween: TweenProcessor? = null
-    private var currentAmount = init
+    private var currentAmount = init()
     private var targetAmount = 0f
     private var obj: T? = null
 
@@ -151,9 +163,7 @@ class Tween<T>(
 
     override fun loadContent() {
         obj = create()
-        enable(obj!!)
-        configure(obj!!, currentAmount)
-        disable(obj!!)
+        reset()
     }
 
     override fun unloadContent() {
@@ -161,23 +171,28 @@ class Tween<T>(
     }
 
     override fun update(dt: Float) {
-        tween?.update(dt)
-        if (currentAmount != targetAmount) {
-            configure(obj!!, currentAmount)
+        if (tween?.isNotDone == true) {
+            tween?.update(dt)
+            if (currentAmount != targetAmount) {
+                configure(obj!!, currentAmount)
+            }
         }
     }
 
-    override fun set(
+    override fun start(
         amount: Float,
         duration: Float,
         tween: TweenFunction,
+        onStart: () -> Unit,
         onDone: () -> Unit
     ) {
+        onStart()
         this.tween = TweenProcessor(
             duration = duration,
             onInit = {
                 targetAmount = max(ALMOST_ZERO, amount)
                 enabled = true
+                println("Tween Processor current: $currentAmount, target: $targetAmount")
             },
             origin = { currentAmount },
             target = { amount },
@@ -189,6 +204,18 @@ class Tween<T>(
             }
         )
         this.tween?.start()
+    }
+
+    override fun stop() {
+        this.tween?.stop()
+    }
+
+    fun reset() {
+        currentAmount = init()
+        targetAmount = 0f
+        enable(obj!!)
+        configure(obj!!, currentAmount)
+        disable(obj!!)
     }
 }
 
@@ -231,6 +258,10 @@ data class TweenProcessor (
         x0 = origin()
         x1 = target()
         onStart()
+    }
+
+    fun stop() {
+        running = false
     }
 
     override fun update(dt: Float) {

@@ -7,9 +7,10 @@ import com.mygdx.game.engine.*
 import com.mygdx.game.engine.objects.Label
 import com.mygdx.game.engine.utils.GdxKeyboardInputUtil
 import com.mygdx.game.playground.MainMenuScene
-import com.mygdx.game.playground.scenes.decal.scenes.ScaleDecalBasicEffect
 import com.mygdx.game.playground.scenes.decal.scenes.MoveAroundDecalBasicEffect
 import com.mygdx.game.playground.scenes.decal.scenes.OpacityDecalBasicEffect
+import com.mygdx.game.playground.scenes.decal.scenes.ScaleDecalBasicEffect
+import com.mygdx.game.playground.scenes.decal.scenes.ShakeDecalBasicEffect
 
 class DecalScene(sceneManager: SceneManager): Scene(
     "Decal Shot",
@@ -26,32 +27,13 @@ class DecalScene(sceneManager: SceneManager): Scene(
     private val input = GdxKeyboardInputUtil()
     private val inputDelayer = Sequencer(0.1f, onStart = { println("Wait") }, onDone = { println("Next") })
 
-    private val instructionHint1 = Label(
-        "[1] positioning\n" +
+    private val usageInstructions = Label(
+        "[1] position\n" +
         "[2] opacity\n" +
-        "[3] scaling\n"
-        ,
-       // "[2] start movement path\n" +
-       // "[3] masking on/off\n" +
-       // "[5] highlight\n" +
-       // "[7] crash scale on/off\n" +
-       // "[8] tint none/low/medium/high/full\n" +
-        //"[9] blur none/low/medium/high",
+        "[3] scaling\n" +
+        "[4] shake\n",
         Color.BLACK,
         Engine.canvas.safeZone.left + 50f, Engine.canvas.safeZone.height - 50f,
-    )
-
-    private val instructionHint2 = Label(
-        "[Q] blend in/out\n" +
-        "[W] stretch off/horizontal/vertical\n" +
-        "[E] compress off/horizontal/vertical\n" +
-        "[R] shake on/off up/down/left/right\n" +
-        "[T] outline on/off\n" +
-        "[SPACE] start/stop animation\n" +
-        "[N] next frame\n" +
-        "[ESC] back",
-        Color.BLACK,
-        Engine.canvas.safeZone.left + 750f, Engine.canvas.safeZone.height - 50f,
     )
 
     override val composer = composerOf(
@@ -62,31 +44,33 @@ class DecalScene(sceneManager: SceneManager): Scene(
             this,
             cameraController,
             this.sheets,
-            instructionHint1,
-            instructionHint2
+            usageInstructions
         ),
         others = listOf(
             OpacityDecalBasicEffect(
                 this,
                 cameraController,
                 this.sheets,
-                instructionHint1,
-                instructionHint2
+                usageInstructions
             ),
             ScaleDecalBasicEffect(
                 this,
                 cameraController,
                 this.sheets,
-                instructionHint1,
-                instructionHint2
+                usageInstructions
+            ),
+            ShakeDecalBasicEffect(
+                this,
+                cameraController,
+                this.sheets,
+                usageInstructions
             )
         )
     )
 
     init {
         manageContent(
-            instructionHint1,
-            instructionHint2,
+            usageInstructions,
             composer
         )
 
@@ -114,6 +98,14 @@ class DecalScene(sceneManager: SceneManager): Scene(
                 }
             }
         }
+        input[Input.Keys.NUM_4] = {
+            if (inputDelayer.isNotRunning) {
+                inputDelayer.start()
+                if (!composer.isRunning) {
+                    composer.start(ShakeDecalBasicEffect::class)
+                }
+            }
+        }
 
         input[Input.Keys.ESCAPE] = { sequence.switch(MainMenuScene::class) }
     }
@@ -129,8 +121,7 @@ class DecalScene(sceneManager: SceneManager): Scene(
     }
 
     override fun overlay(batch: SpriteBatch) {
-        instructionHint1.render(batch)
-        instructionHint2.render(batch)
+        usageInstructions.render(batch)
     }
 
 }

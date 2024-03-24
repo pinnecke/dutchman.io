@@ -46,7 +46,6 @@ class SceneDimmer: GameObject("Scene Dimming Effect") {
                 target = { targetAmount },
                 onUpdate = {
                     alpha = it
-                    println("updating... $alpha")
                 },
                 onDone = {
                     onDone

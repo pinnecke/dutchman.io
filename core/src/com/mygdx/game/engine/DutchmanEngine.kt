@@ -2,7 +2,6 @@ package com.mygdx.game.engine
 
 import com.badlogic.gdx.Gdx
 import kotlin.reflect.KClass
-import kotlin.reflect.jvm.internal.impl.descriptors.deserialization.PlatformDependentDeclarationFilter.All
 
 abstract class DutchmanGame(val sceneManager: SceneManager) {
     abstract val scenes: List<Scene>
