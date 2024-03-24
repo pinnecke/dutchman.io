@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.mygdx.game.DiagnosticsPanel
+import com.mygdx.game.SceneShaker
 import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.shots.StaticShot
 import com.mygdx.game.engine.sprites.SpriteSheetManager
@@ -53,6 +54,17 @@ class SceneManager(
     private val emptyScene = emptyScene(this)
 
     private val dimmer = SceneDimmer()
+    val shaker = SceneShaker(
+        getCamera = { worldCamera!! },
+        settings = ShakeAnimation.Settings(
+            speed = 40f,
+            amount = 10f,
+            rampUp = 0.25f,
+            rampDown = 1.5f,
+            horizontalAmount = 1f,
+            verticalAmount = 0f
+        )
+    )
 
     internal val diagnostics = DiagnosticsPanel()
 
@@ -137,7 +149,8 @@ class SceneManager(
             unload = { }
         ),
         scenePostEffects,
-        emptyGameScene
+        emptyGameScene,
+        shaker
     )
 
     private val worldUnprojectBuffer = Vector3.Zero
@@ -241,6 +254,7 @@ class SceneManager(
         currentScene!!.updateContents(dt)
         scenePostEffects.update(dt)
         emptyGameScene.update(dt)
+        shaker.update(dt)
 
         worldViewport!!.apply()
         wordCameraPropMemory?.update()
@@ -394,4 +408,15 @@ class SceneManager(
 
     fun dimScene(amount: Float, speed: SceneDimmer.DimSpeed, onDone: () -> Unit = {}) =
         dimmer.apply(amount, speed, onDone)
+
+    fun shakeSceneOn(horizontal: Float, vertical: Float) {
+        shaker.effect.horizontal = horizontal
+        shaker.effect.vertical = vertical
+        shaker.effect.start()
+    }
+
+    fun shakeSceneOff() = shaker.effect.stop()
+
+    val isSceneShaking: Boolean
+        get() { return shaker.effect.isRunning }
 }

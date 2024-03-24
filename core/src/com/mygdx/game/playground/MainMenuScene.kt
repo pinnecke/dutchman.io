@@ -36,7 +36,8 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         "[9]   \t camera crash zoom shot\n" +
         "[Y]   \t decal effects\n" +
         "[X]   \t scene post effects\n" +
-        "[C]   \t time line demo\n",
+        "[C]   \t time line demo\n" +
+        "[V]   \t scene camera shaking effect\n",
         Color.WHITE,
         300f, Engine.canvas.safeZone.height - 50f,
     )
@@ -56,7 +57,7 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         input[Input.Keys.Y] = { sequence.switch(DecalScene::class) }
         input[Input.Keys.X] = { sequence.switch(ScenePostEffectsScene::class) }
         input[Input.Keys.C] = { sequence.switch(TimelineScene::class) }
-
+        input[Input.Keys.V] = { sequence.switch(ScreenShakingScene::class) }
     }
 
     override fun render(batch: SpriteBatch) {

@@ -1,0 +1,4 @@
+root: "explosion"
+sprites:
+  - name: "explosion"
+    frames: 1

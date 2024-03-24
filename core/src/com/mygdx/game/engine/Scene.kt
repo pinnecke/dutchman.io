@@ -3,6 +3,7 @@ package com.mygdx.game.engine
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
+import com.mygdx.game.SceneShaker
 import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.sprites.SpriteSheetManager
@@ -23,13 +24,16 @@ class SequenceController(
         if (!scene.leavingScene) {
             scene.leavingScene = true
             scene.cinematicBars.hide()
-            scene.sceneManager!!.switch(
+            scene.sceneManager.switch(
                 otherScene
             ) {
-                scene.sceneManager!!.dimScene(0.0f, SceneDimmer.DimSpeed.HIGH) {  }
-                scene.sceneManager!!.scenePostEffects.reset()
-                scene.composer.stop()
-                scene.composer.rewind()
+                with (scene) {
+                    sceneManager.dimScene(0.0f, SceneDimmer.DimSpeed.HIGH) {  }
+                    sceneManager.scenePostEffects.reset()
+                    sceneManager.shaker.reset()
+                    composer.stop()
+                    composer.rewind()
+                }
             }
         }
     }
@@ -50,6 +54,10 @@ class SceneController(
     ) {
         scene.sceneManager!!.dimScene(amount, speed) { println("Done dimming") }
     }
+
+    val shake: SceneShaker
+        get() { return scene.sceneManager.shaker }
+
 
     fun cinematicModeOn(
         onDone: () -> Unit = { }

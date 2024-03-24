@@ -37,7 +37,7 @@ class Decal(
     compress: Float = 1f,
     opacity: Float = 1f,
     fps: Int = 24,
-    shakeSettings: HorizontalShakeAnimation.Settings = HorizontalShakeAnimation.Settings()
+    shakeSettings: ShakeAnimation.Settings = ShakeAnimation.Settings()
 ): GameObject("Decal - $name") {
 
     private var frameList = FrameList(
@@ -84,7 +84,7 @@ class Decal(
         this.opacity
     )
 
-    val shake = HorizontalShakeAnimation(
+    val shake = ShakeAnimation(
         name = name,
         settings = shakeSettings
     )

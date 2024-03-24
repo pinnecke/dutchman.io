@@ -33,7 +33,8 @@ class PlaygroundGame(sceneManager: SceneManager): DutchmanGame(sceneManager) {
         CameraMovementZoomShotScene(sceneManager),
         CameraMovementCrashZoomShotScene(sceneManager),
         DecalScene(sceneManager),
-        ScenePostEffectsScene(sceneManager)
+        ScenePostEffectsScene(sceneManager),
+        ScreenShakingScene(sceneManager)
     )
 
 }

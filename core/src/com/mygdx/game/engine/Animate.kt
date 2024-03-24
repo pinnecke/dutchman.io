@@ -4,12 +4,15 @@ import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.stdx.Update
 import kotlin.math.sin
 
-class HorizontalShakeAnimation(
+private fun shakeFunction(amount: Float, speed: Float): (x: Float) -> Float =
+    { (amount * sin(speed * it)) }
+
+class ShakeAnimation(
     name: String,
     private val settings: Settings
 ): Animator (
     name = "Horizontal Shake ($name)",
-    function = { (settings.amount * sin(settings.speed * it)) },
+    function = shakeFunction(settings.amount, settings.speed),
     rampUp = RampEffect(
         duration = settings.rampUp,
         tween = TweenFunction.EASE_IN_OUT
@@ -60,6 +63,18 @@ class HorizontalShakeAnimation(
             )
         }
 
+    var amount: Float = settings.amount
+        set(value) {
+            field = value
+            function = shakeFunction(amount, speed)
+        }
+
+    var speed: Float = settings.speed
+        set(value) {
+            field = value
+            function = shakeFunction(amount, speed)
+        }
+
     override fun loadContent() {
         super.loadContent()
         horizontalAmount.loadContent()
@@ -96,7 +111,7 @@ data class RampEffect(
 
 open class Animator(
     name: String,
-    private val function: (x: Float) -> Float,
+    protected var function: (x: Float) -> Float,
     private val rampUp: RampEffect = RampEffect.none(),
     private val rampDown: RampEffect = RampEffect.none(),
 ): ManagedContent, Update {
