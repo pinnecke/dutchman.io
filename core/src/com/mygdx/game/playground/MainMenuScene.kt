@@ -37,7 +37,9 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         "[Y]   \t decal effects\n" +
         "[X]   \t scene post effects\n" +
         "[C]   \t time line demo\n" +
-        "[V]   \t scene camera shaking effect\n",
+        "[V]   \t scene camera shaking effect\n" +
+        "[B]   \t hint panel\n" +
+        "[N]   \t narrator speech bubble\n",
         Color.WHITE,
         300f, Engine.canvas.safeZone.height - 50f,
     )
@@ -58,6 +60,8 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         input[Input.Keys.X] = { sequence.switch(ScenePostEffectsScene::class) }
         input[Input.Keys.C] = { sequence.switch(TimelineScene::class) }
         input[Input.Keys.V] = { sequence.switch(ScreenShakingScene::class) }
+        input[Input.Keys.B] = { sequence.switch(HintPanelScene::class) }
+        input[Input.Keys.N] = { sequence.switch(NarratorSpeechBubbleScene::class) }
     }
 
     override fun render(batch: SpriteBatch) {

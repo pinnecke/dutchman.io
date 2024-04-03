@@ -17,6 +17,7 @@ import com.mygdx.game.engine.TweenProcessor
 import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.stdx.GameObject
+import com.mygdx.game.engine.stdx.roundedRect
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -75,10 +76,36 @@ private enum class SpeechBubbleState {
     GONE
 }
 
-class SpeechBubble(
+private val northWest = Vector2(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY)
+private val northEast = Vector2(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+private val southWest = Vector2(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY)
+private val southEast = Vector2(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY)
+
+enum class NarratorSpeechBubbleLocation(
+    val pivot: SpeechBubblePivot
+) {
+    NORTH_WEST(SpeechBubblePivot(Float.NaN, Float.NaN) { _, _ -> northWest }),
+    NORTH_EAST(SpeechBubblePivot(Float.NaN, Float.NaN) { _, _ -> northEast }),
+    SOUTH_EAST(SpeechBubblePivot(Float.NaN, Float.NaN) { _, _ -> southEast }),
+    SOUTH_WEST(SpeechBubblePivot(Float.NaN, Float.NaN) { _, _ -> southWest })
+}
+
+class NarratorSpeechBubble(
+    contentIdentifier: String,
+    textColor: Color,
+    location: NarratorSpeechBubbleLocation
+): SpeechBubble(
+    contentIdentifier = contentIdentifier,
+    textColor = textColor,
+    pivot = location.pivot,
+    backgroundAlpha = 0.3f
+)
+
+open class SpeechBubble(
     contentIdentifier: String,
     private val textColor: Color,
     private val pivot: SpeechBubblePivot,
+    private val backgroundAlpha: Float = 0.2f
 ): GameObject(contentIdentifier) {
 
     private var font: BitmapFont? = null
@@ -178,7 +205,7 @@ class SpeechBubble(
     )
 
     fun say(text: String, duration: Float, onDone: () -> Unit = {}) {
-        val blocks = text.split("\n")
+        val blocks = text.split("\n").dropWhile { it.isBlank() }
         for (i in blocks.indices) {
             breakBlock(
                 blocks[i],
@@ -205,7 +232,7 @@ class SpeechBubble(
             }
         }
         schedule(
-            sb.toString(),
+            sb.trim().toString(),
             duration,
             onDone
         )
@@ -292,7 +319,7 @@ class SpeechBubble(
         val yCorrection = computeCorrectionY(halfHeight)
 
         shapeRender!!.roundedRect(
-            0f, 0f, 0f, progress * 0.80f,
+            0f, 0f, 0f, progress * backgroundAlpha,
             left - halfWidth - 30f + xCorrection, bottom - halfHeight - 50f + yCorrection, width + 60f, height + 50f, 12f
         )
 
@@ -317,7 +344,7 @@ class SpeechBubble(
         val yCorrection = computeCorrectionY(halfHeight)
 
         shapeRender!!.roundedRect(
-            0f, 0f, 0f, 0.80f,
+            0f, 0f, 0f, backgroundAlpha,
             pivot.boxedX - halfWidth - 30f + xCorrection, pivot.boxedY - halfHeight - 50f + yCorrection, layout!!.width + 60f, layout!!.height + 50f, 12f
         )
 
@@ -333,40 +360,6 @@ class SpeechBubble(
             boxTween.start()
             state = SpeechBubbleState.BLEND_OUT
         }
-    }
-
-    private fun ShapeRenderer.roundedRect(
-        r: Float, g: Float, b: Float, a: Float,
-        x: Float, y: Float, width: Float, height: Float, radius: Float,
-        samples: Int = 7,
-    ) {
-        shapeRender!!.end()
-        shapeRender!!.begin(ShapeRenderer.ShapeType.Filled)
-
-        var a = a / samples * 2f
-
-        for (i in 1 .. samples) {
-            setColor(r, g, b, a - (a * (i/samples.toFloat())))
-
-            // Central rectangle
-            rect(x + radius, y + radius, width - 2 * radius, height - 2 * radius)
-
-            // Four side rectangles, in clockwise order
-            rect(x + radius, y, width - 2 * radius, radius)
-            rect(x + width - radius, y + radius, radius, height - 2 * radius)
-            rect(x + radius, y + height - radius, width - 2 * radius, radius)
-            rect(x, y + radius, radius, height - 2 * radius)
-
-            // Four arches, clockwise too
-            val segments = 2.0.pow(i).toInt()
-            arc(x + radius, y + radius, radius, 180f, 90f, segments)
-            arc(x + width - radius, y + radius, radius, 270f, 90f, segments)
-            arc(x + width - radius, y + height - radius, radius, 0f, 90f, segments)
-            arc(x + radius, y + height - radius, radius, 90f, 90f, segments)
-        }
-
-        shapeRender!!.end()
-        shapeRender!!.begin(ShapeRenderer.ShapeType.Filled)
     }
 
     private fun computeCorrectionX(halfWidth: Float): Float {

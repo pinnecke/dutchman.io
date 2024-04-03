@@ -1,0 +1,4 @@
+root: "hint-panel-background"
+sprites:
+  - name: "hint-panel-background"
+    frames: 1

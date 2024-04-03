@@ -31,6 +31,7 @@ class SequenceController(
                     sceneManager.dimScene(0.0f, SceneDimmer.DimSpeed.HIGH) {  }
                     sceneManager.scenePostEffects.reset()
                     sceneManager.shaker.reset()
+                    hintPanel.reset()
                     composer.stop()
                     composer.rewind()
                 }
@@ -57,6 +58,9 @@ class SceneController(
 
     val shake: SceneShaker
         get() { return scene.sceneManager.shaker }
+
+    val hintPanel: HintPanel
+        get() { return scene.hintPanel }
 
 
     fun cinematicModeOn(
@@ -146,6 +150,8 @@ abstract class Scene(
 
     open val composer: GameSceneComposer = sceneManager.emptyGameSceneComposer()
 
+    val hintPanel = HintPanel( sceneManager.scenePostEffects, { sceneManager.worldCamera!! } )
+
     final override val managedContent = mutableListOf(
         managedContentOf(
             id = "Setup",
@@ -156,7 +162,8 @@ abstract class Scene(
         ),
         cinematicBars,
         initialShot,
-        defaultPanel
+        defaultPanel,
+        hintPanel
     )
 
     protected fun manageContent(vararg content: ManagedContent) {
@@ -190,6 +197,7 @@ abstract class Scene(
 
     override fun update(dt: Float) {
         initialShot.update(dt)
+        hintPanel.update(dt)
     }
 
     protected fun sceneToOverlay(x: Float, y: Float): Vector2 {
@@ -217,6 +225,7 @@ abstract class Scene(
 
     fun renderOverlayComplete(batch: SpriteBatch) {
         overlay(batch)
+        hintPanel.render(batch)
     }
 
     fun renderGlobalOverlay(batch: SpriteBatch) {
