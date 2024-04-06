@@ -16,7 +16,9 @@ enum class CinematicBarState {
     BARS_OUT
 }
 
-class CinematicBars: GameObject("Cinematic Bards") {
+class CinematicBars(
+    private val gameCursorApi: () -> GameCursorApi
+): GameObject("Cinematic Bards") {
 
     override val managedContent = mutableListOf(
         managedContentOf(
@@ -65,10 +67,16 @@ class CinematicBars: GameObject("Cinematic Bards") {
         target = { maximumBarHeight },
         onInit = { actualBarHeight = 0f },
         onUpdate = { actualBarHeight = it },
+        onStart = {
+            if (state == CinematicBarState.BARS_IN) {
+                gameCursorApi().visible = false
+            }
+        },
         onDone = {
             if (state == CinematicBarState.BARS_IN) {
                 state = CinematicBarState.BARS_PRESENT
             } else if (state == CinematicBarState.BARS_OUT) {
+                gameCursorApi().visible = true
                 state = CinematicBarState.BARS_ABSENT
             }
         }

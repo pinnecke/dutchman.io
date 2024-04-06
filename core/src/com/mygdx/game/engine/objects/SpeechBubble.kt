@@ -10,10 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
-import com.mygdx.game.engine.Config
-import com.mygdx.game.engine.DebugRenderer
-import com.mygdx.game.engine.TweenFunction
-import com.mygdx.game.engine.TweenProcessor
+import com.mygdx.game.engine.*
 import com.mygdx.game.engine.memory.ManagedContent
 import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.stdx.GameObject
@@ -92,7 +89,7 @@ enum class NarratorSpeechBubbleLocation(
 
 class NarratorSpeechBubble(
     contentIdentifier: String,
-    textColor: Color,
+    textColor: TextColor,
     location: NarratorSpeechBubbleLocation
 ): SpeechBubble(
     contentIdentifier = contentIdentifier,
@@ -103,7 +100,7 @@ class NarratorSpeechBubble(
 
 open class SpeechBubble(
     contentIdentifier: String,
-    private val textColor: Color,
+    private val textColor: TextColor,
     private val pivot: SpeechBubblePivot,
     private val backgroundAlpha: Float = 0.2f
 ): GameObject(contentIdentifier) {
@@ -121,7 +118,7 @@ open class SpeechBubble(
                 parameter.minFilter = Texture.TextureFilter.MipMapLinearNearest
                 parameter.magFilter = Texture.TextureFilter.Linear
                 parameter.size = 28
-                parameter.color = textColor
+                parameter.color = textColor.color
                 font = generator.generateFont(parameter)
                 generator.dispose()
             },

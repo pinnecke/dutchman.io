@@ -32,12 +32,12 @@ abstract class AllocatorManagedContent(override val id: String) : ManagedContent
 
     protected abstract val managedContent: MutableList<ManagedContent>
 
-    override fun loadContent() {
+    final override fun loadContent() {
         allocator.register(managedContent)
         allocator.allocate()
     }
 
-    override fun unloadContent() {
+    final override fun unloadContent() {
         allocator.deallocate()
         allocator.unregisterAll()
     }

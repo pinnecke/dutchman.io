@@ -39,7 +39,8 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         "[C]   \t time line demo\n" +
         "[V]   \t scene camera shaking effect\n" +
         "[B]   \t hint panel\n" +
-        "[N]   \t narrator speech bubble\n",
+        "[N]   \t narrator speech bubble\n" +
+        "[M]   \t cursor\n",
         Color.WHITE,
         300f, Engine.canvas.safeZone.height - 50f,
     )
@@ -62,6 +63,9 @@ class MainMenuScene(sceneManager: SceneManager): Scene(
         input[Input.Keys.V] = { sequence.switch(ScreenShakingScene::class) }
         input[Input.Keys.B] = { sequence.switch(HintPanelScene::class) }
         input[Input.Keys.N] = { sequence.switch(NarratorSpeechBubbleScene::class) }
+        input[Input.Keys.M] = { sequence.switch(CursorScene::class) }
+
+        controller.cursor.visible = true
     }
 
     override fun render(batch: SpriteBatch) {

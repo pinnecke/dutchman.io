@@ -24,6 +24,8 @@ class SequenceController(
         if (!scene.leavingScene) {
             scene.leavingScene = true
             scene.cinematicBars.hide()
+            scene.sceneManager.gameCursorApi.visible = true
+            scene.sceneManager.gameCursorApi.hotspot = false
             scene.sceneManager.switch(
                 otherScene
             ) {
@@ -43,7 +45,7 @@ class SequenceController(
 class SceneController(
     private val scene: Scene
 ) {
-
+    val cursor = scene.sceneManager.gameCursorApi
 
     fun cut(frame: Panel) {
         scene.sceneManager!!.sceneTransition.cut(frame)
@@ -138,7 +140,7 @@ abstract class Scene(
 ): GameObject("Scene - $name") {
 
     internal var leavingScene = false
-    internal val cinematicBars = CinematicBars()
+    internal val cinematicBars = CinematicBars { sceneManager.gameCursorApi }
     protected var initialShot: Shot = sceneManager.defaultShot()
 
     internal val defaultPanel = panelOf(

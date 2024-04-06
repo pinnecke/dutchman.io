@@ -81,6 +81,8 @@ class SceneManager(
     )
 
     private val emptyGameScene = EmptyGameScene()
+    private val gameCursor = GameCursor()
+    val gameCursorApi = GameCursorApi(gameCursor)
 
     override val managedContent = mutableListOf(
         managedContentOf(
@@ -150,7 +152,8 @@ class SceneManager(
         ),
         scenePostEffects,
         emptyGameScene,
-        shaker
+        shaker,
+        gameCursor
     )
 
     private val worldUnprojectBuffer = Vector3.Zero
@@ -255,6 +258,7 @@ class SceneManager(
         scenePostEffects.update(dt)
         emptyGameScene.update(dt)
         shaker.update(dt)
+        gameCursor.update(dt)
 
         worldViewport!!.apply()
         wordCameraPropMemory?.update()

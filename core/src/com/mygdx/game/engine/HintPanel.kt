@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.mygdx.game.engine.memory.managedContentOf
 import com.mygdx.game.engine.stdx.GameObject
 import kotlin.math.max
+import kotlin.text.StringBuilder
 
 class HintPanel(
     private val effects: ScenePostEffects,
@@ -150,6 +151,27 @@ class HintPanel(
         if (isNotShown) {
             zoom = camera!!.zoom
 
+            val fittingText = mutableListOf<String>()
+            val currentLine = StringBuilder()
+            val flush = {
+                fittingText.add(currentLine.toString())
+                currentLine.clear()
+            }
+            text.split(" ").forEach {
+                if (it.trim() == "\n") {
+                    flush()
+                } else {
+                    currentLine.append(it)
+                    currentLine.append(" ")
+                    if (currentLine.length > 20 || it.trim().endsWith("\n")) {
+                        flush()
+                    }
+                }
+            }
+            if (currentLine.isNotEmpty()) {
+                flush()
+            }
+
             panelResizer.start(
                 amount = 1f,
                 duration = 0.7f,
@@ -161,7 +183,7 @@ class HintPanel(
                         amount = 0.6f,
                         duration = 0.6f
                     )
-                    displayText = text
+                    displayText = fittingText.joinToString(separator = "\n")
                 },
                 onDone = {
                     state = State.SHOWN

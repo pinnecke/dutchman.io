@@ -271,7 +271,7 @@ class Decal(
         }
     }
 
-    fun nextFrame() {
+    private fun nextFrame() {
         if (index + 1 == frameList.size) {
             iteration++
         }

@@ -38,24 +38,24 @@ class NarratorSpeechBubbleScene(
 
     private val narratorNw = NarratorSpeechBubble(
         contentIdentifier = "Guy talking in offscreen",
-        textColor = Color.WHITE,
+        textColor = TextColor.WHITE,
         location = NarratorSpeechBubbleLocation.NORTH_WEST
     )
 
     private val narratorNe = NarratorSpeechBubble(
         contentIdentifier = "Guy talking in offscreen",
-        textColor = Color.WHITE,
+        textColor = TextColor.WHITE,
         location = NarratorSpeechBubbleLocation.NORTH_EAST
     )
 
     private val narratorSw = NarratorSpeechBubble(
         contentIdentifier = "Guy talking in offscreen",
-        textColor = Color.WHITE,
+        textColor = TextColor.WHITE,
         location = NarratorSpeechBubbleLocation.SOUTH_WEST
     )
     private val narratorSe = NarratorSpeechBubble(
         contentIdentifier = "Guy talking in offscreen",
-        textColor = Color.WHITE,
+        textColor = TextColor.WHITE,
         location = NarratorSpeechBubbleLocation.SOUTH_EAST
     )
 

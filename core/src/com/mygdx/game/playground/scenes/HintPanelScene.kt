@@ -58,7 +58,15 @@ class HintPanelScene(
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             if (controller.hintPanel.isNotShown) {
-                controller.hintPanel.show("WANTED")
+                controller.hintPanel.show("WANTED: Master of Mayhem and Mischief!\n" +
+                        "\n" +
+                        "Reward: A lifetime supply of duct tape and rubber chickens.\n" +
+                        "\n" +
+                        "Crime: Unleashing uncontrollable outbreaks of laughter in the most serious situations.\n" +
+                        "\n" +
+                        "Last Seen: Skipping gleefully through the town square, trailed by a mob of tickled citizens.\n" +
+                        "\n" +
+                        "Approach with caution: May be armed with puns and dad jokes.")
             } else {
                 controller.hintPanel.hide()
             }
